@@ -1,9 +1,7 @@
 from ftplib import FTP
 from elasticsearch import Elasticsearch
-import csv
 from elasticsearch.helpers import bulk
 
-from io import BytesIO
 
 import warnings
 
