@@ -1,0 +1,17 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-kibana
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: "kibana"
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: elasticsearch-kibana
+            port: 
+              number: 5601
