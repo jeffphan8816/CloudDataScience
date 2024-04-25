@@ -7,11 +7,15 @@ import warnings
 
 warnings.filterwarnings("ignore")
 
-url = 'https://elasticsearch:9200'
+url = 'https://localhost:9200/'
 user = "elastic"
 password = "cloudcomp"
 
 es = Elasticsearch([url], basic_auth=(user, password), verify_certs=False)
+
+if not es.ping():
+    raise ValueError("Connection failed")
+# Connection failed
 # Define the index name
 index_name = "weather_data"
 
@@ -34,10 +38,11 @@ mappings = {
 }
 
 # Check if the index exists
-if not es.indices.exists(index_name):
-    es.indices.create(index_name, body=mappings)
+if not es.indices.exists(index=index_name):
+    es.indices.create(index=index_name)
 # Function to print lines, skipping the first 13 lines
 line_count = 0
+
 
 def process_line(line):
     global line_count
@@ -71,7 +76,7 @@ ftp_passwd = ""  # Your email address as the password
 # Connect to FTP server
 ftp = FTP(ftp_host)
 ftp.login(user=ftp_user, passwd=ftp_passwd)
-
+ftp.encoding = 'latin-1'
 # Start from the directory
 ftp.cwd("/anon/gen/clim_data/IDCKWCDEA0/tables/vic/")
 
