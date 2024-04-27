@@ -15,7 +15,7 @@ def main():
         raise ValueError("Connection failed")
 
     # Define the index name
-    index_name = "weather_data"
+    index_name = "weather_data3"
 
     # Create the index with a mapping (optional)
     # You can customize the mapping to define data types for each field
@@ -66,13 +66,14 @@ def main():
     for subdirectory in subdirectories:
         # Fission function to call multiple threads (not required for bulk API)
         files = ftp.nlst(subdirectory)
+
+        bulk_data = []
         for file in files:
             data = []
             if file.endswith('.csv'):
                 # Process the file line by line and add data to bulk_data list
                 ftp.retrlines(f"RETR {file}", data.append)
             data = data[13:-1]
-            bulk_data = []
             for line in data:
                 row = line.split(",")
                 document = {
@@ -90,8 +91,15 @@ def main():
                     "UV": row[-1],
                 }
                 bulk_data.append(document)
+        result = None
+        while result is None:
+            try:
+                result = bulk(es, bulk_data, index=index_name)
+            except Exception as e:
+                es = Elasticsearch([url], basic_auth=(user, password), verify_certs=False, timeout=60)
+                print(e)
+                continue
 
-            result = bulk(es, bulk_data, index=index_name)
 
     # Close FTP connection
     ftp.quit()
