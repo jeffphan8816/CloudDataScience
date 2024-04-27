@@ -22,4 +22,4 @@ ingress-kibana:
 ingress-fission:
 	kubectl apply -f ingress/ingress-fission.yaml --namspace fission
 
-.PHONY: elasticsearch fission-all
+.PHONY: elasticsearch fission-all ingress-controller ingress-elasticsearch ingress-kibana ingress-fission
