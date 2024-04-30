@@ -18,7 +18,7 @@ index_name = 'crashes'
 
 result_list = get_crash_data('../../data/sudo_tasmania_crash_2010_2020.csv')
 
-print(result_list)
 
 
-#bulk(es, c,index=)
+
+bulk(es, result_list, index='crashes')
