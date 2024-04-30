@@ -1,7 +1,6 @@
 import pandas as pd
 import os
 
-
 def get_crash_data(file_path: str) -> list:
     """
     Load a cleaned dataframe of crash data
@@ -17,8 +16,7 @@ def get_crash_data(file_path: str) -> list:
     # Read data and clean
     df = pd.read_csv(file_path)
     df = df.rename(columns={' crash_date': 'crash_date', ' latitude': 'latitude',
-                    'light_condition': 'light_condition', ' longitude': 'longitude', ' severity': 'severity'})
-    
+                            'light_condition': 'light_condition', ' longitude': 'longitude', ' severity': 'severity'})
 
     to_keep = ['crash_date', 'latitude',
                'light_condition', 'longitude', 'severity']
@@ -34,4 +32,3 @@ def get_crash_data(file_path: str) -> list:
         pass  # TODO  add in logs
 
     return df_reduced.to_dict(orient='records')
-
