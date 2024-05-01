@@ -72,7 +72,7 @@ def accepting_new_data(new_data, current_data):
 
 def main(): 
 
-    url = 'https://elasticsearch.elastic.svc.cluster.local:9200'
+    url = 'https://elasticsearch:31001'
     user = "elastic"
     password = "cloudcomp"
 
