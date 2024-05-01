@@ -71,12 +71,12 @@ def accepting_new_data(new_data, current_data):
     return kept_data
 
 def upload(data, es):
-    
-    try :
-        es.index(index="airquality", document=data)
-        return True
-    except : 
-        upload(data, es)
+    print(data)
+#   try:
+    es.index(index="airquality", document=data)
+    return True
+    # except : 
+    #     upload(data, es)
 
 
 def main(): 
