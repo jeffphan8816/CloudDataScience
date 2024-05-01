@@ -112,7 +112,12 @@ def main():
     to_upload = to_upload.to_dict(orient='records')
     print(to_upload)
 
+     
+
     for line in to_upload :
+        line['location'] =  str(line['longitude'])+","+str(line['latitude'])
+        line.pop('longitude')
+        line.pop('latitude')
         upload(line,es)
         
 
