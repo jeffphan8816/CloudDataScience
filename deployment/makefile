@@ -1,7 +1,11 @@
 TIMEOUT := 1200s
+DATADOG_VERSION := 3.61.0
 ES_VERSION := 21.0.1
 FISSION_VERSION := 1.20.1
 INGRESS_CONTROLLER_VERSION := 4.10.0
+
+datadog:
+	helm upgrade --wait --timeout=$(TIMEOUT) --version=${DATADOG_VERSION} --namespace datadog --install --values datadog/values.yaml datadog-agent datadog/datadog
 
 elasticsearch:
 	helm upgrade --wait --timeout=$(TIMEOUT) --version=${ES_VERSION} --namespace elastic --render-subchart-notes --install --values elasticsearch/values.yaml elasticsearch bitnami/elasticsearch
@@ -22,4 +26,4 @@ ingress-kibana:
 ingress-fission:
 	kubectl apply -f ingress/ingress-fission.yaml --namspace fission
 
-.PHONY: elasticsearch fission-all ingress-controller ingress-elasticsearch ingress-kibana ingress-fission
+.PHONY: datadog elasticsearch fission-all ingress-controller ingress-elasticsearch ingress-kibana ingress-fission
