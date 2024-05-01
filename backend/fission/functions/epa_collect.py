@@ -87,7 +87,7 @@ def main():
     oldest_start_new_data = df_new_data['start'].min()
     print(oldest_start_new_data)
 
-    query_res = es.sql.query(body={ 'query' : f'SELECT * FROM crashes WHERE end > {oldest_start_new_data}'})
+    query_res = es.sql.query(body={ 'query' : f'SELECT * FROM crashes'}) #TODO
     print(query_res)
     #accepting_new_data(new_data,)
 
