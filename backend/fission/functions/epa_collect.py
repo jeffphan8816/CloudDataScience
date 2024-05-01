@@ -2,6 +2,7 @@ import requests
 import json
 from datetime import datetime
 from elasticsearch import Elasticsearch
+
 from elasticsearch.helpers import bulk
 import pandas as pd
 
@@ -69,6 +70,14 @@ def accepting_new_data(new_data, current_data):
     
     return kept_data
 
+def upload(data, es):
+    print(data)
+#   try:
+    es.index(index="airquality", document=data)
+    return True
+    # except : 
+    #     upload(data, es)
+
 
 def main(): 
 
@@ -84,11 +93,31 @@ def main():
     new_data = fetch_epa()
 
     df_new_data = pd.DataFrame.from_records(new_data,index=range(len(new_data))) 
-    oldest_start_new_data = df_new_data['start'].min()
 
-    query_res = es.sql.query(body={'query': "SELECT * FROM crashes WHERE end > {oldest_start_new_data"})
+
+    oldest_start_new_data = df_new_data['start'].min()
+    print(oldest_start_new_data)
+
+    query_res = es.sql.query(body={ 'query' : f'SELECT * FROM airquality '}) #TODO WHERE end > {oldest_start_new_data}
     print(query_res)
-    #accepting_new_data(new_data,)
+    print(type(query_res))
+    
+    if False :
+        to_upload = accepting_new_data(df_new_data, query_res)
+    
+    else : 
+        to_upload =  df_new_data
+    
+    to_upload = to_upload.to_dict(orient='records')
+    print(to_upload)
+
+     
+
+    for line in to_upload :
+        line['location'] = [line['location'][1],line['location'][0]]
+        upload(line,es)
+        
+
 
 
 if __name__ == '__main__' :
