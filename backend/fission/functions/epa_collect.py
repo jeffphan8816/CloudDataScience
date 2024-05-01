@@ -94,14 +94,16 @@ def main():
 
     df_new_data = pd.DataFrame.from_records(new_data,index=range(len(new_data))) 
 
-    if not df_new_data.empty :
 
-        oldest_start_new_data = df_new_data['start'].min()
-        print(oldest_start_new_data)
 
-        query_res = es.sql.query(body={ 'query' : f'SELECT * FROM crashes WHERE end > {oldest_start_new_data}'}) #TODO
-        print(query_res)
+    oldest_start_new_data = df_new_data['start'].min()
+    print(oldest_start_new_data)
 
+    query_res = es.sql.query(body={ 'query' : f'SELECT * FROM airquality WHERE end > {oldest_start_new_data}'}) #TODO
+    print(query_res)
+    print(type(query_res))
+    
+    if False :
         to_upload = accepting_new_data(df_new_data, query_res)
     
     else : 
