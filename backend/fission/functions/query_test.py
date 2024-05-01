@@ -30,7 +30,7 @@ def main():
 
     print(oldest_start_new_data)
 
-    query_res = es.sql.query(body={ 'query' : f'SELECT * FROM airquality WHERE end > {oldest_start_new_data}'}) #TODO WHERE end > {oldest_start_new_data}
+    query_res = es.sql.query(body={'query' : f'SELECT end FROM airquality'}) #TODO WHERE end > {oldest_start_new_data}
     print(query_res)
     print(type(query_res))
 
