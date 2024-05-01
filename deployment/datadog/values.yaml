@@ -5,7 +5,8 @@ datadog:
     enabled: true
     containerCollectAll: true
   ignoreAutoConfig:
-    - docker
+    - docker_daemon
+    - elastic
   confd:
     elastic.yaml: |-
       init_config:
