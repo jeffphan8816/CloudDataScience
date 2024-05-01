@@ -1,4 +1,4 @@
-curl -XPUT -k 'https://elasticsearch:31001/airquality'\
+curl -XPUT -k 'https://elasticsearch:31001/crashes'\
    --header 'Content-Type: application/json'\
    --data '{
     "settings": {
@@ -9,20 +9,17 @@ curl -XPUT -k 'https://elasticsearch:31001/airquality'\
     },
     "mappings": {
         "properties": {
-            "name": {
-                "type": "text"
+            "crash_date": {
+                "type": "date"
             },
             "location": {
                 "type": "geo_point"
             },
-            "start": {
-                "type": "date"
-        	},
-            "end": {
-                "type": "date"
-		},
-            "value": {
-                "type": "float"
+            "light_condition": {
+                "type": "keyword"
+            },
+            "severity": {
+                "type": "byte"
             }
         }
     }
