@@ -115,6 +115,7 @@ def main():
      
 
     for line in to_upload :
+        line['location'] = [line['location'][1],line['location'][0]]
         upload(line,es)
         
 
