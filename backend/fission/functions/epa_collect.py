@@ -115,9 +115,6 @@ def main():
      
 
     for line in to_upload :
-        line['location'] =  str(line['longitude'])+","+str(line['latitude'])
-        line.pop('longitude')
-        line.pop('latitude')
         upload(line,es)
         
 
