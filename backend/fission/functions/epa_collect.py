@@ -86,7 +86,7 @@ def main():
     df_new_data = pd.DataFrame.from_records(new_data,index=range(len(new_data))) 
     oldest_start_new_data = df_new_data['start'].min()
 
-    query_res = es.sql.query(body="SELECT * FROM crashes WHERE end > {oldest_start_new_data} ")
+    query_res = es.sql.query(body={'query': "SELECT * FROM crashes WHERE end > {oldest_start_new_data"})
     print(query_res)
     #accepting_new_data(new_data,)
 
