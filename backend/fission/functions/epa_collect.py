@@ -107,7 +107,7 @@ def main():
         to_upload = accepting_new_data(df_new_data, query_res)
     
     else : 
-        to_upload =  df_new_data.empty 
+        to_upload =  df_new_data
     
     to_upload = to_upload.to_dict(orient='records')
     print(to_upload)
