@@ -15,7 +15,7 @@ URL = 'https://gateway.api.epa.vic.gov.au/environmentMonitoring/v1/sites/paramet
 
 def main(): 
 
-    url = 'https://elasticsearch:31001'
+    url = 'https://elasticsearch.elastic.svc.cluster.local:9200'
     user = "elastic"
     password = "cloudcomp"
 
@@ -30,7 +30,7 @@ def main():
 
     print(oldest_start_new_data)
 
-    query_res = es.sql.query(body={ 'query' : f'SELECT * FROM airquality WHERE end > {oldest_start_new_data}'}) #TODO WHERE end > {oldest_start_new_data}
+    query_res = es.sql.query(body={ 'query' : f'SELECT * FROM airquality'}) #TODO WHERE end > {oldest_start_new_data}
     print(query_res)
     print(type(query_res))
 
