@@ -5,14 +5,15 @@ global:
 master:
   masterOnly: false
   replicaCount: 2
-  requests:
-    cpu: "100m"
-    memory: "1Gi"
-  limits:
-    cpu: "1000m"
-    memory: "2Gi"
+  resources: 
+    requests:
+      memory: "2Gi"
+    limits:
+      memory: "2Gi"
   persistence:
     size: "20Gi"
+  nodeSelector:
+    workload: elasticsearch
 data:
   replicaCount: 0
 coordinating:
