@@ -13,6 +13,9 @@ elasticsearch:
 fission-all:
 	helm upgrade --wait --timeout=$(TIMEOUT) --version v${FISSION_VERSION} --namespace fission --install --values fission-all/values.yaml fission-all fission-charts/fission-all
 
+fission-env:
+	fission spec apply --wait
+
 ingress-controller:
 	helm upgrade --wait --timeout=$(TIMEOUT) --version v${INGRESS_CONTROLLER_VERSION} --namespace ingress-nginx --install --values ingress/values.yaml ingress-nginx ingress-nginx/ingress-nginx \
 	&& kubectl -n ingress-nginx patch deployment/ingress-nginx-controller --patch-file ingress/patch.yaml
@@ -26,4 +29,4 @@ ingress-kibana:
 ingress-fission:
 	kubectl apply -f ingress/ingress-fission.yaml --namspace fission
 
-.PHONY: datadog elasticsearch fission-all ingress-controller ingress-elasticsearch ingress-kibana ingress-fission
+.PHONY: datadog elasticsearch fission-all fission-env ingress-controller ingress-elasticsearch ingress-kibana ingress-fission
