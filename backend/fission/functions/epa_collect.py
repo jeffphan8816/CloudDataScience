@@ -1,11 +1,15 @@
 from datetime import datetime
 from elasticsearch import Elasticsearch
 import json
+import logging
 import pandas as pd
 import requests
 
 # Constant url of the epa
 URL = 'https://gateway.api.epa.vic.gov.au/environmentMonitoring/v1/sites/parameters?environmentalSegment=air'
+
+logger = logging.getLogger('epa_collect.py')
+logging.basicConfig(level=logging.INFO)
 
 def fetch_epa() -> list[dict]:
     """
@@ -29,7 +33,7 @@ def fetch_epa() -> list[dict]:
         # Pull out location
         if 'geometry' not in record.keys():
             continue
-        if 'coordinates' not in record['geometry'].key():
+        if 'coordinates' not in record['geometry'].keys():
             continue
         location = record['geometry']['coordinates']
         # Then get the parameters
@@ -68,7 +72,6 @@ def fetch_epa() -> list[dict]:
     return out
 
 
-
 def accepting_new_data(new_data, current_data) -> list:
     """
     Extract new data based on api return and current data
@@ -95,12 +98,15 @@ def accepting_new_data(new_data, current_data) -> list:
     return kept_data
 
 def upload(data, es):
-    print(data)
-#   try:
-    es.index(index="airquality", document=data)
-    return True
-    # except : 
-    #     upload(data, es)
+    cont = True
+    while cont:
+        try:
+            es.index(index="airquality", document=data)
+            cont = False
+            logger.info('Uploaded ' + str(data))
+        except : 
+            cont = True
+            logger.warn('Failed to upload ' + str(data) + ' RETRYING')
 
 
 def main(): 
@@ -122,9 +128,7 @@ def main():
 
 
     # Get existing data after first date of new data
-    # oldest_start_new_data = df_new_data['start'].min()
-    datetime_str = '05/01/24T02:00:00'
-    oldest_start_new_data = datetime.strptime(datetime_str, '%m/%d/%yT%H:%M:%S')
+    oldest_start_new_data = df_new_data['start'].min()
     query_res = es.search(index='airquality', body = {
         "query": {
             "range": {
@@ -135,22 +139,27 @@ def main():
         }
     }) 
 
-    # Clean up the data returned from elastic search, convert list to tuple
-    query_list = [query_res['hits']['hits'][i]['_source'] for i in range(len(query_res['hits']['hits']))]
-    current_data = pd.DataFrame.from_records(query_list,index=range(len(query_list)))
-    current_data['location'] = current_data['location'].apply(lambda location  : (location[0],location[1]))
-    # Convert date strings
-    current_data['start'] = current_data['start'].apply(lambda s : datetime.strptime(s, '%Y-%m-%dT%H:%M:%S'))
-    current_data['end'] = current_data['end'].apply(lambda s : datetime.strptime(s, '%Y-%m-%dT%H:%M:%S'))
-
     # Switch coordinate order for new data and move to tuple
     df_new_data['location'] = df_new_data['location'].apply(lambda location  : (location[1],location[0]))
 
-    # Remove collisions from new data
-    to_upload = accepting_new_data(df_new_data, current_data)
+    # Clean up the data returned from elastic search, convert list to tuple
+    query_list = [query_res['hits']['hits'][i]['_source'] for i in range(len(query_res['hits']['hits']))]
+    if not len(query_list) == 0:
+        current_data = pd.DataFrame.from_records(query_list,index=range(len(query_list)))
+        current_data['location'] = current_data['location'].apply(lambda location  : (location[0],location[1]))
+        # Convert date strings
+        current_data['start'] = current_data['start'].apply(lambda s : datetime.strptime(s, '%Y-%m-%dT%H:%M:%S'))
+        current_data['end'] = current_data['end'].apply(lambda s : datetime.strptime(s, '%Y-%m-%dT%H:%M:%S'))
 
-    for line in to_upload :
-         # upload(line,es)
+        # Remove collisions from new data
+        to_upload = accepting_new_data(df_new_data, current_data)
+    else:
+        to_upload = df_new_data
+
+    print(to_upload)
+
+    for line in to_upload.to_dict(orient='records') :
+        upload(line, es)
 
 
 if __name__ == '__main__' :
