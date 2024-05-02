@@ -1,4 +1,4 @@
 POST /_sql?format=txt
 {
- "query": "SELECT * FROM students WHERE end > {oldest_start_new_data} "
+ "query": "SELECT * FROM crashes WHERE end > {oldest_start_new_data} "
 }

@@ -91,33 +91,29 @@ def main():
         raise ValueError("Connection failed")
 
     new_data = fetch_epa()
-
     df_new_data = pd.DataFrame.from_records(new_data,index=range(len(new_data))) 
-
 
     oldest_start_new_data = df_new_data['start'].min()
     print(oldest_start_new_data)
 
-    query_res = es.sql.query(body={ 'query' : f'SELECT * FROM airquality '}) #TODO WHERE end > {oldest_start_new_data}
+    query_res = es.search(index='airquality', body = {
+        "query": {
+            "range": {
+                "end": {
+                    "gte": oldest_start_new_data,
+                }
+            }
+        }
+    }) 
     print(query_res)
-    print(type(query_res))
     
-    if False :
-        to_upload = accepting_new_data(df_new_data, query_res)
-    
-    else : 
-        to_upload =  df_new_data
-    
-    to_upload = to_upload.to_dict(orient='records')
-    print(to_upload)
+    current_data = pd.DataFrame.from_records(query_res,index=range(len(query_res)))
 
-     
+    to_upload = accepting_new_data(new_data, current_data)
 
     for line in to_upload :
         line['location'] = [line['location'][1],line['location'][0]]
         upload(line,es)
-        
-
 
 
 if __name__ == '__main__' :
