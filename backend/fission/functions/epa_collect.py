@@ -6,9 +6,6 @@ from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk
 import pandas as pd
 
-
-
-
 URL = 'https://gateway.api.epa.vic.gov.au/environmentMonitoring/v1/sites/parameters?environmentalSegment=air'
 
 def fetch_epa() -> list[dict]:
@@ -64,10 +61,17 @@ def accepting_new_data(new_data, current_data):
     kept_data = new_data.copy()
 
     for index in new_data.index:
-        if new_data.loc[index,'end'] <= latest_current_df.loc[new_data.loc[index,'name']
-                                                                          [new_data.loc[index,'location']],'end'] :
-            kept_data.drop(index, axis='index')
+
+        name = new_data.loc[index, 'name']
+        location = (new_data.loc[index,'location'][0] , new_data.loc[index,'location'][1])
+
+        if name in latest_current_df.index:
+            if location in latest_current_df[new_data.loc[index,'name']].index :
+                if new_data.loc[index,'end'] <= latest_current_df[new_data.loc[index,'name']][new_data.loc[index,'location']] :
+                    kept_data.drop(index, axis='index')
     
+    print(kept_data.head())
+    kept_data['start']
     return kept_data
 
 def upload(data, es):
@@ -93,7 +97,9 @@ def main():
     new_data = fetch_epa()
     df_new_data = pd.DataFrame.from_records(new_data,index=range(len(new_data))) 
 
-    oldest_start_new_data = df_new_data['start'].min()
+    # oldest_start_new_data = df_new_data['start'].min()
+    datetime_str = '05/01/24T02:00:00'
+    oldest_start_new_data = datetime.strptime(datetime_str, '%m/%d/%yT%H:%M:%S')
     print(oldest_start_new_data)
 
     query_res = es.search(index='airquality', body = {
@@ -106,14 +112,24 @@ def main():
         }
     }) 
     print(query_res)
-    
-    current_data = pd.DataFrame.from_records(query_res,index=range(len(query_res)))
 
-    to_upload = accepting_new_data(new_data, current_data)
+    query_list = [query_res['hits']['hits'][i]['_source'] for i in range(len(query_res['hits']['hits']))]
+    
+    current_data = pd.DataFrame.from_records(query_list,index=range(len(query_list)))
+    current_data['location'] = current_data['location'].apply(lambda location  : (location[0],location[1]))
+
+    df_new_data['location'] = df_new_data['location'].apply(lambda location  : (location[1],location[0]))
+
+    current_data['start'] = current_data['start'].apply(lambda s : datetime.strptime(s, '%Y-%m-%dT%H:%M:%S'))
+    current_data['end'] = current_data['end'].apply(lambda s : datetime.strptime(s, '%Y-%m-%dT%H:%M:%S'))
+
+    print(current_data.head())
+    to_upload = accepting_new_data(df_new_data, current_data)
+
+    print(to_upload)
 
     for line in to_upload :
-        line['location'] = [line['location'][1],line['location'][0]]
-        upload(line,es)
+         # upload(line,es)
 
 
 if __name__ == '__main__' :
