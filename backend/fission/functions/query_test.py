@@ -15,7 +15,7 @@ URL = 'https://gateway.api.epa.vic.gov.au/environmentMonitoring/v1/sites/paramet
 
 def main(): 
 
-    url = 'https://elasticsearch.elastic.svc.cluster.local:9200'
+    url = 'https://elasticsearch:31001'
     user = "elastic"
     password = "cloudcomp"
 
@@ -25,14 +25,21 @@ def main():
         raise ValueError("Connection failed")
 
 
-    datetime_str = '09/19/22 13:55:26'
+    datetime_str = '05/01/24 02:00:00'
     oldest_start_new_data = datetime.strptime(datetime_str, '%m/%d/%y %H:%M:%S')
 
     print(oldest_start_new_data)
 
-    query_res = es.sql.query(body={ 'query' : f'SELECT * FROM airquality'}) #TODO WHERE end > {oldest_start_new_data}1
+    query_res = es.search(index='airquality', body = {
+    "query": {
+        "range": {
+            "end": {
+                "gte": oldest_start_new_data,
+            }
+        }
+    }
+}) 
     print(query_res)
-    print(type(query_res))
 
 
 
