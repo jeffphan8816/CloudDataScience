@@ -60,8 +60,6 @@ index_name = 'crashes'
 
 result_list = get_crash_data('../../data/sudo_tasmania_crash_2010_2020.csv')
 
-start_batch = 75
-
 for i in range(start_batch, len(result_list)//BATCH_SIZE) :
     cont = True
     while cont :
