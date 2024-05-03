@@ -58,15 +58,18 @@ index_name = 'crashes'
 
 result_list = get_crash_data('../../data/sudo_tasmania_crash_2010_2020.csv')
 
+start_batch = 75
+bulk(es, result_list[start_batch*BATCH_SIZE:(start_batch+1)*BATCH_SIZE], index='crashes')
 
-for i in range(len(result_list)//BATCH_SIZE) :
-    cont = True
-    while cont :
-        try :
-            bulk(es, result_list[i*BATCH_SIZE:(i+1)*BATCH_SIZE], index='crashes')
-            cont = False
-            logger.info('Uploaded batch no ' + str(i))
 
-        except :
-            cont = True
-            logger.warn('Failed to upload batch no ' + str(i) + ' RETRYING')
+# for i in range(start_batch, len(result_list)//BATCH_SIZE) :
+    # cont = True
+    # while cont :
+    #     try :
+            # bulk(es, result_list[i*BATCH_SIZE:(i+1)*BATCH_SIZE], index='crashes')
+        #     cont = False
+        #     logger.info('Uploaded batch no ' + str(i))
+
+        # except :
+        #     cont = True
+        #     logger.warn('Failed to upload batch no ' + str(i) + ' RETRYING')
