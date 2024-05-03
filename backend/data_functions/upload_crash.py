@@ -42,6 +42,8 @@ def get_crash_data(file_path: str) -> list:
     except KeyError:
         pass  # TODO  add in logs
 
+    df_reduced = df_reduced.dropna()
+
     return df_reduced.to_dict(orient='records')
 
 
