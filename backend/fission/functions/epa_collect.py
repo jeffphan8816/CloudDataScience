@@ -4,6 +4,7 @@ import json
 import logging
 import pandas as pd
 import requests
+from elasticsearch.helpers import bulk
 
 # Constant url of the epa
 URL = 'https://gateway.api.epa.vic.gov.au/environmentMonitoring/v1/sites/parameters?environmentalSegment=air'
@@ -61,7 +62,7 @@ def fetch_epa() -> list[dict]:
                         continue
                     # Build dictionary and append
                     toAdd = {}
-                    toAdd['name'] = name
+                    toAdd['measure_name'] = name
                     toAdd['location'] = location
                     toAdd['start'] = datetime.strptime(
                         reading['since'], '%Y-%m-%dT%H:%M:%SZ')
@@ -80,19 +81,22 @@ def accepting_new_data(new_data, current_data) -> list:
     @param current_data is the data in elastic search as a DataFrame
     @returns a list of what data needs to be inserted
     """
-    latest_current_df = current_data.groupby(['name', 'location'])['end'].max()
+    print(current_data['measure_name'].unique())
+    print(current_data['location'].unique())
+    latest_current_df = current_data.groupby(['measure_name', 'location'])['end'].max()
+    print(latest_current_df)
     kept_data = new_data.copy()
 
     for index in new_data.index:
 
-        name = new_data.loc[index, 'name']
+        name = new_data.loc[index, 'measure_name']
         # Need to convert coorinates to tuple
         location = (new_data.loc[index,'location'][0] , new_data.loc[index,'location'][1])
 
         # Check for collisions
         if name in latest_current_df.index:
-            if location in latest_current_df[new_data.loc[index,'name']].index :
-                if new_data.loc[index,'end'] <= latest_current_df[new_data.loc[index,'name']][new_data.loc[index,'location']] :
+            if location in latest_current_df[new_data.loc[index,'measure_name']].index :
+                if new_data.loc[index,'end'] <= latest_current_df[new_data.loc[index,'measure_name']][new_data.loc[index,'location']] :
                     kept_data.drop(index, axis='index')
     
     return kept_data
@@ -101,7 +105,7 @@ def upload(data, es):
     cont = True
     while cont:
         try:
-            es.index(index="airquality", document=data)
+            bulk(es, [data], index='airquality')
             cont = False
             logger.info('Uploaded ' + str(data))
         except : 
@@ -128,14 +132,10 @@ def main():
 
 
     # Get existing data after first date of new data
-    oldest_start_new_data = df_new_data['start'].min()
+    # oldest_start_new_data = df_new_data['start'].min()
     query_res = es.search(index='airquality', body = {
         "query": {
-            "range": {
-                "end": {
-                    "gte": oldest_start_new_data,
-                }
-            }
+            "match_all": {}
         }
     }) 
 
@@ -146,6 +146,7 @@ def main():
     query_list = [query_res['hits']['hits'][i]['_source'] for i in range(len(query_res['hits']['hits']))]
     if not len(query_list) == 0:
         current_data = pd.DataFrame.from_records(query_list,index=range(len(query_list)))
+        print(current_data['measure_name'].unique())
         current_data['location'] = current_data['location'].apply(lambda location  : (location[0],location[1]))
         # Convert date strings
         current_data['start'] = current_data['start'].apply(lambda s : datetime.strptime(s, '%Y-%m-%dT%H:%M:%S'))
@@ -157,9 +158,11 @@ def main():
         to_upload = df_new_data
 
     print(to_upload)
-
+    print(to_upload['measure_name'].unique())
     for line in to_upload.to_dict(orient='records') :
         upload(line, es)
+
+    return "Done"
 
 
 if __name__ == '__main__' :
