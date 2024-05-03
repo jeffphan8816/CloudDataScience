@@ -65,8 +65,8 @@ for i in range(len(result_list)//BATCH_SIZE) :
         try :
             bulk(es, result_list[i*BATCH_SIZE:(i+1)*BATCH_SIZE], index='crashes')
             cont = False
-            logger.info('Uploaded batch no ' + i)
+            logger.info('Uploaded batch no ' + str(i))
 
         except :
             cont = True
-            logger.warn('Failed to upload batch no ' + i + ' RETRYING')
+            logger.warn('Failed to upload batch no ' + str(i) + ' RETRYING')
