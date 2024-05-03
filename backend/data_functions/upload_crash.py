@@ -4,7 +4,7 @@ import pandas as pd
 import os
 import logging
 
-logger = logging.getLogger('epa_collect.py')
+logger = logging.getLogger('upload_crash.py')
 logging.basicConfig(level=logging.INFO)
 
 BATCH_SIZE = 500
