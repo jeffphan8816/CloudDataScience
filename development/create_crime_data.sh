@@ -17,9 +17,6 @@ curl -XPUT -k 'https://elasticsearch:31001/crimes'\
             },            
             "postcode": {
                 "type": "keyword"
-            },            
-            "suburb": {
-                "type": "keyword"
             },
             "description_1": {
                 "type": "keyword"
