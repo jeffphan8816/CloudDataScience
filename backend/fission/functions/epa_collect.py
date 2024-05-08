@@ -10,7 +10,7 @@ from elasticsearch.helpers import bulk
 URL = 'https://gateway.api.epa.vic.gov.au/environmentMonitoring/v1/sites/parameters?environmentalSegment=air'
 KEY = '96ff8ef9e03048e2bd2fa342a5d80587'
 
-ELASTIC_URL = 'https://elasticsearch:31001'
+ELASTIC_URL = 'https://elasticsearch.elastic.svc.cluster.local:9200'
 ELASTIC_USER = "elastic"
 ELASTIC_PASSWORD = "cloudcomp"
 PULL_RATE = 100
@@ -117,7 +117,7 @@ def upload(data: list[dict], es: Elasticsearch) -> None:
     cont = True
     while cont:
         try:
-            bulk(es, [data], index='airqualitytest')
+            bulk(es, [data], index='airquality')
             cont = False
             logger.info('Uploaded ' + str(data))
         except:
@@ -150,7 +150,7 @@ def main():
     query_list = []
     cont = True
     while cont:
-        query_res = es.search(index='airqualitytest',  body={
+        query_res = es.search(index='airquality',  body={
             "query": {
                 "range": {
                     "end": {
