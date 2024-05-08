@@ -12,7 +12,7 @@ BATCH_SIZE = 500
 
 def get_crime_data(file_path: str) -> list:
     """
-    Load a cleaned dataframe of crash data
+    Load a cleaned dataframe of crime data
 
     @param file_path: str
     @return pd.DataFrame
