@@ -1,4 +1,4 @@
-curl -XPUT -k 'https://elasticsearch:31001/crashes'\
+curl -XPUT -k 'https://elasticsearch:31001/crimes'\
    --header 'Content-Type: application/json'\
    --data '{
     "settings": {
