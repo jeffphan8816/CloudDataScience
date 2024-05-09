@@ -16,7 +16,7 @@ spec:
     container:
       name: ""
       resources: {}
-    image: py846260131/python-es:0.1.1
+    image: py846260131/python-es:0.1.2
     podspec:
       containers: []
       nodeSelector:
