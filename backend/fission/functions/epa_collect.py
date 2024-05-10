@@ -10,10 +10,12 @@ from elasticsearch.helpers import bulk
 URL = 'https://gateway.api.epa.vic.gov.au/environmentMonitoring/v1/sites/parameters?environmentalSegment=air'
 KEY = '96ff8ef9e03048e2bd2fa342a5d80587'
 
-ELASTIC_URL = 'https://elasticsearch:31001'
+ELASTIC_URL = 'https://172.26.135.52:9200'
 ELASTIC_USER = "elastic"
 ELASTIC_PASSWORD = "cloudcomp"
 PULL_RATE = 100
+
+ES_HEADERS = {'HOST': 'elasticsearch'}
 
 logger = logging.getLogger('epa_collect.py')
 logging.basicConfig(level=logging.INFO)
@@ -117,7 +119,7 @@ def upload(data: list[dict], es: Elasticsearch) -> None:
     cont = True
     while cont:
         try:
-            bulk(es, [data], index='airqualitytest')
+            bulk(es, [data], index='airquality')
             cont = False
             logger.info('Uploaded ' + str(data))
         except:
@@ -131,7 +133,7 @@ def main():
     """
 
     # Connect to database
-    es = Elasticsearch([ELASTIC_URL], basic_auth=(ELASTIC_USER, ELASTIC_PASSWORD), verify_certs=False)
+    es = Elasticsearch([ELASTIC_URL], basic_auth=(ELASTIC_USER, ELASTIC_PASSWORD), verify_certs=False, headers=ES_HEADERS)
     if not es.ping():
         raise ValueError("Connection failed")
 
@@ -150,7 +152,7 @@ def main():
     query_list = []
     cont = True
     while cont:
-        query_res = es.search(index='airqualitytest',  body={
+        query_res = es.search(index='airquality',  body={
             "query": {
                 "range": {
                     "end": {
@@ -186,7 +188,8 @@ def main():
 
     # Upload
     for line in to_upload.to_dict(orient='records'):
-        upload(line, es)
+       #  upload(line, es)
+       pass
 
     return "Done"
 
