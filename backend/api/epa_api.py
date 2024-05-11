@@ -8,7 +8,7 @@ ELASTIC_PASSWORD = 'cloudcomp'
 ES_HEADERS = {'HOST': 'elasticsearch'}
 START_HEADER = 'X-Fission-Params-Start'
 SIZE_HEADER = 'X-Fission-Params-Size'
-METRIC_HEADER = 'X-Fission-Params-Metric'
+METRIC_HEADER = 'X-Fission-Params-Measure'
 BAD_PARAMS = json.dumps({'Status': 400, 'Message': 'Invalid Parameters'})
 NOT_FOUND = json.dumps({'Status': 500, 'Message': 'Internal Server Error'})
 
@@ -22,14 +22,16 @@ def main():
 
     start = request.headers[START_HEADER]
     size = request.headers[SIZE_HEADER]
-    metric = request.header[METRIC_HEADER]
+    metric = request.headers[METRIC_HEADER]
 
     try:
         results = es.search(index='airquality', body={
             'from': start,
             'size': size,
             'query': {
-                'measure_name': metric
+                'match': {
+                    'measure_name': metric
+                }
             }
         })
         as_list = [results['hits']['hits'][i]['_source']
