@@ -1,0 +1,22 @@
+datadog:
+  apiKeyExistingSecret: datadog-secret
+  site: us5.datadoghq.com
+  logs:
+    enabled: true
+    containerCollectAll: true
+  ignoreAutoConfig:
+    - docker_daemon
+    - elastic
+  confd:
+    elastic.yaml: |-
+      init_config:
+      instances:
+        - url: "https://elasticsearch.elastic.svc.cluster.local:9200"
+          username: elastic
+          password: cloudcomp
+          tls_verify: false
+          tls_ignore_warning: True
+          auth_type: basic
+          cluster_stats: true
+          tags:
+          - service.name:elasticsearch
