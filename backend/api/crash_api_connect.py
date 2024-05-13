@@ -54,27 +54,30 @@ def main():
     except:
         return ERROR
 
-    results = es.search(index='crashes', body={
-        'size': size,
-        'query': {
-            'bool': {
-                'must': [
-                    {'match_all': {}}
-                ],
-                'filter': {
-                    'geo_distance': {
-                        'distance': str(radius) + 'km',
-                        'location': {
-                            'lon': lon,
-                            'lat': lat
+    try:
+        results = es.search(index='crashes', body={
+            'size': size,
+            'query': {
+                'bool': {
+                    'must': [
+                        {'match_all': {}}
+                    ],
+                    'filter': {
+                        'geo_distance': {
+                            'distance': str(radius) + 'km',
+                            'location': {
+                                'lon': lon,
+                                'lat': lat
+                            }
                         }
                     }
-                }
+                },
             },
-        },
-    }, scroll='30s')
+        }, scroll='30s')
 
-    out = {}
-    out['token'] = results['_scroll_id']
-    out['data'] = results['hits']['hits']
-    return json.dumps(out)
+        out = {}
+        out['token'] = results['_scroll_id']
+        out['data'] = results['hits']['hits']
+        return json.dumps(out)
+    except:
+        return ERROR
