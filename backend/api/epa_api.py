@@ -1,14 +1,16 @@
 from flask import request
 import json
 from elasticsearch import Elasticsearch
+from elasticsearch.helpers import scan
 
 ELASTIC_URL = 'https://172.26.135.52:9200'
 ELASTIC_USER = 'elastic'
 ELASTIC_PASSWORD = 'cloudcomp'
 ES_HEADERS = {'HOST': 'elasticsearch'}
+
 START_HEADER = 'X-Fission-Params-Start'
 SIZE_HEADER = 'X-Fission-Params-Size'
-METRIC_HEADER = 'X-Fission-Params-Measure'
+METRIC_HEADER = 'X-Fission-Params-Metric'
 BAD_PARAMS = json.dumps({'Status': 400, 'Message': 'Invalid Parameters'})
 NOT_FOUND = json.dumps({'Status': 500, 'Message': 'Internal Server Error'})
 
@@ -17,26 +19,28 @@ es = Elasticsearch([ELASTIC_URL], basic_auth=(
 
 
 def main():
-    if START_HEADER not in request.headers or SIZE_HEADER not in request.headers or METRIC_HEADER not in request.headers:
+    if METRIC_HEADER not in request.headers:
         return BAD_PARAMS
-
     start = request.headers[START_HEADER]
     size = request.headers[SIZE_HEADER]
-    metric = request.headers[METRIC_HEADER]
+
+    metric = request.header[METRIC_HEADER]
+
 
     try:
-        results = es.search(index='airquality', body={
-            'from': start,
-            'size': size,
+        results = scan(es, index='airquality', query={
             'query': {
                 'match': {
                     'measure_name': metric
                 }
             }
         })
-        as_list = [results['hits']['hits'][i]['_source']
-                   for i in range(len(results['hits']['hits']))]
-        out = {'status': 200, 'data': as_list}
+
+        data = []
+        for result in results:
+            data.append(result['_source'])
+
+        out = {'status': 200, 'data': data}
         return json.dumps(out)
     except:
         return NOT_FOUND
