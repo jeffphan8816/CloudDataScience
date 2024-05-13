@@ -31,7 +31,7 @@ def main():
     if size > 10000:
         return BAD_PARAMS
     station = request.headers[STATION_HEADER]
-    radius = request.headers[RADIUS_HEADER]
+    radius = float(request.headers[RADIUS_HEADER])
     if radius < 0:
         return BAD_PARAMS
 

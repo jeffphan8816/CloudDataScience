@@ -82,7 +82,7 @@ def main():
             }
         })
 
-        return [weather_results['hits']['hits'][i]['_source']
-                for i in range(len(weather_results['hits']['hits']))]
+        return json.dumps([weather_results['hits']['hits'][i]['_source']
+                for i in range(len(weather_results['hits']['hits']))])
     except:
         return ERROR
