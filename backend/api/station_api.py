@@ -26,6 +26,6 @@ def main():
                                for i in range(len(station_results['hits']['hits']))]
         if len(station_result_list) == 0:
             return EMPTY
-        return json.dumps({'Status': 200, 'data': station_result_list})
+        return json.dumps({'Status': 200, 'Data': station_result_list})
     except:
         return ERROR

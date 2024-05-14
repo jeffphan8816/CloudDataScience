@@ -10,6 +10,7 @@ TOKEN_HEADER = 'X-Fission-Params-Token'
 BAD_PARAMS = json.dumps({'Status': 400, 'Message': 'Invalid Parameters'})
 ERROR = json.dumps({'Status': 500, 'Message': 'Internal Server Error'})
 EMPTY = json.dumps({'Status': 200, 'Data': []})
+SCROLL = '1m'
 
 es = Elasticsearch([ELASTIC_URL], basic_auth=(
     ELASTIC_USER, ELASTIC_PASSWORD), verify_certs=False, headers=ES_HEADERS)
@@ -25,10 +26,11 @@ def main():
 
     # Try to get next batch
     try:
-        results = es.scroll(scroll_id=token, scroll='30s')
+        results = es.scroll(scroll_id=token, scroll=SCROLL)
         out = {}
-        out['token'] = results['_scroll_id']
-        out['data'] = results['hits']['hits']
+        out['Status'] = 200
+        out['Token'] = results['_scroll_id']
+        out['Data'] = results['hits']['hits']
         return json.dumps(out)
     except:
         return ERROR

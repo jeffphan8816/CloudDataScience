@@ -17,6 +17,7 @@ EMPTY = json.dumps({'Status': 200, 'Data': []})
 es = Elasticsearch([ELASTIC_URL], basic_auth=(
     ELASTIC_USER, ELASTIC_PASSWORD), verify_certs=False, headers=ES_HEADERS)
 
+
 def main():
     # Check parameters
     if STATION_HEADER not in request.headers:
@@ -27,9 +28,12 @@ def main():
         return BAD_PARAMS
 
     # Get parameters
-    station = request.headers[STATION_HEADER]
-    start = int(request.headers[START_HEADER])
-    end = int(request.headers[END_HEADER])
+    try:
+        station = request.headers[STATION_HEADER]
+        start = int(request.headers[START_HEADER])
+        end = int(request.headers[END_HEADER])
+    except:
+        return ERROR
 
     # Convert days to years
     start_date = datetime.datetime(start, 1,  1)
@@ -49,10 +53,10 @@ def main():
         if len(station_results) == 0:
             return EMPTY
         station_results_list = [station_results['hits']['hits'][i]['_source']
-                   for i in range(len(station_results['hits']['hits']))]
+                                for i in range(len(station_results['hits']['hits']))]
         if len(station_results_list) == 0:
             return EMPTY
-        
+
         station_name = station_results_list[0]['Station Name']
     except:
         return ERROR
@@ -82,7 +86,10 @@ def main():
             }
         })
 
-        return json.dumps([weather_results['hits']['hits'][i]['_source']
-                for i in range(len(weather_results['hits']['hits']))])
+        out = {}
+        out['Status'] = 200
+        out['Data'] = [weather_results['hits']['hits'][i]['_source']
+                       for i in range(len(weather_results['hits']['hits']))]
+        return json.dumps(out)
     except:
         return ERROR

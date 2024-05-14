@@ -12,34 +12,34 @@ STATION_HEADER = 'X-Fission-Params-Station'
 BAD_PARAMS = json.dumps({'Status': 400, 'Message': 'Invalid Parameters'})
 ERROR = json.dumps({'Status': 500, 'Message': 'Internal Server Error'})
 EMPTY = json.dumps({'Status': 200, 'Data': []})
+SCROLL = '1m'
 
 es = Elasticsearch([ELASTIC_URL], basic_auth=(
     ELASTIC_USER, ELASTIC_PASSWORD), verify_certs=False, headers=ES_HEADERS)
 
-request_headers = {}
-request_headers[SIZE_HEADER] = 10
-request_headers[RADIUS_HEADER] = 500
-request_headers[STATION_HEADER] = '95003'
 
 def main():
     # Check parameters
-    if SIZE_HEADER not in request_headers:
+    if SIZE_HEADER not in request.headers:
         return BAD_PARAMS
-    if STATION_HEADER not in request_headers:
+    if STATION_HEADER not in request.headers:
         return BAD_PARAMS
-    if RADIUS_HEADER not in request_headers:
+    if RADIUS_HEADER not in request.headers:
         return BAD_PARAMS
 
     # Get parameters
-    size = int(request_headers[SIZE_HEADER])
-    if size > 10000:
-        return BAD_PARAMS
-    station = request_headers[STATION_HEADER]
-    radius = float(request_headers[RADIUS_HEADER])
-    if radius < 0:
-        return BAD_PARAMS
+    try:
+        size = int(request.headers[SIZE_HEADER])
+        if size > 10000:
+            return BAD_PARAMS
+        station = request.headers[STATION_HEADER]
+        radius = float(request.headers[RADIUS_HEADER])
+        if radius < 0:
+            return BAD_PARAMS
+    except:
+        return ERROR
 
-    # First get coordinates
+    # First get coordinates of station
     try:
         station_results = es.search(index='station_locations', body={
             'size': 1,
@@ -78,13 +78,12 @@ def main():
                     }
                 },
             },
-        }, scroll='30s')
+        }, scroll=SCROLL)
 
         out = {}
-        out['token'] = epa_results['_scroll_id']
-        out['data'] = epa_results['hits']['hits']
+        out['Status'] = 200
+        out['Token'] = epa_results['_scroll_id']
+        out['Data'] = epa_results['hits']['hits']
         return json.dumps(out)
     except:
         return ERROR
-
-print(main())

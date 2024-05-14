@@ -12,6 +12,7 @@ STATION_HEADER = 'X-Fission-Params-Station'
 BAD_PARAMS = json.dumps({'Status': 400, 'Message': 'Invalid Parameters'})
 ERROR = json.dumps({'Status': 500, 'Message': 'Internal Server Error'})
 EMPTY = json.dumps({'Status': 200, 'Data': []})
+SCROLL = '1m'
 
 es = Elasticsearch([ELASTIC_URL], basic_auth=(
     ELASTIC_USER, ELASTIC_PASSWORD), verify_certs=False, headers=ES_HEADERS)
@@ -26,16 +27,19 @@ def main():
     if RADIUS_HEADER not in request.headers:
         return BAD_PARAMS
 
-    # Get parameters
-    size = int(request.headers[SIZE_HEADER])
-    if size > 10000:
-        return BAD_PARAMS
-    station = request.headers[STATION_HEADER]
-    radius = float(request.headers[RADIUS_HEADER])
-    if radius < 0:
-        return BAD_PARAMS
+    try:
+        # Get parameters
+        size = int(request.headers[SIZE_HEADER])
+        if size > 10000:
+            return BAD_PARAMS
+        station = request.headers[STATION_HEADER]
+        radius = float(request.headers[RADIUS_HEADER])
+        if radius < 0:
+            return BAD_PARAMS
+    except:
+        return ERROR
 
-    # First get coordinates
+    # First get coordinates for station
     try:
         station_results = es.search(index='station_locations', body={
             'size': 1,
@@ -54,6 +58,7 @@ def main():
     except:
         return ERROR
 
+    # Then get crashes in the radius
     try:
         results = es.search(index='crashes', body={
             'size': size,
@@ -73,11 +78,12 @@ def main():
                     }
                 },
             },
-        }, scroll='30s')
+        }, scroll=SCROLL)
 
         out = {}
-        out['token'] = results['_scroll_id']
-        out['data'] = results['hits']['hits']
+        out['Status'] = 200
+        out['Token'] = results['_scroll_id']
+        out['Data'] = results['hits']['hits']
         return json.dumps(out)
     except:
         return ERROR

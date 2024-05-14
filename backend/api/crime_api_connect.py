@@ -12,9 +12,11 @@ STATION_HEADER = 'X-Fission-Params-Station'
 BAD_PARAMS = json.dumps({'Status': 400, 'Message': 'Invalid Parameters'})
 ERROR = json.dumps({'Status': 500, 'Message': 'Internal Server Error'})
 EMPTY = json.dumps({'Status': 200, 'Data': []})
+SCROLL = '1m'
 
 es = Elasticsearch([ELASTIC_URL], basic_auth=(
     ELASTIC_USER, ELASTIC_PASSWORD), verify_certs=False, headers=ES_HEADERS)
+
 
 def main():
     # Check parameters
@@ -26,15 +28,18 @@ def main():
         return BAD_PARAMS
 
     # Get parameters
-    size = int(request.headers[SIZE_HEADER])
-    if size > 10000:
-        return BAD_PARAMS
-    station = request.headers[STATION_HEADER]
-    radius = float(request.headers[RADIUS_HEADER])
-    if radius < 0:
-        return BAD_PARAMS
+    try:
+        size = int(request.headers[SIZE_HEADER])
+        if size > 10000:
+            return BAD_PARAMS
+        station = request.headers[STATION_HEADER]
+        radius = float(request.headers[RADIUS_HEADER])
+        if radius < 0:
+            return BAD_PARAMS
+    except:
+        return ERROR
 
-    # First get coordinates
+    # First get coordinates of station
     try:
         station_results = es.search(index='station_locations', body={
             'size': 1,
@@ -76,33 +81,31 @@ def main():
         })
         zips = []
         result_list = [zip_results['hits']['hits'][i]['_source']
-                    for i in range(len(zip_results['hits']['hits']))]
+                       for i in range(len(zip_results['hits']['hits']))]
         for location in result_list:
             zips.append(location['postcode'])
     except:
         return ERROR
 
-    # Then get crimes
+    # Then get crimes in radius
     try:
         crimes = es.search(index='crimes', body={
             'size': size,
-            "query": {
-                "bool": {
-                    "filter": {
-                        "terms": {
-                            "postcode": zips
+            'query': {
+                'bool': {
+                    'filter': {
+                        'terms': {
+                            'postcode': zips
                         }
                     }
                 }
             },
-        }, scroll='30s')
+        }, scroll=SCROLL)
 
         out = {}
-        out['token'] = crimes['_scroll_id']
-        out['data'] = crimes['hits']['hits']
+        out['Status'] = 200
+        out['Token'] = crimes['_scroll_id']
+        out['Data'] = crimes['hits']['hits']
         return json.dumps(out)
     except:
         return ERROR
-
-
-print(main())
