@@ -276,14 +276,15 @@ def main_to_ES():
     buffer_message = consume_kafka_message(BOOTSTRAP_KAFKA, TOPIC_NAME)
     confirm_message = consume_kafka_message(BOOTSTRAP_KAFKA, CONFIRM_TOPIC_NAME)
 
-    if confirm_message['message_id'] = buffer_message['message_id']
-
+    if confirm_message['message_id'] != buffer_message['message_id'] :
+        raise ValueError('Confirmation message not found in Kafka')
+    
     df_new_data = clean_kafka_data(buffer_message['body'])
 
     # Connect to ES database
     es = Elasticsearch([ELASTIC_URL], basic_auth=(ELASTIC_USER, ELASTIC_PASSWORD), verify_certs=False)
     if not es.ping():
-        raise ValueError("Connection failed")    
+        raise ValueError('Connection failed')    
 
     if df_new_data is not None :
         
