@@ -6,8 +6,6 @@ ELASTIC_URL = 'https://172.26.135.52:9200'
 ELASTIC_USER = 'elastic'
 ELASTIC_PASSWORD = 'cloudcomp'
 ES_HEADERS = {'HOST': 'elasticsearch'}
-TOKEN_HEADER = 'X-Fission-Params-Token'
-BAD_PARAMS = json.dumps({'Status': 400, 'Message': 'Invalid Parameters'})
 ERROR = json.dumps({'Status': 500, 'Message': 'Internal Server Error'})
 EMPTY = json.dumps({'Status': 200, 'Data': []})
 
@@ -16,19 +14,18 @@ es = Elasticsearch([ELASTIC_URL], basic_auth=(
 
 
 def main():
-    # Check parameters
-    if TOKEN_HEADER not in request.headers:
-        return BAD_PARAMS
-
-    # Get token
-    token = request.headers[TOKEN_HEADER]
-
-    # Try to get next batch
+    # Try to return all station data
     try:
-        results = es.scroll(scroll_id=token, scroll='30s')
-        out = {}
-        out['token'] = results['_scroll_id']
-        out['data'] = results['hits']['hits']
-        return json.dumps(out)
+        station_results = es.search(index='station_locations', body={
+            'size': 10000,
+            'query': {
+                'match_all': {}
+            }
+        })
+        station_result_list = [station_results['hits']['hits'][i]['_source']
+                               for i in range(len(station_results['hits']['hits']))]
+        if len(station_result_list) == 0:
+            return EMPTY
+        return json.dumps({'Status': 200, 'data': station_result_list})
     except:
         return ERROR
