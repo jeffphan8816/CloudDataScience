@@ -31,6 +31,9 @@ def main():
         out['Status'] = 200
         out['Token'] = results['_scroll_id']
         out['Data'] = results['hits']['hits']
+        if len(results['hits']['hits']) <= 0:
+            es.clear_scroll(scroll_id=out['Token'])
+            out['Token'] = 'END'
         return json.dumps(out)
     except:
         return ERROR
