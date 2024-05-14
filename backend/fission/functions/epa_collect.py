@@ -5,6 +5,7 @@ import logging
 import pandas as pd
 import requests
 from elasticsearch.helpers import bulk
+from kafka import KafkaProducer, KafkaConsumer
 
 # Constant url of the epa
 URL = 'https://gateway.api.epa.vic.gov.au/environmentMonitoring/v1/sites/parameters?environmentalSegment=air'
@@ -13,17 +14,24 @@ KEY = '96ff8ef9e03048e2bd2fa342a5d80587'
 ELASTIC_URL = 'https://elasticsearch.elastic.svc.cluster.local:9200'
 ELASTIC_USER = "elastic"
 ELASTIC_PASSWORD = "cloudcomp"
+
+BOOTSTRAP_KAFKA = 'kafka-kafka-bootstrap.kafka.svc:9092'
+TOPIC_NAME = 'airquality-kafka'
+
 PULL_RATE = 100
+
+def json_serializer(data):
+    return json.dumps(data).encode('utf-8')
 
 logger = logging.getLogger('epa_collect.py')
 logging.basicConfig(level=logging.INFO)
 
 
-def fetch_epa() -> list[dict]:
+def fetch_epa() -> str :
     """
     Get the current data from the EPA
 
-    @returns a list of data dictionaries
+    @returns a string
     """
     headers = {
         'Cache-Control': 'no-cache',
@@ -31,12 +39,57 @@ def fetch_epa() -> list[dict]:
         'User-agent': 'CloudCluster'
     }
     resp = requests.get(URL, headers=headers)
-    data = json.loads(resp.text)
-    out = []
+    
+    #data = json.loads(resp.text)
 
+    return resp.text
+
+
+def produce_kafka_message(response_txt : str, bootstrap_servers , topic_name) -> bool :
+    """
+    Stores the EPA response into a Kafka message
+
+    @param is the response of the EPA API
+    @returns a string
+    """
+    # Connect to Kafka and set up a producer client
+    producer = KafkaProducer(bootstrap_servers=bootstrap_servers, 
+                             value_serializer=json_serializer)
+    
+    try :
+        producer.send(topic_name, value=response_txt)
+
+    except Exception as e :
+        logging.error(e)
+        return False
+    
+    return True
+
+
+def consume_kafka_message(bootstrap_servers,topic_name) -> dict:
+    """
+    Consume the most recent message from Kafka, and convert to dictionnary
+    """
+    # Connect to Kafka and set up a consumer client
+    consumer = KafkaConsumer(topic_name,
+                            auto_offset_reset='earliest',
+                            bootstrap_servers=bootstrap_servers,
+                            enable_auto_commit=True)
+    
+    message_text = consumer[0].value.decode('utf-8')  #consumer[0] is the earliest message of the topic
+    return json.loads(message_text)
+
+
+def clean_kafka_data(data : dict) -> pd.DataFrame | None :
+    """
+    Clean the data stored to a list of records, only keeping seeked columns
+
+    @returns a list of data dictionaries
+    """
+    cleaned = []
     # Go thorugh each record returned
     if 'records' not in data.keys():
-        return out
+        return None
     for record in data['records']:
         # Pull out location
         if 'geometry' not in record.keys():
@@ -76,13 +129,62 @@ def fetch_epa() -> list[dict]:
                     toAdd['end'] = datetime.strptime(
                         reading['since'], '%Y-%m-%dT%H:%M:%SZ')
                     toAdd['value'] = reading['averageValue']
-                    out.append(toAdd)
-    return out
+                    cleaned.append(toAdd)
+
+    df_new_data = pd.DataFrame.from_records(cleaned, index=range(len(cleaned)))
+    
+    # Switch coordinate order for new data and move to tuple
+    df_new_data['location'] = df_new_data['location'].apply(
+        lambda location: (location[1], location[0]))
+    
+    return df_new_data
+
+
+def fetch_and_clean_ES_data(es, new_data: pd.DataFrame) -> pd.DataFrame | None :
+    # Get existing data after first date of new data
+    oldest_start_new_data = new_data['start'].min()
+    # Will pull PULL_RATE at a time
+    query_list = []
+    cont = True
+    while cont:
+        query_res = es.search(index='airquality',  body={
+            "query": {
+                "range": {
+                    "end": {
+                        "gte": oldest_start_new_data,
+                    }
+                }
+            },
+            "from": len(query_list),
+            "size": PULL_RATE})
+        # Clean up the data returned from elastic search, convert list to tuple
+        cleaned_list = [query_res['hits']['hits'][i]['_source']
+                        for i in range(len(query_res['hits']['hits']))]
+        if (len(cleaned_list) < PULL_RATE):
+            cont = False
+        query_list.extend(cleaned_list)
+
+    if len(query_list) == 0:
+        return None
+    
+    # Clean the pulled data
+    current_data = pd.DataFrame.from_records(
+        query_list, index=range(len(query_list)))
+    current_data['location'] = current_data['location'].apply(
+        lambda location: (location[0], location[1]))
+    # Convert date strings
+    current_data['start'] = current_data['start'].apply(
+        lambda s: datetime.strptime(s, '%Y-%m-%dT%H:%M:%S'))
+    current_data['end'] = current_data['end'].apply(
+        lambda s: datetime.strptime(s, '%Y-%m-%dT%H:%M:%S'))
+    
+    return current_data
 
 
 def accepting_new_data(new_data: pd.DataFrame, current_data: pd.DataFrame) -> list[dict]:
     """
-    Extract new data based on api return and current data
+    Compute which data to keep and upload, based on time range inclusion, 
+    to prevent duplicatas
 
     @param new_data is the data pulled from the EPA as a DataFrame
     @param current_data is the data in elastic search as a DataFrame
@@ -107,7 +209,7 @@ def accepting_new_data(new_data: pd.DataFrame, current_data: pd.DataFrame) -> li
     return kept_data
 
 
-def upload(data: list[dict], es: Elasticsearch) -> None:
+def upload_to_ES(data: list[dict], es: Elasticsearch) -> None:
     """
     Upload the data to elastic search. If fail retry
 
@@ -125,70 +227,54 @@ def upload(data: list[dict], es: Elasticsearch) -> None:
             logger.warn('Failed to upload ' + str(data) + ' RETRYING')
 
 
-def main():
+def main_to_Kafka():
     """
-    Pull the most recent data from the EPA and check what needs to be inserted
+    Pull the most recent data from the EPA and sends it to a Kafka message
     """
+    response_txt = fetch_epa()
+    uploaded = produce_kafka_message(response_txt, BOOTSTRAP_KAFKA, TOPIC_NAME)
+    
+    if uploaded :
+        logging.info('Message sent to Kafka')
+    else : 
+        logging.error('Could not send message to Kafka')
+    
+    #TODO get the status on the message upload and trigger main_to_ES in accordance
 
-    # Connect to database
+
+def main_to_ES():
+    """
+    Pull the most recent message from Kafka, check what needs to be inserted,
+    and upload it to ES in accordance
+    """
+    message_dict = consume_kafka_message(BOOTSTRAP_KAFKA, TOPIC_NAME)
+    df_new_data = clean_kafka_data(message_dict)
+
+    # Connect to ES database
     es = Elasticsearch([ELASTIC_URL], basic_auth=(ELASTIC_USER, ELASTIC_PASSWORD), verify_certs=False)
     if not es.ping():
-        raise ValueError("Connection failed")
+        raise ValueError("Connection failed")    
 
-    # Fetch data
-    new_data = fetch_epa()
-    df_new_data = pd.DataFrame.from_records(
-        new_data, index=range(len(new_data)))
+    if df_new_data is not None :
+        
+        df_current_data = fetch_and_clean_ES_data(es, df_new_data)
+        
+        if df_current_data is not None :
+            df_to_upload = accepting_new_data(df_new_data, df_current_data)
+        
+        else : 
+            logging.info('ES query result is empty')
+            df_to_upload = df_new_data
 
-    # Switch coordinate order for new data and move to tuple
-    df_new_data['location'] = df_new_data['location'].apply(
-        lambda location: (location[1], location[0]))
-
-    # Get existing data after first date of new data
-    oldest_start_new_data = df_new_data['start'].min()
-    # Will pull PULL_RATE at a time
-    query_list = []
-    cont = True
-    while cont:
-        query_res = es.search(index='airquality',  body={
-            "query": {
-                "range": {
-                    "end": {
-                        "gte": oldest_start_new_data,
-                    }
-                }
-            },
-            "from": len(query_list),
-            "size": PULL_RATE})
-        # Clean up the data returned from elastic search, convert list to tuple
-        cleaned_list = [query_res['hits']['hits'][i]['_source']
-                        for i in range(len(query_res['hits']['hits']))]
-        if (len(cleaned_list) < PULL_RATE):
-            cont = False
-        query_list.extend(cleaned_list)
-
-    # Clean the pulled data
-    if not len(query_list) == 0:
-        current_data = pd.DataFrame.from_records(
-            query_list, index=range(len(query_list)))
-        current_data['location'] = current_data['location'].apply(
-            lambda location: (location[0], location[1]))
-        # Convert date strings
-        current_data['start'] = current_data['start'].apply(
-            lambda s: datetime.strptime(s, '%Y-%m-%dT%H:%M:%S'))
-        current_data['end'] = current_data['end'].apply(
-            lambda s: datetime.strptime(s, '%Y-%m-%dT%H:%M:%S'))
-
-        # Remove collisions from new data
-        to_upload = accepting_new_data(df_new_data, current_data)
-    else:
-        to_upload = df_new_data
-
-    # Upload
-    for line in to_upload.to_dict(orient='records'):
-        upload(line, es)
+        # Upload
+        for line in df_to_upload.to_dict(orient='records'):
+            upload_to_ES(line, es)
+    
+    else : 
+        logging.info('Nothing retrieved from Kafka')
 
     return "Done"
 
 if __name__ == '__main__':
-    main()
+    main_to_Kafka()
+    main_to_ES()
