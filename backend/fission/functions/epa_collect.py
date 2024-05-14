@@ -1,11 +1,15 @@
 from datetime import datetime
 from elasticsearch import Elasticsearch
-import json
-import logging
-import pandas as pd
-import requests
 from elasticsearch.helpers import bulk
 from kafka import KafkaProducer, KafkaConsumer
+import requests
+import json
+import uuid
+import logging
+import pandas as pd
+
+
+
 
 # Constant url of the epa
 URL = 'https://gateway.api.epa.vic.gov.au/environmentMonitoring/v1/sites/parameters?environmentalSegment=air'
@@ -17,6 +21,7 @@ ELASTIC_PASSWORD = "cloudcomp"
 
 BOOTSTRAP_KAFKA = 'kafka-kafka-bootstrap.kafka.svc:9092'
 TOPIC_NAME = 'airquality-kafka'
+CONFIRM_TOPIC_NAME = 'airquality-uploaded-kafka'
 
 PULL_RATE = 100
 
@@ -27,11 +32,11 @@ logger = logging.getLogger('epa_collect.py')
 logging.basicConfig(level=logging.INFO)
 
 
-def fetch_epa() -> str :
+def fetch_epa() -> tuple[str,str] :
     """
     Get the current data from the EPA
 
-    @returns a string
+    @returns two strings, one is the message_id and one is the message
     """
     headers = {
         'Cache-Control': 'no-cache',
@@ -40,12 +45,15 @@ def fetch_epa() -> str :
     }
     resp = requests.get(URL, headers=headers)
     
-    #data = json.loads(resp.text)
+    # Generate a unique ID
+    message_id = str(uuid.uuid4())
 
-    return resp.text
+    buffer_message = str({'message_id': message_id, 'body':resp.text})
+
+    return message_id, buffer_message
 
 
-def produce_kafka_message(response_txt : str, bootstrap_servers , topic_name) -> bool :
+def produce_kafka_buffer_message(response_txt : str, bootstrap_servers , topic_name) -> bool :
     """
     Stores the EPA response into a Kafka message
 
@@ -66,9 +74,26 @@ def produce_kafka_message(response_txt : str, bootstrap_servers , topic_name) ->
     return True
 
 
+def produce_kafka_confirm_message(message_id, bootstrap_servers , topic_name) :
+
+
+    # Connect to Kafka and set up a producer client
+    producer = KafkaProducer(bootstrap_servers=bootstrap_servers, 
+                             value_serializer=json_serializer)
+    
+    try :
+        confirmation = str({'state':'Success', 'message_id':{message_id}})
+        producer.send(topic_name, value=confirmation)
+
+    except Exception as e :
+        logging.error(e)
+        return False
+
+
 def consume_kafka_message(bootstrap_servers,topic_name) -> dict:
     """
-    Consume the most recent message from Kafka, and convert to dictionnary
+    Consume the most recent message from Kafka topic, 
+    and convert to dictionnary
     """
     # Connect to Kafka and set up a consumer client
     consumer = KafkaConsumer(topic_name,
@@ -231,13 +256,14 @@ def main_to_Kafka():
     """
     Pull the most recent data from the EPA and sends it to a Kafka message
     """
-    response_txt = fetch_epa()
-    uploaded = produce_kafka_message(response_txt, BOOTSTRAP_KAFKA, TOPIC_NAME)
+    message_id, buffer_message = fetch_epa()
+    uploaded = produce_kafka_buffer_message(buffer_message, BOOTSTRAP_KAFKA, TOPIC_NAME)
     
-    if uploaded :
-        logging.info('Message sent to Kafka')
+    if uploaded:
+        logging.info('Buffer message sent to Kafka')
+        produce_kafka_confirm_message(message_id, BOOTSTRAP_KAFKA, CONFIRM_TOPIC_NAME)
     else : 
-        logging.error('Could not send message to Kafka')
+        logging.error('Could not send buffer message to Kafka')
     
     #TODO get the status on the message upload and trigger main_to_ES in accordance
 
@@ -247,8 +273,12 @@ def main_to_ES():
     Pull the most recent message from Kafka, check what needs to be inserted,
     and upload it to ES in accordance
     """
-    message_dict = consume_kafka_message(BOOTSTRAP_KAFKA, TOPIC_NAME)
-    df_new_data = clean_kafka_data(message_dict)
+    buffer_message = consume_kafka_message(BOOTSTRAP_KAFKA, TOPIC_NAME)
+    confirm_message = consume_kafka_message(BOOTSTRAP_KAFKA, CONFIRM_TOPIC_NAME)
+
+    if confirm_message['message_id'] = buffer_message['message_id']
+
+    df_new_data = clean_kafka_data(buffer_message['body'])
 
     # Connect to ES database
     es = Elasticsearch([ELASTIC_URL], basic_auth=(ELASTIC_USER, ELASTIC_PASSWORD), verify_certs=False)
