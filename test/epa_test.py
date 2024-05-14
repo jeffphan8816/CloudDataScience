@@ -1,4 +1,7 @@
-class Tests(unittest.TestCase):
+from unittest import TestCase
+import pandas as pd
+
+class Airquality_to_ES_Tests(unittest.TestCase):
     
     def test_fetch_epa(self):
 
