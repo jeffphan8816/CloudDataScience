@@ -1,9 +1,15 @@
 from unittest import TestCase
 import requests
+import json
 import pandas as pd
 
+RUN_FROM = 'bastion'
+if RUN_FROM == 'bastion' : URL = 'https://fission:31001/'
 
-BAD_PARAMS = {'Status': 400, 'Message': 'Invalid Parameters'}
+BAD_PARAMS_STR = "{'Status': 400, 'Message': 'Invalid Parameters'}"
+ERROR_STR = "{'Status': 500, 'Message': 'Internal Server Error'}"
+EMPTY_STR = "{'Status': 200, 'Data': []}"
+
 
 
 class APITests(TestCase):
@@ -11,17 +17,153 @@ class APITests(TestCase):
     def __init__(self, methodName: str = "api tests") -> None:
         super().__init__(methodName)
 
+    def test_station_list_api(self):
+        """
+        Test for the get request
+        """
+        resp = requests.get(URL+'stations').text
+        dic = json.loads(resp)
+        #TODO
 
-    def test_crash_connect(self):
+        self.assertEqual(resp,'')
+
+
+    def test_weather_api(self):
         """
-        Test for error when we are missing or headers
+        Test for error when we are missing or invalid headers,
+        test result for one valid (station_id,size,radius) triple
         """
-        try:
-            self.assertEqual(1,1)
-        except:
-            self.assertTrue(False)
-    
-    def test_airqual_connect(self):
-        return
-    def test_crime_connect(self):
-        return
+
+        # Missing header
+        resp = requests.get(URL+'weather/23034/2014').text
+        self.assertEqual(resp,BAD_PARAMS_STR)
+
+        # Invalid station_id
+        resp = requests.get(URL+'weather/STATION_ID/2014/2015').text
+        self.assertEqual(resp,EMPTY_STR)
+
+        # Invalid start_year
+        resp = requests.get(URL+'weather/23034/START_YEAR/2015').text
+        self.assertEqual(resp,ERROR_STR)
+
+        # Invalid end_year
+        resp = requests.get(URL+'weather/23034/2014/END_YEAR').text
+        self.assertEqual(resp,ERROR_STR)
+
+        # Valid triple
+        resp = requests.get(URL+'weather/23034/2014/2015').text
+        self.assertEqual(resp,'')
+
+
+    def test_crash_api(self):
+        """
+        Test for error when we are missing or invalid headers,
+        test result for one valid (station_id,size,radius) triple
+        """
+
+        # Missing header
+        resp = requests.get(URL+'crashes/23034/5000').text
+        self.assertEqual(resp,BAD_PARAMS_STR)
+
+        # Invalid station_id
+        resp = requests.get(URL+'crashes/STATION_ID/5000/3000').text
+        self.assertEqual(resp,EMPTY_STR)
+
+        # Invalid size
+        resp = requests.get(URL+'crashes/23034/SIZE/3000').text
+        self.assertEqual(resp,ERROR_STR)
+
+        # Size too big
+        resp = requests.get(URL+'crashes/23034/10500/3000').text
+        self.assertEqual(resp,BAD_PARAMS_STR)
+
+        # Invalid radius_km
+        resp = requests.get(URL+'crashes/23034/5000/RADIUS_KM').text
+        self.assertEqual(resp,ERROR_STR)
+
+        # Negative radius_km
+        resp = requests.get(URL+'crashes/23034/5000/-3000').text
+        self.assertEqual(resp,ERROR_STR)
+
+        # Valid triple
+        resp = requests.get(URL+'crashes/23034/5000/3000').text
+        self.assertEqual(resp,'')
+
+
+    def test_crime_api(self):
+        """
+        Test for error when we are missing or invalid headers,
+        test result for one valid (station_id,size,radius) triple
+        """
+
+        # Missing header
+        resp = requests.get(URL+'crimes/23034/5000').text
+        self.assertEqual(resp,BAD_PARAMS_STR)
+
+        # Invalid station_id
+        resp = requests.get(URL+'crimes/STATION_ID/5000/3000').text
+        self.assertEqual(resp,EMPTY_STR)
+
+        # Invalid size
+        resp = requests.get(URL+'crimes/23034/SIZE/3000').text
+        self.assertEqual(resp,ERROR_STR)
+
+        # Size too big
+        resp = requests.get(URL+'crimes/23034/10500/3000').text
+        self.assertEqual(resp,BAD_PARAMS_STR)
+
+        # Invalid radius_km
+        resp = requests.get(URL+'crimes/23034/5000/RADIUS_KM').text
+        self.assertEqual(resp,ERROR_STR)
+
+        # Negative radius_km
+        resp = requests.get(URL+'crimes/23034/5000/-3000').text
+        self.assertEqual(resp,ERROR_STR)
+
+        # Valid triple
+        resp = requests.get(URL+'crimes/23034/5000/3000').text
+        self.assertEqual(resp,'')
+
+
+    def test_airqual_api(self):
+        """
+        Test for error when we are missing or invalid headers,
+        test result for one valid (station_id,size,radius) triple
+        """
+
+        # Missing header
+        resp = requests.get(URL+'epa/23034/5000').text
+        self.assertEqual(resp,BAD_PARAMS_STR)
+
+        # Invalid station_id
+        resp = requests.get(URL+'epa/STATION_ID/5000/3000').text
+        self.assertEqual(resp,EMPTY_STR)
+
+        # Invalid size
+        resp = requests.get(URL+'epa/23034/SIZE/3000').text
+        self.assertEqual(resp,ERROR_STR)
+
+        # Size too big
+        resp = requests.get(URL+'epa/23034/10500/3000').text
+        self.assertEqual(resp,BAD_PARAMS_STR)
+
+        # Invalid radius_km
+        resp = requests.get(URL+'epa/23034/5000/RADIUS_KM').text
+        self.assertEqual(resp,ERROR_STR)
+
+        # Negative radius_km
+        resp = requests.get(URL+'epa/23034/5000/-3000').text
+        self.assertEqual(resp,ERROR_STR)
+
+        # Valid triple
+        resp = requests.get(URL+'epa/23034/5000/3000').text
+        self.assertEqual(resp,'')
+
+
+    def test_stream_api(self):
+        # Missing header
+        resp = requests.get(URL+'stream').text
+        self.assertEqual(resp,BAD_PARAMS_STR)
+
+
+
