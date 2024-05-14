@@ -48,13 +48,15 @@ if not es.ping():
 
 index_name = 'crimes'
 
-file_names = [f'20{i}-{i+1}-data_sa_crime.csv' for i in range(12,23)]
+# file_names = [f'2020-21-data_sa_crime.csv']
+file_names = [f'20{i}-{i+1}-data_sa_crime.csv' for i in range(21,23)]
+# file_names = [f'20{i}-{i+1}-data_sa_crime.csv' for i in range(12,23)]
 
 for file_name in file_names :
 
     result_list = get_crime_data(f'../../data/{file_name}')
 
-    for i in range(len(result_list)//BATCH_SIZE) :
+    for i in range((len(result_list)//BATCH_SIZE)+1) :
         cont = True
         while cont :
             try :
