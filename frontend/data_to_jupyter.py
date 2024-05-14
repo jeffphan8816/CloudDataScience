@@ -8,8 +8,6 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 
 import requests
-from elasticsearch import Elasticsearch
-from elasticsearch.helpers import scan
 
 
 def time_range_query(time_range, date_col_name='date', format_string='%Y-%m-%dT%H:%M:%S'):
