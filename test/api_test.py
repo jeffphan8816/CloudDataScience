@@ -22,10 +22,9 @@ class APITests(TestCase):
         Test for the get request
         """
         resp = requests.get(URL+'stations').text
-        dic = json.loads(resp)
-        #TODO
-
-        self.assertEqual(resp,'')
+        dic_stations = json.loads(resp)
+        df_stations = pd.DataFrame.from_records(dic_stations['Data'], index='Station ID')
+        self.assertEqual(df_stations.loc[23034,'Station Name'],'ADELAIDE AIRPORT')
 
 
     def test_weather_api(self):
@@ -97,31 +96,31 @@ class APITests(TestCase):
         """
 
         # Missing header
-        resp = requests.get(URL+'crimes/23034/5000').text
+        resp = requests.get(URL+'crime/23034/5000').text
         self.assertEqual(resp,BAD_PARAMS_STR)
 
         # Invalid station_id
-        resp = requests.get(URL+'crimes/STATION_ID/5000/3000').text
+        resp = requests.get(URL+'crime/STATION_ID/5000/3000').text
         self.assertEqual(resp,EMPTY_STR)
 
         # Invalid size
-        resp = requests.get(URL+'crimes/23034/SIZE/3000').text
+        resp = requests.get(URL+'crime/23034/SIZE/3000').text
         self.assertEqual(resp,ERROR_STR)
 
         # Size too big
-        resp = requests.get(URL+'crimes/23034/10500/3000').text
+        resp = requests.get(URL+'crime/23034/10500/3000').text
         self.assertEqual(resp,BAD_PARAMS_STR)
 
         # Invalid radius_km
-        resp = requests.get(URL+'crimes/23034/5000/RADIUS_KM').text
+        resp = requests.get(URL+'crime/23034/5000/RADIUS_KM').text
         self.assertEqual(resp,ERROR_STR)
 
         # Negative radius_km
-        resp = requests.get(URL+'crimes/23034/5000/-3000').text
+        resp = requests.get(URL+'crime/23034/5000/-3000').text
         self.assertEqual(resp,ERROR_STR)
 
         # Valid triple
-        resp = requests.get(URL+'crimes/23034/5000/3000').text
+        resp = requests.get(URL+'crime/23034/5000/3000').text
         self.assertEqual(resp,'')
 
 
