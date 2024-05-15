@@ -252,6 +252,22 @@ def upload_to_ES(data: list[dict], es: Elasticsearch) -> None:
             logger.warn('Failed to upload ' + str(data) + ' RETRYING')
 
 
+def reset_kafka_confirm_message(bootstrap_servers , topic_name) :
+
+
+    # Connect to Kafka and set up a producer client
+    producer = KafkaProducer(bootstrap_servers=bootstrap_servers, 
+                             value_serializer=json_serializer)
+    
+    try :
+        confirmation = str({'state':'Reseted', 'message_id':0})
+        producer.send(topic_name, value=confirmation)
+
+    except Exception as e :
+        logging.error(e)
+        return False
+
+
 def main_to_Kafka():
     """
     Pull the most recent data from the EPA and sends it to a Kafka message
@@ -265,8 +281,6 @@ def main_to_Kafka():
     else : 
         logging.error('Could not send buffer message to Kafka')
     
-    #TODO get the status on the message upload and trigger main_to_ES in accordance
-
 
 def main_to_ES():
     """
@@ -279,6 +293,8 @@ def main_to_ES():
     if confirm_message['message_id'] != buffer_message['message_id'] :
         raise ValueError('Confirmation message not found in Kafka')
     
+    reset_kafka_confirm_message(BOOTSTRAP_KAFKA, CONFIRM_TOPIC_NAME)
+
     df_new_data = clean_kafka_data(buffer_message['body'])
 
     # Connect to ES database
