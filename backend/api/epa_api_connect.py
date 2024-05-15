@@ -84,6 +84,8 @@ def main():
         out['Status'] = 200
         out['Token'] = epa_results['_scroll_id']
         out['Data'] = epa_results['hits']['hits']
+        if len(out['Data']) == 0:
+            out['Token'] = 'END'
         return json.dumps(out)
     except:
         return ERROR

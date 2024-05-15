@@ -106,6 +106,8 @@ def main():
         out['Status'] = 200
         out['Token'] = crimes['_scroll_id']
         out['Data'] = crimes['hits']['hits']
+        if len(out['Data']) == 0:
+            out['Token'] = 'END'
         return json.dumps(out)
     except:
         return ERROR

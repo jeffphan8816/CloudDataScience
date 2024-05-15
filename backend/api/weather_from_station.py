@@ -63,7 +63,7 @@ def main():
 
     # Then get weather results
     try:
-        weather_results = es.search(index='weather_past_obs', body={
+        weather_results = es.search(index='weather_past_obs_kafka', body={
             'size': 10000,
             'query': {
                 'bool': {
