@@ -237,11 +237,9 @@ def insert_data_to_es(df: pd.DataFrame):
 
         document_id = f"{station_name}_{timestamp}"
 
-        document = {
-            "station_name": station_name,
-            "timestamp": timestamp,
-            "data": row.to_dict()
-        }
+        document = row.to_dict()
+        document['station_name'] = station_name
+        document['timestamp'] = timestamp
 
         es.index(index=index_name, body=document, id=document_id)
 
