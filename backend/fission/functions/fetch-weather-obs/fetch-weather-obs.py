@@ -1,26 +1,3 @@
-"""
-This module contains functions to fetch weather data asynchronously from multiple URLs,
-convert the data into a pandas DataFrame, and insert the data into an Elasticsearch index.
-
-Functions:
-----------
-fetch_weather(session, url):
-    Fetches weather data from a given URL using an aiohttp session.
-    Handles HTTP errors and retries the request up to 5 times with a 2-second delay between each attempt.
-
-get_selected_weather(urls):
-    Fetches weather data from a list of URLs asynchronously.
-
-get_weather_data(selected_areas):
-    Reads a lookup of weather stations from a JSON file, selects the stations for the specified areas,
-    fetches the weather data for these stations, and returns the data as a pandas DataFrame.
-
-insert_data_to_es(df):
-    Inserts the data from a pandas DataFrame into an Elasticsearch index.
-
-main():
-    Fetches weather data for Melbourne, inserts the data into an Elasticsearch index, and returns the data as a pandas DataFrame.
-"""
 import os
 import asyncio
 import json
@@ -30,8 +7,6 @@ import requests
 import aiohttp
 import numpy as np
 import pandas as pd
-from elasticsearch import Elasticsearch
-from elasticsearch.helpers import bulk
 from tenacity import before_sleep_log, retry, stop_after_attempt, wait_fixed
 
 # Setting up logging
@@ -179,119 +154,29 @@ def get_weather_data(selected_areas: list) -> pd.DataFrame:
 
     return df
 
-
-def insert_data_to_es(df: pd.DataFrame):
-    """
-    Inserts the data from a pandas DataFrame into an Elasticsearch index.
-
-    Parameters:
-    -----------
-    df : pd.DataFrame
-        The DataFrame containing the data to insert into the Elasticsearch index.
-
-    Returns:
-    --------
-    bool
-        Returns True if the data is successfully inserted into the Elasticsearch index.
-
-    Raises:
-    -------
-    ValueError
-        If the connection to the Elasticsearch server fails.
-
-    Notes:
-    ------
-    The function reads the Elasticsearch mapping from a JSON file, establishes a connection
-    to the Elasticsearch server, checks if the index exists, creates it if it doesn't, and
-    inserts the data from the DataFrame into the index. The index name is hardcoded as
-    'stream_weather_data'. The Elasticsearch server URL, username, and password are also hardcoded.
-    """
-
-    current_dir = os.path.dirname(__file__)
-
-    # Get explicit mapping of the column types for Elasticsearch
-    with open(os.path.join(current_dir, "bom_es_mapping.json"), "r") as f:
-        mapping = json.load(f)
-
-    # TODO: replace with dot env
-    url = 'https://elasticsearch.elastic.svc.cluster.local:9200'
-    user = "elastic"
-    password = "cloudcomp"
-
-    es = Elasticsearch([url], basic_auth=(user, password), verify_certs=False)
-
-    if not es.ping():
-        raise ValueError("Connection failed")
-
-    # Define the index name
-    index_name = "stream_weather_data"
-
-    # Check if the index exists
-    if not es.indices.exists(index=index_name):
-        es.indices.create(index=index_name)
-
-    # Insert data to ES - Use bulk method here?
-    for i, row in df.iterrows():
-
-        station_name = row["name"]
-        timestamp = row["aifstime_utc"]
-
-        document_id = f"{station_name}_{timestamp}"
-
-        document = row.to_dict()
-        document['station_name'] = station_name
-        document['timestamp'] = timestamp
-
-        es.index(index=index_name, body=document, id=document_id)
-
-    logger.info("Data inserted to Elasticsearch")
-
-    return True
-
+@retry(
+    wait=wait_fixed(2),
+    stop=stop_after_attempt(5),
+    before_sleep=before_sleep_log(logger, logging.INFO),
+)
 def post_to_ingest(data):
 
     FISSION_URL = 'http://172.26.135.52:9090/'
     FISSION_HEADERS = {'HOST': 'fission'}
 
-    ingest_url = f'FISSION_URL/ingest-weather'
+    ingest_url = f'{FISSION_URL}/ingest-weather-obs'
     json_data = data.to_json(orient='records')
-    response = requests.post(ingest_url, json=json_data, headers=FISSION_HEADERS)
-    return response
 
-def ingest_data(context):
-    try:
-        data = context.request.json
-        insert_data_to_es(data)
-    except Exception as e:
-        print(f"Failed to ingest data: {str(e)}")
+    response = requests.post(ingest_url, json=json_data, headers=FISSION_HEADERS)
+
+    return response
 
 
 def main():
-    """
-    Fetches weather data for Melbourne, inserts the data into an Elasticsearch index,
-    and returns the data as a pandas DataFrame.
 
-    Returns:
-    --------
-    pd.DataFrame
-        A DataFrame containing the weather data for Melbourne.
-
-    Raises:
-    -------
-    ValueError
-        If the connection to the Elasticsearch server fails.
-
-    Notes:
-    ------
-    The function calls the get_weather_data function to fetch the weather data for Melbourne,
-    calls the insert_data_to_es function to insert the data into the Elasticsearch index,
-    and returns the DataFrame of weather data.
-    """
     df = get_weather_data(["Melbourne"])
     print(df)
 
-    insert_data_to_es(df)
-
-    # post_to_ingest(df)
+    post_to_ingest(df)
 
     return "Done"

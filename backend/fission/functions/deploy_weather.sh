@@ -49,6 +49,38 @@ fission fn test --name multiweather
 fission fn logs --name multiweather
 
 
+
+# Ingest weather obs ------------------------------------
+zip -jr ingest-weather-obs.zip ingest-weather-obs
+fission package update --sourcearchive ingest-weather-obs.zip --env python-multi --buildcmd "./build.sh" --name ingest-weather-obs
+fission fn update --name ingest-weather-obs --pkg ingest-weather-obs --entrypoint "ingest-weather-obs.main"
+fission route delete --name ingest-weather-obs
+fission route create --method POST --url /ingest-weather-obs --function ingest-weather-obs --name ingest-weather-obs
+
+# fission fn test --name ingest-weather-obs
+fission fn logs --name ingest-weather-obs
+
+curl -X POST http://172.26.135.52:9090/ingest-weather-obs \
+     -H "Content-Type: application/json" \
+     -H "Host: fission" \
+     -d '{"data": "sample"}'
+fission fn logs --name ingest-weather-obs
+
+# Fetch weather obs ------------------------------------
+
+zip -jr fetch-weather-obs.zip fetch-weather-obs
+fission package update --sourcearchive fetch-weather-obs.zip --env python-multi --buildcmd "./build.sh" --name fetch-weather-obs
+fission fn update --name fetch-weather-obs --pkg fetch-weather-obs --entrypoint "fetch-weather-obs.main"
+
+fission fn test --name fetch-weather-obs
+fission fn logs --name fetch-weather-obs
+
+fission timer create --name get-hourly-weather --function fetch-weather-obs --cron "@hourly"
+
+
+# fission fn test --name fetch-weather-obs
+# fission fn logs --name ingest-weather-obs
+
 # from ypp ------------------------------------
 zip -jr multiweather.zip multiweather
 fission package create --sourcearchive multiweather.zip --env python-multi --buildcmd "./build.sh" --name multiweather
