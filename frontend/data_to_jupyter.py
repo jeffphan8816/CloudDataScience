@@ -51,7 +51,7 @@ def fetch_weather_crime(year_range, run_from='bastion'):
     else :
         raise ValueError('Connection failed')
 
-    query_weather = time_range_query(year_range, date_col_name='Date', format_string='%m/%d/%Y')
+    query_weather = time_range_query(year_range, date_col_name='Date', format_string='%d/%m/%Y')
     df_weather = query_to_pandas(query_weather, es, 'weather_past_obs')
 
     df_weather = df_weather.rename(columns={'Date':'date'})
