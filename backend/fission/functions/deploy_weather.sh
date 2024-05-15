@@ -75,7 +75,8 @@ fission fn update --name fetch-weather-obs --pkg fetch-weather-obs --entrypoint 
 fission fn test --name fetch-weather-obs
 fission fn logs --name fetch-weather-obs
 
-fission timer create --name get-hourly-weather --function fetch-weather-obs --cron "@hourly"
+fission timer create --name get-hourly-weather --function fetch-weather-obs --cron "15 * * * *"
+
 
 
 # fission fn test --name fetch-weather-obs
