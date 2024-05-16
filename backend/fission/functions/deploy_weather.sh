@@ -76,6 +76,41 @@ fission fn test --name fetch-weather-obs
 fission fn logs --name fetch-weather-obs
 
 fission timer create --name get-hourly-weather --function fetch-weather-obs --cron "15 * * * *"
+fission timer delete --name get-hourly-weather
+
+
+
+# fission route create --method GET --url /fetch-weather-obs/{state}/{region} --function fetch-weather-obs --name fetch-weather-obs
+fission route delete --name fetch-weather-obs
+fission route create --method GET --url /fetch-weather-obs --function fetch-weather-obs --name fetch-weather-obs
+
+
+
+curl -X GET http://172.26.135.52:9090/fetch-weather-obs/VIC/MALLEE \
+     -H "Host: fission"
+
+curl -X GET http://172.26.135.52:9090/fetch-weather-obs/NSW/MALLEE \
+     -H "Host: fission"
+
+curl -X GET http://172.26.135.52:9090/fetch-weather-obs/NSW \
+     -H "Host: fission"
+
+# Default
+curl -X GET http://172.26.135.52:9090/fetch-weather-obs -H "Host: fission"
+fission fn logs --name fetch-weather-obs
+
+# These should pass
+curl -X GET "http://172.26.135.52:9090/fetch-weather-obs?state=VIC&region=MALLEE" -H "Host: fission"
+fission fn logs --name fetch-weather-obs
+
+curl -X GET "http://172.26.135.52:9090/fetch-weather-obs?state=WA&region=KIMBERLEY" -H "Host: fission"
+fission fn logs --name fetch-weather-obs
+
+# These should fail
+curl -X GET "http://172.26.135.52:9090/fetch-weather-obs?state=NSW&region=MALLEE" -H "Host: fission"
+curl -X GET "http://172.26.135.52:9090/fetch-weather-obs?state=NSW" -H "Host: fission"
+
+
 
 
 

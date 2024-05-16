@@ -161,9 +161,8 @@ def post_to_ingest(data):
 
 def main():
 
-    # Check request and apply default if not provided
-    state = request.headers.get("X-Fission-Params-state", "VIC")
-    region = request.headers.get("X-Fission-Params-region", "CENTRAL")
+    state = request.args.get("state", "VIC")
+    region = request.args.get("region", "CENTRAL")
 
     # Verify the state is valid
     if state not in ["VIC", "NSW", "QLD", "SA", "WA", "TAS", "NT", "ACT"]:
@@ -183,6 +182,6 @@ def main():
     print(weather_data)
 
     # post_to_processing(result)
-    post_to_ingest(weather_data)
+    # post_to_ingest(weather_data)
 
     return "Done"
