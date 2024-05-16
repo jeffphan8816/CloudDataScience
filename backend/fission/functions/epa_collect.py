@@ -9,17 +9,22 @@ import logging
 import pandas as pd
 
 
-
-
 # Constant url of the epa
 URL = 'https://gateway.api.epa.vic.gov.au/environmentMonitoring/v1/sites/parameters?environmentalSegment=air'
 KEY = '96ff8ef9e03048e2bd2fa342a5d80587'
 
-ELASTIC_URL = 'https://elasticsearch.elastic.svc.cluster.local:9200'
+RUN_FROM = 'uni_wifi'
+
+if RUN_FROM == 'bastion' : ES_URL, ES_HEADERS = 'https://elasticsearch.elastic.svc.cluster.local:9200', None
+if RUN_FROM == 'uni_wifi' : ES_URL, ES_HEADERS = 'https://172.26.135.52:9200', {'HOST': 'elasticsearch'}
+
 ELASTIC_USER = "elastic"
 ELASTIC_PASSWORD = "cloudcomp"
 
 BOOTSTRAP_KAFKA = 'kafka-kafka-bootstrap.kafka.svc:9092'
+if RUN_FROM == 'bastion' : BOOTSTRAP_KAFKA = 'kafka-kafka-bootstrap.kafka.svc:9092'
+if RUN_FROM == 'uni_wifi' : BOOTSTRAP_KAFKA = 'https://172.26.135.52:9092'
+
 TOPIC_NAME = 'airquality-kafka'
 CONFIRM_TOPIC_NAME = 'airquality-uploaded-kafka'
 
@@ -53,7 +58,7 @@ def fetch_epa() -> tuple[str,str] :
     return message_id, buffer_message
 
 
-def produce_kafka_buffer_message(response_txt : str, bootstrap_servers , topic_name) -> bool :
+def produce_kafka_buffer_message(response_txt : str, bootstrap_servers, topic_name) -> bool :
     """
     Stores the EPA response into a Kafka message
 
@@ -298,9 +303,9 @@ def main_to_ES():
     df_new_data = clean_kafka_data(buffer_message['body'])
 
     # Connect to ES database
-    es = Elasticsearch([ELASTIC_URL], basic_auth=(ELASTIC_USER, ELASTIC_PASSWORD), verify_certs=False)
+    es = Elasticsearch(ES_URL, basic_auth=(ELASTIC_USER, ELASTIC_PASSWORD), headers=ES_HEADERS, verify_certs=False)
     if not es.ping():
-        raise ValueError('Connection failed')    
+        raise ValueError('Connection failed')
 
     if df_new_data is not None :
         
@@ -324,4 +329,4 @@ def main_to_ES():
 
 if __name__ == '__main__':
     main_to_Kafka()
-    main_to_ES()
+    #main_to_ES()
