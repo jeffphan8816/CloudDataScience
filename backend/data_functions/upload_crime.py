@@ -8,6 +8,14 @@ import logging
 logger = logging.getLogger('upload_crime.py')
 logging.basicConfig(level=logging.INFO)
 
+RUN_FROM = 'uni_wifi'
+
+if RUN_FROM == 'bastion' : URL, HEADERS = 'https://elasticsearch.elastic.svc.cluster.local:9200', None
+if RUN_FROM == 'uni_wifi' : URL, HEADERS = 'https://172.26.135.52:9200', {'HOST': 'elasticsearch'}
+
+USER = 'elastic'
+PASSWORD = 'cloudcomp'
+
 BATCH_SIZE = 500
 
 def get_crime_data(file_path: str) -> list:
@@ -38,19 +46,14 @@ def get_crime_data(file_path: str) -> list:
     return df.to_dict(orient='records')
 
 
-url = 'https://elasticsearch:31001'
-user = "elastic"
-password = "cloudcomp"
-es = Elasticsearch([url], basic_auth=(user, password), verify_certs=False)
+es = Elasticsearch(URL, basic_auth=(USER, PASSWORD), headers='HEADERS', verify_certs=False)
 
 if not es.ping():
     raise ValueError("Connection failed")
 
 index_name = 'crimes'
 
-# file_names = [f'2020-21-data_sa_crime.csv']
 file_names = [f'20{i}-{i+1}-data_sa_crime.csv' for i in range(21,23)]
-# file_names = [f'20{i}-{i+1}-data_sa_crime.csv' for i in range(12,23)]
 
 for file_name in file_names :
 
