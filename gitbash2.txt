@@ -1,0 +1,6 @@
+ssh-agent bash -c 'ssh-add /home/alistairw/uni/comp90024/ass2/gitlab_oc_ubuntu; git clone git@gitlab.unimelb.edu.au:DBBL/cloudcompa2.git'
+ssh-agent bash -c 'ssh-add /home/alistairw/uni/comp90024/ass2/gitlab_oc_ubuntu; git push'
+
+
+
+ssh-agent bash -c 'ssh-add /home/alistairw/uni/comp90024/ass2/gitlab_oc_ubuntu; git pull origin master'

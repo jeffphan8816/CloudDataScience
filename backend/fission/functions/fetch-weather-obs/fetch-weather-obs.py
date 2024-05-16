@@ -7,6 +7,8 @@ import requests
 import aiohttp
 import numpy as np
 import pandas as pd
+
+from flask import request
 from tenacity import before_sleep_log, retry, stop_after_attempt, wait_fixed
 
 # Setting up logging
@@ -99,43 +101,23 @@ async def get_selected_weather(urls: str) -> list:
         return results
 
 
-def get_weather_data(selected_areas: list) -> pd.DataFrame:
-    """
-    Fetches weather data for the specified areas, converts the data into a pandas DataFrame,
-    and joins the DataFrame with the original DataFrame of areas.
+def get_weather_data(state, region) -> str:
 
-    Parameters:
-    -----------
-    selected_areas : list of str
-        The list of areas to fetch the weather data for.
-
-    Returns:
-    --------
-    pd.DataFrame
-        A DataFrame containing the weather data for the specified areas. The DataFrame has
-        the same columns as the original DataFrame of areas, plus additional columns for
-        the weather data.
-
-    Raises:
-    -------
-    Does not raise any exceptions, but logs them and returns an empty DataFrame if an error occurs.
-    """
-
+    # Read in the lookup the relevant state
     current_dir = os.path.dirname(__file__)
+    with open(os.path.join(current_dir, f"bom_lookup_{state.lower()}.json"), "r") as f:
+        bom_state_lookup = json.load(f)
 
-    # Read in the lookup for all weather stations
-    with open(os.path.join(current_dir, "bom_lookup.json"), "r") as f:
-        bom_lookup = json.load(f)
+    # Get the relevant region
+    selected_bom_region = bom_state_lookup[region]
 
-    # TODO: Placeholder - will need to be updated to handle more than one area
-    selected_areas = ["Melbourne"]
-    selected_bom_areas = bom_lookup[selected_areas[0]]
-
-    df = pd.DataFrame(selected_bom_areas)
+    # Create the DataFrame and add the json_url endpoint
+    df = pd.DataFrame(selected_bom_region)
     df["json_url"] = (
         df["url"].str.replace("shtml", "json").str.replace("/products/", "/fwo/")
     )
 
+    # TODO Add as unit tests
     # Handles both scenarios now
     # df["json_url"] = df["json_url"].str.replace("IDV", "asdf")
     # df["json_url"][0] = df["json_url"][0].replace("IDV", "asdf")
@@ -146,13 +128,18 @@ def get_weather_data(selected_areas: list) -> pd.DataFrame:
     observations = loop.run_until_complete(get_selected_weather(urls))
 
     # Convert observations to DataFrame and join with original df
-    df_observation = pd.DataFrame(observations)
-    df = df.join(df_observation, rsuffix="_obs")
+    # df_observation = pd.DataFrame(observations)
+    # df = df.join(df_observation, rsuffix="_obs")
 
-    # Remove NaN values as can't be inserted into ES
-    df.replace({np.nan: None}, inplace=True)
+    for entry, observation in zip(selected_bom_region, observations):
+        entry.update(observation)
 
-    return df
+    # # TODO move to cleaning/processing function
+    # # Remove NaN values as can't be inserted into ES
+    # df.replace({np.nan: None}, inplace=True)
+
+    return json.dumps(observations)
+
 
 @retry(
     wait=wait_fixed(2),
@@ -161,22 +148,41 @@ def get_weather_data(selected_areas: list) -> pd.DataFrame:
 )
 def post_to_ingest(data):
 
-    FISSION_URL = 'http://172.26.135.52:9090/'
-    FISSION_HEADERS = {'HOST': 'fission'}
+    FISSION_URL = "http://172.26.135.52:9090/"
+    FISSION_HEADERS = {"HOST": "fission"}
 
-    ingest_url = f'{FISSION_URL}/ingest-weather-obs'
-    json_data = data.to_json(orient='records')
+    ingest_url = f"{FISSION_URL}/ingest-weather-obs"
+    # json_data = data.to_json(orient="records")
 
-    response = requests.post(ingest_url, json=json_data, headers=FISSION_HEADERS)
+    response = requests.post(ingest_url, json=data, headers=FISSION_HEADERS)
 
     return response
 
 
 def main():
 
-    df = get_weather_data(["Melbourne"])
-    print(df)
+    # Check request and apply default if not provided
+    state = request.headers.get("X-Fission-Params-state", "VIC")
+    region = request.headers.get("X-Fission-Params-region", "CENTRAL")
 
-    post_to_ingest(df)
+    # Verify the state is valid
+    if state not in ["VIC", "NSW", "QLD", "SA", "WA", "TAS", "NT", "ACT"]:
+        return json.dumps({"Status": 400, "Message": "Invalid state provided"})
+
+    # Verify a valid region is provided
+    current_dir = os.path.dirname(__file__)
+    # current_dir = "./backend/fission/functions/fetch-weather-obs/"
+    with open(os.path.join(current_dir, "bom_groupings.json"), "r") as f:
+        bom_lookup = json.load(f)
+
+    if region not in bom_lookup[state]["Regions"]:
+        return json.dumps({"Status": 400, "Message": "Invalid region provided"})
+
+    # Get the weather data and post to ingest
+    weather_data = get_weather_data(state, region)
+    print(weather_data)
+
+    # post_to_processing(result)
+    post_to_ingest(weather_data)
 
     return "Done"
