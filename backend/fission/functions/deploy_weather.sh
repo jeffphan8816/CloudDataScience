@@ -49,6 +49,16 @@ fission fn test --name multiweather
 fission fn logs --name multiweather
 
 
+# Process weather obs ------------------------------------
+
+# fission package create --sourcearchive process-weather-obs.zip --env python-multi --buildcmd "./build.sh" --name process-weather-obs
+# fission fn create --name process-weather-obs --pkg process-weather-obs --entrypoint "process-weather-obs.main"
+zip -jr process-weather-obs.zip process-weather-obs
+fission package update --sourcearchive process-weather-obs.zip --env python-multi --buildcmd "./build.sh" --name process-weather-obs
+fission fn update --name process-weather-obs --pkg process-weather-obs --entrypoint "process-weather-obs.main"
+fission route delete --name process-weather-obs
+fission route create --method POST --url /process-weather-obs --function process-weather-obs --name process-weather-obs
+
 
 # Ingest weather obs ------------------------------------
 zip -jr ingest-weather-obs.zip ingest-weather-obs
@@ -106,12 +116,21 @@ fission fn logs --name fetch-weather-obs
 curl -X GET "http://172.26.135.52:9090/fetch-weather-obs?state=WA&region=KIMBERLEY" -H "Host: fission"
 fission fn logs --name fetch-weather-obs
 
+# Check with long region name with spaces
+curl -X GET 'http://172.26.135.52:9090/fetch-weather-obs?state=WA&region=CENTRAL%20WEST' -H "Host: fission"
+fission fn logs --name fetch-weather-obs
+
+
 # These should fail
 curl -X GET "http://172.26.135.52:9090/fetch-weather-obs?state=NSW&region=MALLEE" -H "Host: fission"
 curl -X GET "http://172.26.135.52:9090/fetch-weather-obs?state=NSW" -H "Host: fission"
 
 
 
+# Test sequence ------------------------------------
+curl -X GET "http://172.26.135.52:9090/fetch-weather-obs?state=WA&region=ISLANDS" -H "Host: fission"
+fission fn logs --name fetch-weather-obs
+fission fn logs --name process-weather-obs
 
 
 # fission fn test --name fetch-weather-obs

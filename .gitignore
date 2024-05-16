@@ -161,3 +161,4 @@ cython_debug/
 backend/fission/functions/multiweather.zip
 backend/fission/functions/fetch-weather-obs.zip
 backend/fission/functions/ingest-weather-obs.zip
+backend/fission/functions/process-weather-obs.zip

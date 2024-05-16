@@ -146,12 +146,12 @@ def get_weather_data(state, region) -> str:
     stop=stop_after_attempt(5),
     before_sleep=before_sleep_log(logger, logging.INFO),
 )
-def post_to_ingest(data):
+def post_to_processing(data):
 
     FISSION_URL = "http://172.26.135.52:9090/"
     FISSION_HEADERS = {"HOST": "fission"}
 
-    ingest_url = f"{FISSION_URL}/ingest-weather-obs"
+    ingest_url = f"{FISSION_URL}/process-weather-obs"
     # json_data = data.to_json(orient="records")
 
     response = requests.post(ingest_url, json=data, headers=FISSION_HEADERS)
@@ -181,7 +181,7 @@ def main():
     weather_data = get_weather_data(state, region)
     print(weather_data)
 
-    # post_to_processing(result)
+    post_to_processing(weather_data)
     # post_to_ingest(weather_data)
 
     return "Done"
