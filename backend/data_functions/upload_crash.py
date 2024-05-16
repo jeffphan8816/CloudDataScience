@@ -27,10 +27,9 @@ def get_crash_data(file_path: str) -> list:
                             'light_condition': 'light_condition', ' longitude': 'longitude', ' severity': 'severity'})
 
     df['location'] = list(zip(df['longitude'], df['latitude']))
-    df.drop(['latitude','longitude'], axis=1)
 
-    to_keep = ['crash_date', 'latitude',
-               'light_condition', 'longitude', 'severity']
+    to_keep = ['crash_date', 'location',
+               'light_condition', 'severity']
     df_reduced = df.drop(set(df.columns)-set(to_keep), axis=1)
 
     # Try to convert severity to int
@@ -60,7 +59,10 @@ index_name = 'crashes'
 
 result_list = get_crash_data('../../data/sudo_tasmania_crash_2010_2020.csv')
 
-for i in range(len(result_list)//BATCH_SIZE) :
+extra = 0
+if not len(result_list) % BATCH_SIZE == 0:
+    extra = 1
+for i in range(len(result_list)//BATCH_SIZE + extra) :
     cont = True
     while cont :
         try :
