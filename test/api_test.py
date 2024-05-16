@@ -4,7 +4,9 @@ import json
 import pandas as pd
 
 RUN_FROM = 'bastion'
-if RUN_FROM == 'bastion' : URL = 'https://fission:31001/'
+
+if RUN_FROM == 'bastion' : URL, HEADERS = 'http://fission:31001/', None
+if RUN_FROM == 'uni_wifi': URL, HEADERS =  'http://172.26.135.52:9090/', {'HOST': 'fission'}
 
 BAD_PARAMS_STR = "{'Status': 400, 'Message': 'Invalid Parameters'}"
 ERROR_STR = "{'Status': 500, 'Message': 'Internal Server Error'}"
