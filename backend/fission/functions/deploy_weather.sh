@@ -131,6 +131,7 @@ curl -X GET "http://172.26.135.52:9090/fetch-weather-obs?state=NSW" -H "Host: fi
 curl -X GET "http://172.26.135.52:9090/fetch-weather-obs?state=WA&region=ISLANDS" -H "Host: fission"
 fission fn logs --name fetch-weather-obs
 fission fn logs --name process-weather-obs
+fission fn logs --name ingest-weather-obs
 
 
 # fission fn test --name fetch-weather-obs

@@ -12,38 +12,14 @@ from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk
 from flask import request
 from tenacity import before_sleep_log, retry, stop_after_attempt, wait_fixed
+from typing import Any, Dict
 
 # Setting up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def insert_data_to_es(df: pd.DataFrame):
-    """
-    Inserts the data from a pandas DataFrame into an Elasticsearch index.
-
-    Parameters:
-    -----------
-    df : pd.DataFrame
-        The DataFrame containing the data to insert into the Elasticsearch index.
-
-    Returns:
-    --------
-    bool
-        Returns True if the data is successfully inserted into the Elasticsearch index.
-
-    Raises:
-    -------
-    ValueError
-        If the connection to the Elasticsearch server fails.
-
-    Notes:
-    ------
-    The function reads the Elasticsearch mapping from a JSON file, establishes a connection
-    to the Elasticsearch server, checks if the index exists, creates it if it doesn't, and
-    inserts the data from the DataFrame into the index. The index name is hardcoded as
-    'stream_weather_data'. The Elasticsearch server URL, username, and password are also hardcoded.
-    """
+def insert_data_to_es(data: Dict[str, Any]):
 
     current_dir = os.path.dirname(__file__)
 
@@ -68,32 +44,34 @@ def insert_data_to_es(df: pd.DataFrame):
     if not es.indices.exists(index=index_name):
         es.indices.create(index=index_name)
 
-    # Remove NaN values as can't be inserted into ES
-    df.replace({np.nan: None}, inplace=True)
-
-    # Insert data to ES - Use bulk method here?
-    for i, row in df.iterrows():
-
-        station_name = row["name"]
-        timestamp = row["aifstime_utc"]
+    actions = []
+    for record in data:
+        station_name = record["name"]
+        timestamp = record["aifstime_utc"]
 
         document_id = f"{station_name}_{timestamp}"
 
-        document = row.to_dict()
+        document = record
         document['station_name'] = station_name
         document['timestamp'] = timestamp
 
-        es.index(index=index_name, body=document, id=document_id)
+        action = {
+            "_index": index_name,
+            "_id": document_id,
+            "_source": document
+        }
+        actions.append(action)
 
-    logger.info("Data inserted to Elasticsearch")
+    if actions:
+        bulk(es, actions)
+        logger.info("Data inserted to Elasticsearch")
 
     return True
 
 
-def ingest_data(data):
+
+def ingest_data(data: Dict[str, Any]):
     try:
-        # data = context.request.json
-        data = pd.DataFrame(data)
         insert_data_to_es(data)
     except Exception as e:
         print(f"Failed to ingest data: {str(e)}")
