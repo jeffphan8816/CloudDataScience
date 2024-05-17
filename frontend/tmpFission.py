@@ -224,3 +224,45 @@ def tempFissionWeather(station, start, end):
         return json.dumps(out)
     except:
         return ERROR
+
+
+def tempFissionCrashes():
+    # Then get crashes in the radius
+    size = 10000
+    try:
+        results = es.search(index='crashes', body={
+            'size': size,
+            'query': {
+                'match_all': {}
+            }
+        }, scroll=SCROLL)
+
+        out = {}
+        out['Status'] = 200
+        out['Token'] = results['_scroll_id']
+        out['Data'] = results['hits']['hits']
+        if len(out['Data']) == 0:
+            out['Token'] = 'END'
+        return json.dumps(out)
+    except:
+        return ERROR
+
+def tempFissionStations():
+    # Then get crashes in the radius
+    # size = 10000
+    try:
+        results = es.search(index='station_locations', body={
+            "query": {
+                "match_all": {}
+            }
+        })
+        out = {}
+        out['Status'] = 200
+        # out['Token'] = results['_scroll_id']
+        out['Data'] = results['hits']['hits']
+        if len(out['Data']) == 0:
+            out['Token'] = 'END'
+        return json.dumps(out)
+    except:
+        return ERROR
+
