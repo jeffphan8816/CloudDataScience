@@ -1,9 +1,10 @@
 from datetime import datetime
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk
-from kafka import KafkaProducer, KafkaConsumer
+from kafka import KafkaProducer, KafkaConsumer, TopicPartition
 import requests
 import json
+import ast
 import uuid
 import logging
 import pandas as pd
@@ -38,81 +39,29 @@ PULL_RATE = 100
 def json_serializer(data):
     return json.dumps(data).encode('utf-8')
 
-logger = logging.getLogger('epa_collect.py')
-logging.basicConfig(level=logging.INFO)
-
-
-def fetch_epa() -> tuple[str,str] :
-    """
-    Get the current data from the EPA
-
-    @returns two strings, one is the message_id and one is the message
-    """
-    headers = {
-        'Cache-Control': 'no-cache',
-        'X-API-Key': KEY,
-        'User-agent': 'CloudCluster'
-    }
-    resp = requests.get(URL, headers=headers)
-    
-    # Generate a unique ID
-    message_id = str(uuid.uuid4())
-
-    buffer_message = str({'message_id': message_id, 'body':resp.text})
-
-    return message_id, buffer_message
-
-
-def produce_kafka_buffer_message(response_txt : str, bootstrap_servers, topic_name) -> bool :
-    """
-    Stores the EPA response into a Kafka message
-
-    @param is the response of the EPA API
-    @returns a string
-    """
-    # Connect to Kafka and set up a producer client
-    producer = KafkaProducer(bootstrap_servers=bootstrap_servers, 
-                             value_serializer=json_serializer)
-    
-    try :
-        producer.send(topic_name, value=response_txt)
-
-    except Exception as e :
-        logging.error(e)
-        return False
-    
-    return True
-
-
-def produce_kafka_confirm_message(message_id, bootstrap_servers , topic_name) :
-
-
-    # Connect to Kafka and set up a producer client
-    producer = KafkaProducer(bootstrap_servers=bootstrap_servers, 
-                             value_serializer=json_serializer)
-    
-    try :
-        confirmation = str({'state':'Success', 'message_id':{message_id}})
-        producer.send(topic_name, value=confirmation)
-
-    except Exception as e :
-        logging.error(e)
-        return False
-
 
 def consume_kafka_message(bootstrap_servers,topic_name) -> dict:
     """
     Consume the most recent message from Kafka topic, 
     and convert to dictionnary
     """
-    # Connect to Kafka and set up a consumer client
-    consumer = KafkaConsumer(topic_name,
-                            auto_offset_reset='earliest',
-                            bootstrap_servers=bootstrap_servers,
-                            enable_auto_commit=True)
+    consumer = KafkaConsumer(bootstrap_servers=bootstrap_servers, 
+                             auto_offset_reset="earliest", 
+                             enable_auto_commit=True,
+                             value_deserializer=lambda x: json.loads(x.decode("utf-8")), 
+                             consumer_timeout_ms=600)
+    consumer.subscribe(topic_name)
+    partition = TopicPartition(topic_name, 0)
+    end_offset = consumer.end_offsets([partition])
+    consumer.seek(partition,list(end_offset.values())[0]-1)
+
+    for message in consumer:
+        logging.info(f'Message beginning {message.value}'[:100])
+        
     
-    message_text = consumer[0].value.decode('utf-8')  #consumer[0] is the earliest message of the topic
-    return json.loads(message_text)
+    return ast.literal_eval(message.value)
+
+
 
 
 def clean_kafka_data(data : dict) -> pd.DataFrame | None :
@@ -125,6 +74,7 @@ def clean_kafka_data(data : dict) -> pd.DataFrame | None :
     # Go thorugh each record returned
     if 'records' not in data.keys():
         return None
+    
     for record in data['records']:
         # Pull out location
         if 'geometry' not in record.keys():
@@ -256,10 +206,10 @@ def upload_to_ES(data: list[dict], es: Elasticsearch) -> None:
         try:
             bulk(es, [data], index='airquality')
             cont = False
-            logger.info('Uploaded ' + str(data))
+            logging.info('Uploaded ' + str(data))
         except:
             cont = True
-            logger.warn('Failed to upload ' + str(data) + ' RETRYING')
+            logging.warn('Failed to upload ' + str(data) + ' RETRYING')
 
 
 def reset_kafka_confirm_message(bootstrap_servers , topic_name) :
@@ -278,37 +228,25 @@ def reset_kafka_confirm_message(bootstrap_servers , topic_name) :
         return False
 
 
-def main_to_Kafka():
-    """
-    Pull the most recent data from the EPA and sends it to a Kafka message
-    """
-    logging.info('Welcome')
-    message_id, buffer_message = fetch_epa()
-    logging.info('Epa fetched')
-    uploaded = produce_kafka_buffer_message(buffer_message, BOOTSTRAP_KAFKA, TOPIC_NAME)
-    logging.info('Message Produced?')
-
-    if uploaded:
-        logging.info('Buffer message sent to Kafka')
-        produce_kafka_confirm_message(message_id, BOOTSTRAP_KAFKA, CONFIRM_TOPIC_NAME)
-    else : 
-        logging.error('Could not send buffer message to Kafka')
-    
-
-def main_to_ES():
+def main():
     """
     Pull the most recent message from Kafka, check what needs to be inserted,
     and upload it to ES in accordance
     """
+    logging.info('Welcome')
     buffer_message = consume_kafka_message(BOOTSTRAP_KAFKA, TOPIC_NAME)
+    logging.info('Buffer Message Loaded')
     confirm_message = consume_kafka_message(BOOTSTRAP_KAFKA, CONFIRM_TOPIC_NAME)
+    logging.info('Confirmation Message Loaded')
 
     if confirm_message['message_id'] != buffer_message['message_id'] :
-        raise ValueError('Confirmation message not found in Kafka')
-    
-    reset_kafka_confirm_message(BOOTSTRAP_KAFKA, CONFIRM_TOPIC_NAME)
+        raise ValueError('Corresponding confirmation message not found in Kafka')
 
-    df_new_data = clean_kafka_data(buffer_message['body'])
+    reset_kafka_confirm_message(BOOTSTRAP_KAFKA, CONFIRM_TOPIC_NAME)
+    logging.info('Confirmation Message Reseted')
+
+    df_new_data = clean_kafka_data(ast.literal_eval(buffer_message['body']))
+    logging.info('Buffer message cleaned and converted to a dataFrame')
 
     # Connect to ES database
     es = Elasticsearch(ES_URL, basic_auth=(ELASTIC_USER, ELASTIC_PASSWORD), headers=ES_HEADERS, verify_certs=False)
@@ -318,7 +256,9 @@ def main_to_ES():
     if df_new_data is not None :
         
         df_current_data = fetch_and_clean_ES_data(es, df_new_data)
-        
+        logging.info('Fetched Recent Elastic Search data for time range comparison')
+
+
         if df_current_data is not None :
             df_to_upload = accepting_new_data(df_new_data, df_current_data)
         
@@ -329,15 +269,13 @@ def main_to_ES():
         # Upload
         for line in df_to_upload.to_dict(orient='records'):
             upload_to_ES(line, es)
+        logging.info('Uploaded Data in Elastic Search')
     
     else : 
         logging.info('Nothing retrieved from Kafka')
 
-    return "Done"
+    return 'Done'
 
-def main():
-    main_to_Kafka()
 
 if __name__ == '__main__':
-    main_to_Kafka()
-    #main_to_ES()
+    main()
