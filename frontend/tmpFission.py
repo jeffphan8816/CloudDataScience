@@ -13,7 +13,7 @@ ERROR = json.dumps({'Status': 500, 'Message': 'Internal Server Error'})
 EMPTY = json.dumps({'Status': 200, 'Data': []})
 SCROLL = '5m'
 es = Elasticsearch([ELASTIC_URL], basic_auth=(
-    ELASTIC_USER, ELASTIC_PASSWORD), verify_certs=False, headers=ES_HEADERS, timeout=60)
+    ELASTIC_USER, ELASTIC_PASSWORD), verify_certs=False, headers=ES_HEADERS)
 
 def tempMSearch(
         max_hits: int,
@@ -146,7 +146,7 @@ def tempFissionCrashesFromStation(station, radius, size):
         out['Data'] = results['hits']['hits']
         if len(out['Data']) == 0:
             out['Token'] = 'END'
-        return json.dumps(out)
+        return out
     except:
         return ERROR
 
@@ -162,14 +162,13 @@ def tempFissionStream(token):
         if len(results['hits']['hits']) <= 0:
             es.clear_scroll(scroll_id=out['Token'])
             out['Token'] = 'END'
-        return json.dumps(out)
+        return out
     except:
         return ERROR
     
 def tempFissionWeather(station, start, end):
     start_date = datetime.datetime(start, 1,  1)
     end_date = datetime.datetime(end, 1, 1)
-
     # First get station lat and long
     try:
         station_results = es.search(index='station_locations', body={
@@ -221,29 +220,28 @@ def tempFissionWeather(station, start, end):
         out['Status'] = 200
         out['Data'] = [weather_results['hits']['hits'][i]['_source']
                        for i in range(len(weather_results['hits']['hits']))]
-        return json.dumps(out)
+        return out
     except:
         return ERROR
 
 
-def tempFissionCrashes():
+def tempFissionCrashes(size):
     # Then get crashes in the radius
-    size = 10000
     try:
         results = es.search(index='crashes', body={
-            'size': size,
-            'query': {
-                'match_all': {}
-            }
-        }, scroll=SCROLL)
-
+            "query": {
+                "match_all": {}
+            },
+            "size": size
+        },scroll=SCROLL)
+        print(results)
         out = {}
         out['Status'] = 200
         out['Token'] = results['_scroll_id']
         out['Data'] = results['hits']['hits']
         if len(out['Data']) == 0:
             out['Token'] = 'END'
-        return json.dumps(out)
+        return out
     except:
         return ERROR
 
@@ -262,7 +260,26 @@ def tempFissionStations():
         out['Data'] = results['hits']['hits']
         if len(out['Data']) == 0:
             out['Token'] = 'END'
-        return json.dumps(out)
+        return out
     except:
         return ERROR
 
+def tempFissionGetStationName(id):
+    try:
+        results = es.search(index='station_locations', body={
+            'query': {
+                'match': {
+                    'Station ID': id
+                }
+            }
+        })
+        out = {}
+        out['Status'] = 200
+        out['Data'] = results['hits']['hits'][0]['_source']['Station Name']
+        return out
+    except:
+        return ERROR
+    
+resp = tempFissionGetStationName(91245)
+
+print(resp)
