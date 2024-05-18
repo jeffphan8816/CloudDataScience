@@ -1,0 +1,192 @@
+{
+    "KIMBERLEY": [
+        {"name": "Adele Island", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94210.shtml"},
+        {"name": "Argyle", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94217.shtml"},
+        {"name": "Broome", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94203.shtml"},
+        {"name": "Broome Port", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.95202.shtml"},
+        {"name": "Curtin", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94204.shtml"},
+        {"name": "Cygnet Bay", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94201.shtml"},
+        {"name": "Derby", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.95205.shtml"},
+        {"name": "Fitzroy Crossing", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94206.shtml"},
+        {"name": "Halls Creek", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94212.shtml"},
+        {"name": "Kalumburu", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94100.shtml"},
+        {"name": "Koolan Island / Koolan Central", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.99200.shtml"},
+        {"name": "Kununurra Airport", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94216.shtml"},
+        {"name": "Lombadina", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.99206.shtml"},
+        {"name": "Mandora", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94200.shtml"},
+        {"name": "Rowley Shoals", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94207.shtml"},
+        {"name": "Troughton Island", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94102.shtml"},
+        {"name": "Truscott", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.95101.shtml"},
+        {"name": "Warmun", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94213.shtml"},
+        {"name": "Wyndham Airport", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.95214.shtml"},
+        {"name": "Yampi Sound (Defence)", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.95208.shtml"}
+    ],
+
+    "PILBARA": [
+        {"name": "Barimunya", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.99313.shtml"},
+        {"name": "Barrow Island", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.95304.shtml"},
+        {"name": "Christmas Creek", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.99737.shtml"},
+        {"name": "Coondewanna", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.99312.shtml"},
+        {"name": "Eliwana Airport", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.99593.shtml"},
+        {"name": "Emu Creek", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94318.shtml"},
+        {"name": "Fortescue Dave Forrest", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.99736.shtml"},
+        {"name": "Iron Bridge Mine", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.99366.shtml"},
+        {"name": "Karijini North", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94330.shtml"},
+        {"name": "Karratha", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.95307.shtml"},
+        {"name": "Gudai-Darri Mine", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.99594.shtml"},
+        {"name": "Learmonth", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94302.shtml"},
+        {"name": "Legendre Island", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94307.shtml"},
+        {"name": "Marble Bar", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.95317.shtml"},
+        {"name": "Mardie", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94306.shtml"},
+        {"name": "Newman Airport", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94317.shtml"},
+        {"name": "Onslow Airport", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.95305.shtml"},
+        {"name": "Paraburdoo", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94316.shtml"},
+        {"name": "Port Hedland", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94312.shtml"},
+        {"name": "Roebourne Airport", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94308.shtml"},
+        {"name": "Solomon Airport", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.99217.shtml"},
+        {"name": "Telfer", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94319.shtml"},
+        {"name": "Thevenard Island", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94303.shtml"},
+        {"name": "Varanus Island", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.95303.shtml"}
+    ],
+
+    "GASCOYNE": [
+        {"name": "Carnarvon", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94300.shtml"},
+        {"name": "Bulga Downs", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94444.shtml"},
+        {"name": "Degrussa Aerodrome", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.99400.shtml"},
+        {"name": "Golden Grove", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.99401.shtml"},
+        {"name": "Meekatharra", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94430.shtml"},
+        {"name": "Mount Magnet Airport", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94429.shtml"},
+        {"name": "Murchison", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94422.shtml"},
+        {"name": "Paynes Find", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94404.shtml"},
+        {"name": "Shark Bay Airport", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.95402.shtml"}
+    ],
+
+    "GOLDFIELDS": [
+        {"name": "Kalgoorlie-Boulder", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94637.shtml"},
+        {"name": "Laverton", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94449.shtml"},
+        {"name": "Leinster", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.95448.shtml"},
+        {"name": "Leonora Airport", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94450.shtml"},
+        {"name": "Mount Keith", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.99434.shtml"},
+        {"name": "Norseman Airport", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.95642.shtml"},
+        {"name": "Wiluna Airport", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.95439.shtml"}
+    ],
+
+    "EUCLA": [
+        {"name": "Eucla", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94647.shtml"},
+        {"name": "Eyre", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94645.shtml"},
+        {"name": "Forrest", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.95646.shtml"},
+        {"name": "Red Rocks Point", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94644.shtml"}
+    ],
+
+    "INTERIOR": [
+        {"name": "Carnegie", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94451.shtml"},
+        {"name": "Giles*", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94461.shtml"},
+        {"name": "Warburton", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94457.shtml"}
+    ],
+
+    "ISLANDS": [
+        {"name": "Christmas Island", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.96995.shtml"},
+        {"name": "Cocos Island", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.96996.shtml"}
+    ],
+
+    "CENTRAL WEST": [
+        {"name": "Badgingarra", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94603.shtml"},
+        {"name": "Carnamah", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94415.shtml"},
+        {"name": "Geraldton Airport", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94403.shtml"},
+        {"name": "Jurien Bay", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.95600.shtml"},
+        {"name": "Kalbarri", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94401.shtml"},
+        {"name": "Morawa Airport", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94417.shtml"},
+        {"name": "Mullewa", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94411.shtml"},
+        {"name": "North Island", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94405.shtml"}
+    ],
+
+    "LOWER WEST": [
+        {"name": "Armament Jetty", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.99254.shtml"},
+        {"name": "Bickley", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.95610.shtml"},
+        {"name": "Colpoys Point", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.99255.shtml"},
+        {"name": "Dwellingup", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94620.shtml"},
+        {"name": "Garden Island", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.95607.shtml"},
+        {"name": "Gingin Airport", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.95612.shtml"},
+        {"name": "Gooseberry Hill", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94615.shtml"},
+        {"name": "Hillarys Point Boat Harbour", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.95605.shtml"},
+        {"name": "Jandakot", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94609.shtml"},
+        {"name": "Karnet", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.95614.shtml"},
+        {"name": "Lancelin (Defence)", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.95609.shtml"},
+        {"name": "Mandurah", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94605.shtml"},
+        {"name": "Melville Water", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.95620.shtml"},
+        {"name": "Millendon (Swan Valley)", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94795.shtml"},
+        {"name": "Ocean Reef", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94607.shtml"},
+        {"name": "Pearce", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94612.shtml"},
+        {"name": "Perth", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94608.shtml"},
+        {"name": "Perth Airport", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94610.shtml"},
+        {"name": "Rottnest Island", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94602.shtml"},
+        {"name": "Swanbourne", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94614.shtml"}
+    ],
+
+    "SOUTHWEST": [
+        {"name": "Bridgetown", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.95632.shtml"},
+        {"name": "Bunbury", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94604.shtml"},
+        {"name": "Busselton Airport", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.95611.shtml"},
+        {"name": "Busselton Jetty", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.95602.shtml"},
+        {"name": "Cape Leeuwin", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94601.shtml"},
+        {"name": "Cape Naturaliste", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94600.shtml"},
+        {"name": "Collie East", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.95621.shtml"},
+        {"name": "Donnybrook", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.95622.shtml"},
+        {"name": "Jarrahwood", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.95623.shtml"},
+        {"name": "Manjimup", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94617.shtml"},
+        {"name": "Pemberton", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.95613.shtml"},
+        {"name": "Shannon", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.95617.shtml"},
+        {"name": "Walpole North", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.95647.shtml"},
+        {"name": "Windy Harbour", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94640.shtml"},
+        {"name": "Witchcliffe West", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.95641.shtml"}
+    ],
+
+    "SOUTH COASTAL": [
+        {"name": "Albany", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94801.shtml"},
+        {"name": "Albany Airport", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94802.shtml"},
+        {"name": "Jacup", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.95636.shtml"},
+        {"name": "Ongerup", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.95628.shtml"},
+        {"name": "Rocky Gully South", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94631.shtml"}
+    ],
+
+    "SOUTHEAST COASTAL": [
+        {"name": "Esperance", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94638.shtml"},
+        {"name": "Esperance Airport", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.95638.shtml"},
+        {"name": "Esperance Harbour", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.95648.shtml"},
+        {"name": "Hopetoun North", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.95635.shtml"},
+        {"name": "Munglinup West", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.95644.shtml"},
+        {"name": "Ravensthorpe", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94636.shtml"},
+        {"name": "Salmon Gums RS", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.95639.shtml"}
+    ],
+
+    "GREAT SOUTHERN": [
+        {"name": "Brookton", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94625.shtml"},
+        {"name": "Corrigin", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94633.shtml"},
+        {"name": "Hyden", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.95627.shtml"},
+        {"name": "Katanning RS", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94641.shtml"},
+        {"name": "Lake Grace", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.95637.shtml"},
+        {"name": "Narrogin", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94627.shtml"},
+        {"name": "Newdegate", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94628.shtml"},
+        {"name": "Pingelly", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.95616.shtml"},
+        {"name": "Wagin", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.95618.shtml"},
+        {"name": "Wandering", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.95640.shtml"}
+    ],
+
+    "CENTRAL WHEAT BELT": [
+        {"name": "Bencubbin", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94632.shtml"},
+        {"name": "Beverley", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.95615.shtml"},
+        {"name": "Cunderdin Airport", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.95625.shtml"},
+        {"name": "Dalwallinu", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.95629.shtml"},
+        {"name": "Goomalling", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.95631.shtml"},
+        {"name": "Merredin", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.95624.shtml"},
+        {"name": "Northam", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94621.shtml"},
+        {"name": "Southern Cross Airport", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.95634.shtml"},
+        {"name": "Wongan Hills", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94622.shtml"},
+        {"name": "York", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.94623.shtml"}
+    ],
+
+    "PORTABLE": [
+        {"name": "PORTABLE BTSA (DFES)", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.99150.shtml"},
+        {"name": "PORTABLE BTSE (DFES)", "url": "http://reg.bom.gov.au/products/IDW60801/IDW60801.99460.shtml"}
+    ]
+}
