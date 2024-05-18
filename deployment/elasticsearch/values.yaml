@@ -20,6 +20,7 @@ initScripts:
 master:
   masterOnly: false
   replicaCount: 2
+  heapSize: 1024m
   resources: 
     requests:
       memory: "2Gi"
