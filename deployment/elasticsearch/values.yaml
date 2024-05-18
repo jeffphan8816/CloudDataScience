@@ -2,11 +2,13 @@
 global:
   kibanaEnabled: true
 
+#  bug patch for excuting init scripts https://github.com/bitnami/charts/issues/24473
 extraVolumeMounts:
   - name: empty-dir
     mountPath: /bitnami/elasticsearch
     subPath: app-volume-dir
 
+# init scripts to set AWS keys -- can optimize by using initSriptSecrets
 initScripts:
   init_aws-keys.sh: |
     #!/bin/bash
