@@ -2,7 +2,7 @@ TIMEOUT := 1200s
 DATADOG_VERSION := 3.61.0
 ES_VERSION := 21.0.1
 KEDA_VERSION := 2.14.2
-KAFKA_VERSION := 0.40.0
+STRIMZI_VERSION := 0.40.0
 KAFKA_UI_VERSION := 1.4.0
 FISSION_VERSION := 1.20.1
 INGRESS_CONTROLLER_VERSION := 4.10.0
@@ -17,7 +17,7 @@ keda:
 	helm upgrade --wait --timeout=$(TIMEOUT) --version ${KEDA_VERSION} --namespace keda --install --values keda/values.yaml keda kedacore/keda
 
 kafka:
-	helm upgrade --wait --timeout=$(TIMEOUT) --version ${KAFKA_VERSION} --namespace kafka --install --values kafka/values.yaml kafka strimzi/strimzi-kafka-operator \
+	helm upgrade --wait --timeout=$(TIMEOUT) --version ${STRIMZI_VERSION} --namespace kafka --install --values kafka/values.yaml kafka strimzi/strimzi-kafka-operator \
 	&& kubectl apply -f kafka/kafka-cluster.yaml --namespace kafka
 
 kafka-ui:
@@ -44,8 +44,5 @@ ingress-kafka-ui:
 
 ingress-fission:
 	kubectl apply -f ingress/ingress-fission.yaml --namespace fission
-
-ingress-kafka:
-	kubectl apply -f ingress/ingress-kafka.yaml --namespace kafka
 
 .PHONY: datadog elasticsearch keda kafka kafka-ui fission-all fission-env ingress-controller ingress-elasticsearch ingress-kibana ingress-fission ingress-kafka-ui

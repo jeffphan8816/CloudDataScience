@@ -1,2 +1,5 @@
 replicas: 1
 routerServiceType: ClusterIP
+extraCoreComponentPodConfig:
+  nodeSelector:
+    workload: fission

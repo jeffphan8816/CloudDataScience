@@ -2,6 +2,19 @@
 global:
   kibanaEnabled: true
 
+extraVolumeMounts:
+  - name: empty-dir
+    mountPath: /bitnami/elasticsearch
+    subPath: app-volume-dir
+
+initScripts:
+  init_aws-keys.sh: |
+    #!/bin/bash
+    AWS_ACCESS_KEY_ID=AKIASFGAJIWFNPGLGBRI
+    AWS_SECRET_ACCESS_KEY=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
+    echo $AWS_ACCESS_KEY_ID | /opt/bitnami/elasticsearch/bin/elasticsearch-keystore add --stdin --force s3.client.default.access_key
+    echo $AWS_SECRET_ACCESS_KEY | /opt/bitnami/elasticsearch/bin/elasticsearch-keystore add --stdin --force s3.client.default.secret_key
+
 master:
   masterOnly: false
   replicaCount: 2
@@ -14,6 +27,7 @@ master:
     size: "20Gi"
   nodeSelector:
     workload: elasticsearch
+
 data:
   replicaCount: 0
 coordinating:
