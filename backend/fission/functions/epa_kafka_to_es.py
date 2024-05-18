@@ -62,8 +62,6 @@ def consume_kafka_message(bootstrap_servers,topic_name) -> dict:
     return ast.literal_eval(message.value)
 
 
-
-
 def clean_kafka_data(data : dict) -> pd.DataFrame | None :
     """
     Clean the data stored to a list of records, only keeping seeked columns
@@ -166,7 +164,7 @@ def fetch_and_clean_ES_data(es, new_data: pd.DataFrame) -> pd.DataFrame | None :
     return current_data
 
 
-def accepting_new_data(new_data: pd.DataFrame, current_data: pd.DataFrame) -> list[dict]:
+def accepting_new_data(new_data: pd.DataFrame, current_data: pd.DataFrame) -> pd.DataFrame:
     """
     Compute which data to keep and upload, based on time range inclusion, 
     to prevent duplicatas

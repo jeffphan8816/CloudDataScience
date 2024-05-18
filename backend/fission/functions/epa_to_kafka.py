@@ -33,8 +33,6 @@ if RUN_FROM == 'uni_wifi' : BOOTSTRAP_KAFKA = 'https://172.26.135.52:9092'
 TOPIC_NAME = 'airquality-kafka'
 CONFIRM_TOPIC_NAME = 'airquality-uploaded-kafka'
 
-PULL_RATE = 100
-
 def json_serializer(data):
     return json.dumps(data).encode('utf-8')
 
@@ -96,6 +94,8 @@ def produce_kafka_confirm_message(message_id, bootstrap_servers , topic_name) :
         logging.error(e)
         return False
     
+    return True
+
 
 def main():
     """
