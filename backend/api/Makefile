@@ -17,7 +17,7 @@ deploy:
 	fission fn create --name station-api --code station_api.py --env python-es --executortype newdeploy --maxscale 3
 	fission route create --name station-rest --function station-api --method GET --url '/stations'
 
-	zip -jr models_api.zip foldername
+	zip -jr models_api.zip models_api
 	fission package create --sourcearchive models_api.zip --env python-es --buildcmd "./build.sh" --name models-api-pack
 	fission fn create --name models-api --env python-es --pkg models-api-pack --entrypoint "models_api.main" --executortype newdeploy --maxscale 3
 	fission route create --name models-rest --function models-api --method GET --url '/models/{Response}'
