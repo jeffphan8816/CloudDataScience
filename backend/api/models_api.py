@@ -2,8 +2,12 @@ from flask import Flask, request, jsonify
 import json
 import pickle
 from elasticsearch import Elasticsearch
+import logging
 import numpy as np
 from sklearn.linear_model import LinearRegression
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 
 ELASTIC_URL = 'https://172.26.135.52:9200'
@@ -18,11 +22,13 @@ ERROR = json.dumps({'Status': 500, 'Message': 'Internal Server Error'})
 EMPTY = json.dumps({'Status': 200, 'Data': []})
 
 
+
 app = Flask(__name__)
 
 # For local testing
 #@app.route('/api/models', methods=['GET'])
 def main():
+    logging.info('In main')
     # Check parameters
     if RESPONSE_HEADER not in request.headers:
         return BAD_PARAMS
@@ -31,13 +37,14 @@ def main():
     try:
         with open('lin_reg_model_test.pkl', 'rb') as file:
             loaded_model = pickle.load(file)
-
+        logging.info('Pickle file loaded')
         print(f'Loaded Model Type: {type(loaded_model)}')
         print(f'Loaded Coefficients: {loaded_model.coef_}')
         print(f'Loaded Intercept: {loaded_model.intercept_}')
 
         # Read the a comma-separated list in the predictors argument
         if 'predictors' in request.args:
+            logging.info('Predictors detected in URL')
             predictors_str = request.args.get('predictors')
             predictors = [float(value) for value in predictors_str.split(',')]
 
@@ -55,6 +62,7 @@ def main():
 
         # Return the model as a dictionnary if no predictors have been specified
         else:
+            logging.info('No predictors in URL')
             model_dict = {'coef':list(loaded_model.coef_),
                         'intercept':loaded_model.intercept_}
             return model_dict
@@ -63,7 +71,7 @@ def main():
         return ERROR
 
 
-if __name__ == '__main__':
-    app.run(debug=True)
+# if __name__ == '__main__':
+#     app.run(debug=True)
 
 

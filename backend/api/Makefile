@@ -17,7 +17,7 @@ deploy:
 	fission fn create --name station-api --code station_api.py --env python-es --executortype newdeploy --maxscale 3
 	fission route create --name station-rest --function station-api --method GET --url '/stations'
 
-	fission fn create --name models-api --code models_api.py --env python-es --executortype newdeploy --maxscales 3
+	fission fn create --name models-api --code models_api.py --env python-es --executortype newdeploy --maxscale 3
 	fission route create --name models-rest --function models-api --method GET --url '/models/{Response}'
 
 update:
