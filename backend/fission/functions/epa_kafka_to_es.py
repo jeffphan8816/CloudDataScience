@@ -44,11 +44,16 @@ def consume_kafka_message(bootstrap_servers,topic_name) -> dict:
     end_offset = consumer.end_offsets([partition])
     consumer.seek(partition,list(end_offset.values())[0]-1)
 
+    last_message = None
+
     for message in consumer:
         logging.info(f'Message beginning {message.value}'[:100])
+        last_message = message
+        break
         
-    
-    return ast.literal_eval(message.value)
+    if last_message is None : logging.error('No message found')
+
+    return ast.literal_eval(last_message.value)
 
 
 def clean_kafka_data(data : dict) -> pd.DataFrame | None :
@@ -104,7 +109,13 @@ def clean_kafka_data(data : dict) -> pd.DataFrame | None :
                     cleaned.append(toAdd)
 
     df_new_data = pd.DataFrame.from_records(cleaned, index=range(len(cleaned)))
-    
+
+    df_new_data['start'] = df_new_data['start'].dt.strftime('%Y-%m-%dT%H:%M:%S')
+    df_new_data['end'] = df_new_data['end'].dt.strftime('%Y-%m-%dT%H:%M:%S')
+
+    df_new_data['start'] = df_new_data['start'].apply(lambda s: datetime.strptime(s, '%Y-%m-%dT%H:%M:%S'))
+    df_new_data['end'] = df_new_data['end'].apply(lambda s: datetime.strptime(s, '%Y-%m-%dT%H:%M:%S'))
+
     # Switch coordinate order for new data and move to tuple
     df_new_data['location'] = df_new_data['location'].apply(
         lambda location: (location[1], location[0]))
@@ -162,8 +173,7 @@ def accepting_new_data(new_data: pd.DataFrame, current_data: pd.DataFrame) -> pd
     @param current_data is the data in elastic search as a DataFrame
     @returns a list of what data needs to be inserted
     """
-    latest_current_df = current_data.groupby(
-        ['measure_name', 'location'])['end'].max()
+    latest_current_df = current_data.groupby(['measure_name', 'location'])['end'].max()
     kept_data = new_data.copy()
 
     for index in new_data.index:
@@ -191,6 +201,13 @@ def upload_to_ES(data: list[dict], es: Elasticsearch) -> None:
     cont = True
     while cont:
         try:
+            # logging.info(f"{type(data['measure_name'])}")
+            # logging.info(f"{type(data['location'])}")
+            # logging.info(f"{type(data['start'])}")
+            # logging.info(f"{type(data['end'])}")
+            # logging.info(f"{type(data['end'])}")
+            # logging.info(f"{type(data['value'])}")
+
             bulk(es, [data], index='airquality')
             cont = False
             logging.info('Uploaded ' + str(data))
@@ -235,10 +252,12 @@ def main():
     df_new_data = clean_kafka_data(ast.literal_eval(buffer_message['body']))
     logging.info('Buffer message cleaned and converted to a dataFrame')
 
+    
     # Connect to ES database
     es = Elasticsearch(es_config['URL'], basic_auth=(es_config['USER'], es_config['PASS']), headers={'HOST': es_config['HOST']}, verify_certs=False)
     if not es.ping():
         raise ValueError('Connection failed')
+
 
     if df_new_data is not None :
         
@@ -255,6 +274,8 @@ def main():
 
         # Upload
         for line in df_to_upload.to_dict(orient='records'):
+            line['start'] = line['start'].strftime("%Y-%m-%dT%H:%M:%S") #datetime.strptime(, '%Y-%m-%dT%H:%M:%S')
+            line['end'] = line['end'].strftime("%Y-%m-%dT%H:%M:%S") #datetime.strptime(, '%Y-%m-%dT%H:%M:%S')
             upload_to_ES(line, es)
         logging.info('Uploaded Data in Elastic Search')
     
