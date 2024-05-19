@@ -208,6 +208,6 @@ def main():
     weather_data = get_weather_data(state, region)
     print(weather_data)
 
-    # post_to_processing(weather_data)  # Turn off for testing
+    # post_to_processing(weather_data)  # TODO turn back on after testing
 
     return "Done"

@@ -36,7 +36,7 @@ def main():
         processed_data = process_data(data)
 
         print(processed_data)
-        post_to_ingest(processed_data)
+        # post_to_ingest(processed_data) # TODO turn back on after testing
 
     except Exception as e:
         return json.dumps({"Status": 500, "Message": "An error occurred"})
