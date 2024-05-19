@@ -5,7 +5,6 @@ import logging
 import requests
 
 import aiohttp
-import numpy as np
 import pandas as pd
 
 from flask import request
@@ -127,16 +126,8 @@ def get_weather_data(state, region) -> str:
     loop = asyncio.get_event_loop()
     observations = loop.run_until_complete(get_selected_weather(urls))
 
-    # Convert observations to DataFrame and join with original df
-    # df_observation = pd.DataFrame(observations)
-    # df = df.join(df_observation, rsuffix="_obs")
-
     for entry, observation in zip(selected_bom_region, observations):
         entry.update(observation)
-
-    # # TODO move to cleaning/processing function
-    # # Remove NaN values as can't be inserted into ES
-    # df.replace({np.nan: None}, inplace=True)
 
     return json.dumps(observations)
 
