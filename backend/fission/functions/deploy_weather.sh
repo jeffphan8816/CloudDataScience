@@ -11,19 +11,35 @@ fission fn update --name fetch-weather-obs --pkg fetch-weather-obs --entrypoint 
 fission fn test --name fetch-weather-obs
 fission fn logs --name fetch-weather-obs
 
+fission route delete --name fetch-weather-obs
+fission route create --method GET --url /fetch-weather-obs --function fetch-weather-obs --name fetch-weather-obs
+
 
 # Process weather obs ------------------------------------
 # fission package create --sourcearchive process-weather-obs.zip --env python-es --buildcmd "./build.sh" --name process-weather-obs
 # fission fn create --name process-weather-obs --pkg process-weather-obs --entrypoint "process-weather-obs.main"
 
 zip -jr process-weather-obs.zip process-weather-obs
-fission package update --sourcearchive process-weather-obs.zip --env python-multi --buildcmd "./build.sh" --name process-weather-obs
+fission package update --sourcearchive process-weather-obs.zip --env python-es --buildcmd "./build.sh" --name process-weather-obs
 fission fn update --name process-weather-obs --pkg process-weather-obs --entrypoint "process-weather-obs.main"
 
 fission route delete --name process-weather-obs
 fission route create --method POST --url /process-weather-obs --function process-weather-obs --name process-weather-obs
 
 fission fn test --name process-weather-obs
+
+# Ingest weather obs ------------------------------------
+# fission package create --sourcearchive ingest-weather-obs.zip --env python-es --buildcmd "./build.sh" --name ingest-weather-obs
+# fission fn create --name ingest-weather-obs --pkg ingest-weather-obs --entrypoint "ingest-weather-obs.main"
+
+zip -jr ingest-weather-obs.zip ingest-weather-obs
+fission package update --sourcearchive ingest-weather-obs.zip --env python-es --buildcmd "./build.sh" --name ingest-weather-obs
+fission fn update --name ingest-weather-obs --pkg ingest-weather-obs --entrypoint "ingest-weather-obs.main"
+
+fission route delete --name ingest-weather-obs
+fission route create --method POST --url /ingest-weather-obs --function ingest-weather-obs --name ingest-weather-obs
+
+
 
 
 # Todo: below
@@ -37,30 +53,9 @@ fission timer delete --name get-hourly-weather
 
 
 
+# Testing
 
-
-
-
-
-
-
-# fission package create --sourcearchive process-weather-obs.zip --env python-multi --buildcmd "./build.sh" --name process-weather-obs
-# fission fn create --name process-weather-obs --pkg process-weather-obs --entrypoint "process-weather-obs.main"
-zip -jr process-weather-obs.zip process-weather-obs
-fission package update --sourcearchive process-weather-obs.zip --env python-multi --buildcmd "./build.sh" --name process-weather-obs
-fission fn update --name process-weather-obs --pkg process-weather-obs --entrypoint "process-weather-obs.main"
-fission route delete --name process-weather-obs
-fission route create --method POST --url /process-weather-obs --function process-weather-obs --name process-weather-obs
-
-
-# Ingest weather obs ------------------------------------
-zip -jr ingest-weather-obs.zip ingest-weather-obs
-fission package update --sourcearchive ingest-weather-obs.zip --env python-multi --buildcmd "./build.sh" --name ingest-weather-obs
-fission fn update --name ingest-weather-obs --pkg ingest-weather-obs --entrypoint "ingest-weather-obs.main"
-fission route delete --name ingest-weather-obs
-fission route create --method POST --url /ingest-weather-obs --function ingest-weather-obs --name ingest-weather-obs
-
-# fission fn test --name ingest-weather-obs
+fission fn test --name ingest-weather-obs
 fission fn logs --name ingest-weather-obs
 
 curl -X POST http://172.26.135.52:9090/ingest-weather-obs \
@@ -68,6 +63,17 @@ curl -X POST http://172.26.135.52:9090/ingest-weather-obs \
      -H "Host: fission" \
      -d '{"data": "sample"}'
 fission fn logs --name ingest-weather-obs
+
+
+
+
+
+
+
+
+
+
+
 
 # Fetch weather obs ------------------------------------
 
@@ -84,8 +90,7 @@ fission timer delete --name get-hourly-weather
 
 
 # fission route create --method GET --url /fetch-weather-obs/{state}/{region} --function fetch-weather-obs --name fetch-weather-obs
-fission route delete --name fetch-weather-obs
-fission route create --method GET --url /fetch-weather-obs --function fetch-weather-obs --name fetch-weather-obs
+
 
 
 
