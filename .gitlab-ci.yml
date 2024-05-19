@@ -14,4 +14,4 @@ deploy:
   tags:
     - deployment
   script:
-    - touch TEST123.txt
+    - touch /home/ubuntu/TEST123.txt
