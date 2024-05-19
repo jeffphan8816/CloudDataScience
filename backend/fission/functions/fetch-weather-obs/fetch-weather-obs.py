@@ -143,7 +143,6 @@ def post_to_processing(data):
     FISSION_HEADERS = {"HOST": "fission"}
 
     ingest_url = f"{FISSION_URL}/process-weather-obs"
-    # json_data = data.to_json(orient="records")
 
     response = requests.post(ingest_url, json=data, headers=FISSION_HEADERS)
 
@@ -168,11 +167,10 @@ def main():
     if region not in bom_lookup[state]["Regions"]:
         return json.dumps({"Status": 400, "Message": "Invalid region provided"})
 
-    # Get the weather data and post to ingest
+    # Get the weather data and post to fission processing function
     weather_data = get_weather_data(state, region)
     print(weather_data)
 
     post_to_processing(weather_data)
-    # post_to_ingest(weather_data)
 
     return "Done"
