@@ -17,10 +17,11 @@ deploy:
 	fission fn create --name station-api --code station_api.py --env python-es --executortype newdeploy --maxscale 3
 	fission route create --name station-rest --function station-api --method GET --url '/stations'
 
-	fission fn create --name models-api --code models_api/models_api.py --env python-es --executortype newdeploy --maxscale 3
 	zip -jr models_api.zip foldername
-	fission package create --sourcearchive models_api.zip --env python-es --buildcmd "./build.sh" --name models-api
+	fission package create --sourcearchive models_api.zip --env python-es --buildcmd "./build.sh" --name models-api-pack
+	fission fn create --name models-api --env python-es --pkg models-api-pack --entrypoint "models_api.main" --executortype newdeploy --maxscale 3
 	fission route create --name models-rest --function models-api --method GET --url '/models/{Response}'
+
 
 update:
 	fission fn update --name weather-station-api --code weather_from_station.py
@@ -30,9 +31,10 @@ update:
 	fission fn update --name stream-api --code stream_api.py
 	fission fn update --name station-api --code station_api.py
 
-	fission fn update --name station-api --code models_api.py
 	zip -jr models_api.zip foldername
-	fission package update --sourcearchive models_api.zip --env python-es --buildcmd "./build.sh" --name models-api
+	fission package update --sourcearchive models_api.zip --env python-es --buildcmd "./build.sh" --name models-api-pack
+	fission fn update --name models-api --env python-es --pkg models-api-pack --entrypoint "models_api.main" --executortype newdeploy --maxscale 3
+
 
 teardown:
 	fission fn delete --name weather-station-api
@@ -54,5 +56,5 @@ teardown:
 	fission httptrigger delete --name station-rest
 
 	fission fn delete --name models-api
-	fission package delete --name <package_name>
+	fission package delete --name models-api-pack
 	fission httptrigger delete --name models-rest

@@ -1,19 +1,12 @@
-from flask import Flask, request, jsonify
+from flask import request
 import json
 import pickle
-from elasticsearch import Elasticsearch
 import logging
 import numpy as np
 from sklearn.linear_model import LinearRegression
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
-
-ELASTIC_URL = 'https://172.26.135.52:9200'
-ELASTIC_USER = 'elastic'
-ELASTIC_PASSWORD = 'cloudcomp'
-ES_HEADERS = {'HOST': 'elasticsearch'}
 
 RESPONSE_HEADER = 'X-Fission-Params-Response'
 
@@ -22,13 +15,12 @@ ERROR = json.dumps({'Status': 500, 'Message': 'Internal Server Error'})
 EMPTY = json.dumps({'Status': 200, 'Data': []})
 
 
-
-app = Flask(__name__)
-
 # For local testing
 #@app.route('/api/models', methods=['GET'])
 def main():
-    logging.info('In main')
+
+    logging.info('Welcome')
+
     # Check parameters
     if RESPONSE_HEADER not in request.headers:
         return BAD_PARAMS
@@ -38,9 +30,9 @@ def main():
         with open('lin_reg_model_test.pkl', 'rb') as file:
             loaded_model = pickle.load(file)
         logging.info('Pickle file loaded')
-        print(f'Loaded Model Type: {type(loaded_model)}')
-        print(f'Loaded Coefficients: {loaded_model.coef_}')
-        print(f'Loaded Intercept: {loaded_model.intercept_}')
+        logging.info(f'Loaded Model Type: {type(loaded_model)}')
+        logging.info(f'Loaded Coefficients: {loaded_model.coef_}')
+        logging.info(f'Loaded Intercept: {loaded_model.intercept_}')
 
         # Read the a comma-separated list in the predictors argument
         if 'predictors' in request.args:
@@ -55,8 +47,8 @@ def main():
 
             prediction = loaded_model.predict(predictors)[0]
 
-            print(f'Predictors: {predictors}')
-            print(f'Prediction {prediction}')
+            logging.info(f'Predictors: {predictors}')
+            logging.info(f'Prediction {prediction}')
 
             return {'prediction': prediction}
 
@@ -69,9 +61,3 @@ def main():
 
     except:
         return ERROR
-
-
-# if __name__ == '__main__':
-#     app.run(debug=True)
-
-
