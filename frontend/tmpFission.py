@@ -1,8 +1,10 @@
 import json
 from elasticsearch import Elasticsearch
 import datetime
-
 from typing import List
+import warnings
+warnings.filterwarnings('ignore')
+
 
 ELASTIC_URL = 'https://172.26.135.52:9200'
 ELASTIC_USER = 'elastic'
@@ -280,6 +282,109 @@ def tempFissionGetStationName(id):
     except:
         return ERROR
     
-resp = tempFissionGetStationName(91245)
+# resp = tempFissionGetStationName(91245)
 
+# print(resp)
+
+
+from elasticsearch import Elasticsearch, helpers
+# Get all crashes
+
+mappings = {
+        "properties": {
+            "Station Name": {"type": "keyword"},
+            "State": {"type": "keyword"},
+            "Date": {"type": "date", "format": "dd/MM/yyyy"},
+            "Evapo-Rain": {"type": "float"},
+            "Rain": {"type": "float"},
+            "Pan-Rain": {"type": "float"},  # Changed to keyword for potentially non-numeric values
+            "Max Temp": {"type": "float"},
+            "Min Temp": {"type": "float"},
+            "Max Humid": {"type": "integer"},  # Changed to integer for whole numbers
+            "Min Humid": {"type": "integer"},
+            "WindSpeed": {"type": "float"},
+            "UV": {"type": "float"},
+            "Source": {"type": "keyword"},
+        }
+    }
+
+def tmpFissionCrashes2(size):
+    crashes = es.search(index='crashes', body={
+            "query": {
+                "match_all": {}
+            },
+            "size": size
+        },scroll=SCROLL)
+    out = {}
+    count = 0
+    while True:
+        if len(crashes['hits']['hits']) <= 0:
+            es.clear_scroll(scroll_id=crashes['_scroll_id'])
+            break
+        
+        actions = []
+        for crash in crashes['hits']['hits']:
+            crash_location = crash['_source']['location']
+            crash_date = crash['_source']['crash_date']
+            crash_date = datetime.datetime.strptime(crash_date, "%Y-%m-%dT%H:%M:%S.%f%z").strftime("%d/%m/%Y")
+            # Find the closest station
+            nearest_station = es.search(index="station_locations", body={
+                "query": {
+                    "bool": {
+                        "must": {
+                            "match_all": {}
+                        },
+                        "filter": {
+                            "geo_distance": {
+                                "distance": "10km",  # Adjust distance as needed
+                                "location": crash_location
+                            }
+                        }
+                    }
+                },
+                "size": 1
+            })
+            if nearest_station['hits']['total']['value'] == 0:
+                continue
+            nearest_station = nearest_station['hits']['hits'][0]['_source']
+            # Find weather data for the closest station
+            weather_data = es.search(index="weather_past_obs", body={
+                "query": {
+                    "bool": {
+                        "must": [
+                            {"term": {"Station Name": nearest_station['Station Name']}},
+                            {"range": {"Date": {"lte": crash_date}}}
+                        ]
+                    }
+                },
+                "sort": [
+                    {"Date": {"order": "desc"}}
+                ],
+                "size": 1
+            })['hits']['hits']
+
+            if weather_data:
+                weather = weather_data[0]['_source']
+                combined_doc = {
+                    **crash['_source'],
+                    "nearest_station": nearest_station,
+                    "weather": weather
+                }
+                action = {
+                    "_index": "crash_weather_data",
+                    "_source": combined_doc
+                }
+                actions.append(action)
+                count += 1
+            if count >= 2:
+                # Bulk index the combined documents
+                resp = helpers.bulk(es, actions)
+                print(resp)
+                count = 0
+        crashes = es.scroll(scroll_id=crashes['_scroll_id'], scroll=SCROLL)
+    return None
+
+
+
+resp = tempFissionGetStationName(94250)
 print(resp)
