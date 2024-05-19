@@ -3,13 +3,10 @@ stages:
   - deploy
 
 test:
-    image: python:latest
     stage: test
     tags:
         - testing
     script:
-        - pip3 install requests
-        - pip3 install pandas
         - python3 -m unittest discover ./test
 
 deploy:
