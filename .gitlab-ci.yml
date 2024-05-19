@@ -1,0 +1,21 @@
+stages:
+  - test
+  - deploy
+
+test:
+    image: python:latest
+    stage: test
+    tags:
+        - testing
+    script:
+        - echo "RAN TESTS"
+
+deploy:
+  image: alpine:latest
+  stage: deploy
+  tags:
+    - deployment
+  script:
+    - chmod og= $ID_RSA
+    - apk update && apk add openssh-client
+    - ssh -i $ID_RSA -o StrictHostKeyChecking=no ubuntu@$SERVER_IP "touch DEPLOYED.txt"
