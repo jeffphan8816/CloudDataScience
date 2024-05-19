@@ -22,7 +22,7 @@ SCROLL = '5m'
 app = Flask(__name__)
 
 # Endpoint to handle query parameters
-@app.route('/api/VIC', methods=['GET'])
+@app.route('/api/models', methods=['GET'])
 def predict_from_pred():
 
     with open('lin_reg_model_test.pkl', 'rb') as file:
@@ -42,20 +42,18 @@ def predict_from_pred():
 
         predictors = np.array(predictors).reshape(1,-1)
 
-        predictions = loaded_model.predict(predictors)
+        prediction = loaded_model.predict(predictors)[0]
 
         print(f'Predictors: {predictors}')
-        print(f'Prediction {predictions}')
+        print(f'Prediction {prediction}')
 
-        return {'prediction': predictions[0]}
+        return {'prediction': prediction}
 
     # Return the model as a dictionnary if no predictors have been specified
     else:
         model_dict = {'coef':list(loaded_model.coef_),
                       'intercept':loaded_model.intercept_}
         return model_dict
-
-
 
 
 if __name__ == '__main__':

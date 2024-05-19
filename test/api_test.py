@@ -32,7 +32,7 @@ class APITests(TestCase):
     def test_weather_api(self):
         """
         Test for error when we are missing or invalid headers,
-        test result for one valid (station_id,size,radius) triple
+        test result for one valid (station_id,size,radius) parameters
         """
 
         # Missing header
@@ -51,7 +51,7 @@ class APITests(TestCase):
         resp = requests.get(URL+'weather/23034/2014/END_YEAR').text
         self.assertEqual(resp,ERROR_STR)
 
-        # Valid triple
+        # Valid parameters
         resp = requests.get(URL+'weather/23034/2014/2015').text
         self.assertEqual(resp,'')
 
@@ -59,7 +59,7 @@ class APITests(TestCase):
     def test_crash_api(self):
         """
         Test for error when we are missing or invalid headers,
-        test result for one valid (station_id,size,radius) triple
+        test result for one valid (station_id,size,radius) parameters
         """
 
         # Missing header
@@ -86,7 +86,7 @@ class APITests(TestCase):
         resp = requests.get(URL+'crashes/23034/5000/-3000').text
         self.assertEqual(resp,ERROR_STR)
 
-        # Valid triple
+        # Valid parameters
         resp = requests.get(URL+'crashes/23034/5000/3000').text
         self.assertEqual(resp,'')
 
@@ -94,7 +94,7 @@ class APITests(TestCase):
     def test_crime_api(self):
         """
         Test for error when we are missing or invalid headers,
-        test result for one valid (station_id,size,radius) triple
+        test result for one valid (station_id,size,radius) parameters
         """
 
         # Missing header
@@ -121,7 +121,7 @@ class APITests(TestCase):
         resp = requests.get(URL+'crime/23034/5000/-3000').text
         self.assertEqual(resp,ERROR_STR)
 
-        # Valid triple
+        # Valid parameters
         resp = requests.get(URL+'crime/23034/5000/3000').text
         self.assertEqual(resp,'')
 
@@ -129,7 +129,7 @@ class APITests(TestCase):
     def test_airqual_api(self):
         """
         Test for error when we are missing or invalid headers,
-        test result for one valid (station_id,size,radius) triple
+        test result for one valid (station_id,size,radius) parameters
         """
 
         # Missing header
@@ -156,7 +156,7 @@ class APITests(TestCase):
         resp = requests.get(URL+'epa/23034/5000/-3000').text
         self.assertEqual(resp,ERROR_STR)
 
-        # Valid triple
+        # Valid parameters
         resp = requests.get(URL+'epa/23034/5000/3000').text
         self.assertEqual(resp,'')
 
@@ -167,4 +167,24 @@ class APITests(TestCase):
         self.assertEqual(resp,BAD_PARAMS_STR)
 
 
+    def test_models_api(self):
+        # Missing header
+        resp = requests.get(URL+'models').text
+        self.assertEqual(resp,BAD_PARAMS_STR)
 
+        # No predictors, returning model coefs
+        resp = requests.get(URL+'models/test').json()
+        self.assertAlmostEqual(resp['intercept'], 3.)
+        self.assertAlmostEqual(resp['coef'][0], 1.)
+        self.assertAlmostEqual(resp['coef'][1], 2.)
+
+        # Too many predictors (here 3 instead of 2)
+        params = {'predictors': '1.1,2.2,3.3'}
+        resp = requests.get(URL+'models/test', params=params).text
+        self.assertEqual(resp,BAD_PARAMS_STR)
+
+
+        # Valid parameters
+        params = {'predictors': '1.1,2.2'}
+        resp = requests.get(URL+'models/test', params=params).json()
+        self.assertAlmostEqual(resp['prediction'])
