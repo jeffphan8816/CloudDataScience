@@ -1,5 +1,33 @@
 cd ~/cloudcomp-aw/backend/fission/functions/
 
+# Fetch weather obs ------------------------------------
+zip -jr fetch-weather-obs.zip fetch-weather-obs
+# fission package create --sourcearchive fetch-weather-obs.zip --env python-es --buildcmd "./build.sh" --name fetch-weather-obs
+# fission fn create --name fetch-weather-obs --pkg fetch-weather-obs --entrypoint "fetch-weather-obs.main"
+
+fission package update --sourcearchive fetch-weather-obs.zip --env python-es --buildcmd "./build.sh" --name fetch-weather-obs
+fission fn update --name fetch-weather-obs --pkg fetch-weather-obs --entrypoint "fetch-weather-obs.main"
+
+fission fn test --name fetch-weather-obs
+fission fn logs --name fetch-weather-obs
+
+
+
+# Todo: beloe
+
+
+
+
+fission timer create --name get-hourly-weather --function fetch-weather-obs --cron "15 * * * *"
+fission timer delete --name get-hourly-weather
+
+
+
+
+
+
+
+
 fission function delete --name multiweather
 rm multiweather.zip
 zip -jr multiweather.zip *.json multiweather.py

@@ -7,6 +7,7 @@ import requests
 import aiohttp
 import pandas as pd
 
+from elasticsearch import Elasticsearch
 from flask import request
 from tenacity import before_sleep_log, retry, stop_after_attempt, wait_fixed
 
@@ -99,22 +100,59 @@ async def get_selected_weather(urls: str) -> list:
         results = await asyncio.gather(*tasks)
         return results
 
+@retry(
+    wait=wait_fixed(2),
+    stop=stop_after_attempt(5),
+    before_sleep=before_sleep_log(logger, logging.INFO),
+)
+def get_bom_stations_from_es(state: str, region: str) -> dict:
+
+    # TODO: replace with creds
+    ELASTIC_URL = 'https://elasticsearch.elastic.svc.cluster.local:9200'
+    # ELASTIC_URL = 'https://172.26.135.52:9200'
+    ELASTIC_USER = "elastic"
+    ELASTIC_PASSWORD = "cloudcomp"
+    ES_HEADERS = {'HOST': 'elasticsearch'}
+
+    es = Elasticsearch([ELASTIC_URL], basic_auth=(
+        ELASTIC_USER, ELASTIC_PASSWORD), verify_certs=False, headers=ES_HEADERS)
+
+    if not es.ping():
+        raise ValueError("Connection failed")
+
+    index_name = "current_bom_stations"
+
+    query = {
+        "query": {
+            "bool": {
+                "must": [
+                    {"match": {"State": state}},
+                    {"match": {"Region": region}}
+                ]
+            }
+        }
+    }
+
+    response = es.search(index=index_name, body=query, size=1000)
+
+    response
+
+    return response
 
 def get_weather_data(state, region) -> str:
 
-    # Read in the lookup the relevant state
-    current_dir = os.path.dirname(__file__)
-    with open(os.path.join(current_dir, f"bom_lookup_{state.lower()}.json"), "r") as f:
-        bom_state_lookup = json.load(f)
+    stations = get_bom_stations_from_es(state, region)
 
-    # Get the relevant region
-    selected_bom_region = bom_state_lookup[region]
-
-    # Create the DataFrame and add the json_url endpoint
-    df = pd.DataFrame(selected_bom_region)
-    df["json_url"] = (
-        df["url"].str.replace("shtml", "json").str.replace("/products/", "/fwo/")
-    )
+    station_results = []
+    urls = []
+    for hit in stations['hits']['hits']:
+        source = hit['_source']
+        urls.append(source.get('json_url', 'N/A'))
+        result = {
+            "Station Name": source.get('Station Name', 'N/A'),
+            "json_url": source.get('json_url', 'N/A')
+        }
+        station_results.append(result)
 
     # TODO Add as unit tests
     # Handles both scenarios now
@@ -122,11 +160,10 @@ def get_weather_data(state, region) -> str:
     # df["json_url"][0] = df["json_url"][0].replace("IDV", "asdf")
 
     # Running the asynchronous tasks
-    urls = df["json_url"].tolist()
     loop = asyncio.get_event_loop()
     observations = loop.run_until_complete(get_selected_weather(urls))
 
-    for entry, observation in zip(selected_bom_region, observations):
+    for entry, observation in zip(station_results, observations):
         entry.update(observation)
 
     return json.dumps(observations)
@@ -171,6 +208,6 @@ def main():
     weather_data = get_weather_data(state, region)
     print(weather_data)
 
-    post_to_processing(weather_data)
+    # post_to_processing(weather_data)  # Turn off for testing
 
     return "Done"
