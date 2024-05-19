@@ -1,16 +1,18 @@
 from flask import request
 import json
 from elasticsearch import Elasticsearch
+import os
 
-ELASTIC_URL = 'https://172.26.135.52:9200'
-ELASTIC_USER = 'elastic'
-ELASTIC_PASSWORD = 'cloudcomp'
-ES_HEADERS = {'HOST': 'elasticsearch'}
+config = {}
+for key in os.listdir('/secrets/default/es'):
+    with open(os.path.join('/secrets/default/es', key), 'rt') as file:
+        config [key] = file.read()
+
 ERROR = json.dumps({'Status': 500, 'Message': 'Internal Server Error'})
 EMPTY = json.dumps({'Status': 200, 'Data': []})
 
-es = Elasticsearch([ELASTIC_URL], basic_auth=(
-    ELASTIC_USER, ELASTIC_PASSWORD), verify_certs=False, headers=ES_HEADERS)
+es = Elasticsearch([config['URL']], basic_auth=(
+    config['USER'], config['PASS']), verify_certs=False, headers={'HOST': config['HOST']})
 
 
 def main():
