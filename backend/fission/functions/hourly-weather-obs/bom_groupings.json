@@ -1,0 +1,126 @@
+{
+    "VIC": {
+        "Regions": [
+            "MALLEE",
+            "WIMMERA",
+            "SOUTH WEST",
+            "CENTRAL",
+            "NORTHERN COUNTRY",
+            "NORTH EAST",
+            "NORTH CENTRAL",
+            "WEST AND SOUTH GIPPSLAND",
+            "EAST GIPPSLAND",
+            "PORTABLE"
+        ]
+    },
+    "NSW": {
+        "Regions": [
+            "NORTHERN RIVERS",
+            "MID NORTH COAST",
+            "HUNTER",
+            "NORTHERN TABLELANDS",
+            "SYDNEY METROPOLITAN",
+            "ILLAWARRA",
+            "SOUTH COAST",
+            "CENTRAL TABLELANDS",
+            "SOUTHERN TABLELANDS",
+            "SNOWY MOUNTAINS",
+            "NORTH WEST SLOPES AND PLAINS",
+            "CENTRAL WEST SLOPES AND PLAINS",
+            "SOUTH WEST SLOPES",
+            "RIVERINA",
+            "LOWER WESTERN",
+            "UPPER WESTERN",
+            "ISLANDS",
+            "PORTABLE"
+        ]
+    },
+    "QLD": {
+        "Regions": [
+            "PENINSULA",
+            "GULF COUNTRY",
+            "NORTHERN GOLDFIELDS and UPPER FLINDERS",
+            "NORTH TROPICAL COAST and TABLELANDS",
+            "HERBERT and LOWER BURDEKIN",
+            "CENTRAL COAST - WHITSUNDAYS",
+            "CAPRICORNIA",
+            "CENTRAL HIGHLANDS - COALFIELDS",
+            "CENTRAL WEST",
+            "NORTHWEST",
+            "CHANNEL COUNTRY",
+            "MARANOA and WARREGO",
+            "DARLING DOWNS and GRANITE BELT",
+            "WIDE BAY and BURNETT",
+            "SOUTHEAST COAST",
+            "CORAL SEA",
+            "PORTABLE"
+        ]
+    },
+    "SA": {
+        "Regions": [
+            "ADELAIDE AND MOUNT LOFTY RANGES",
+            "YORKE PENINSULA AND KANGAROO ISLAND",
+            "UPPER SOUTH EAST AND LOWER SOUTH EAST",
+            "MURRAYLANDS AND RIVERLAND",
+            "FLINDERS AND MID NORTH",
+            "WEST COAST, LOWER EYRE PENINSULA AND EASTERN EYRE PENINSULA",
+            "NORTH WEST PASTORAL AND NORTH EAST PASTORAL"
+        ]
+    },
+    "WA": {
+        "Regions": [
+            "KIMBERLEY",
+            "PILBARA",
+            "GASCOYNE",
+            "GOLDFIELDS",
+            "EUCLA",
+            "INTERIOR",
+            "ISLANDS",
+            "CENTRAL WEST",
+            "LOWER WEST",
+            "SOUTHWEST",
+            "SOUTH COASTAL",
+            "SOUTHEAST COASTAL",
+            "GREAT SOUTHERN",
+            "CENTRAL WHEAT BELT",
+            "PORTABLE"
+        ]
+    },
+    "TAS": {
+        "Regions": [
+            "KING ISLAND",
+            "NORTHWEST COAST",
+            "CENTRAL NORTH",
+            "FLINDERS ISLAND - FURNEAUX GROUP",
+            "NORTH EAST",
+            "MIDLANDS",
+            "CENTRAL PLATEAU",
+            "UPPER DERWENT VALLEY",
+            "EAST COAST",
+            "SOUTH EAST",
+            "MACQUARIE ISLAND",
+            "PORTABLE"
+        ]
+    },
+    "NT": {
+        "Regions": [
+            "DALY",
+            "TIWI",
+            "ARNHEM",
+            "CARPENTARIA",
+            "GREGORY",
+            "BARKLY",
+            "SIMPSON",
+            "LASSETER",
+            "TANAMI",
+            "WESTERN AUSTRALIA",
+            "QUEENSLAND",
+            "SOUTH AUSTRALIA"
+        ]
+    },
+    "ACT": {
+        "Regions": [
+            "CANBERRA"
+        ]
+    }
+}
