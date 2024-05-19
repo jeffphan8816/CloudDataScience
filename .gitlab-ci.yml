@@ -20,4 +20,4 @@ deploy:
   script:
     - chmod og= $ID_RSA
     - apk update && apk add openssh-client
-    - ssh -i $ID_RSA -o StrictHostKeyChecking=no ubuntu@$SERVER_IP "cd cloudcompa2"
+    - ssh -i $ID_RSA -o StrictHostKeyChecking=no ubuntu@$SERVER_IP "cd cloudcompa2; git pull"
