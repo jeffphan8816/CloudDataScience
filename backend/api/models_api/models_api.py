@@ -16,48 +16,47 @@ EMPTY = json.dumps({'Status': 200, 'Data': []})
 
 
 # For local testing
-#@app.route('/api/models', methods=['GET'])
 def main():
 
-    logging.info('Welcome')
+    # logging.info('Welcome')
 
-    # Check parameters
-    if RESPONSE_HEADER not in request.headers:
-        return BAD_PARAMS
+    # # Check parameters
+    # if RESPONSE_HEADER not in request.headers:
+    #     return BAD_PARAMS
 
-    # Get parameters
-    try:
-        with open('lin_reg_model_test.pkl', 'rb') as file:
-            loaded_model = pickle.load(file)
-        logging.info('Pickle file loaded')
-        logging.info(f'Loaded Model Type: {type(loaded_model)}')
-        logging.info(f'Loaded Coefficients: {loaded_model.coef_}')
-        logging.info(f'Loaded Intercept: {loaded_model.intercept_}')
+    # # Get parameters
+    # try:
+    #     with open('lin_reg_model_test.pkl', 'rb') as file:
+    #         loaded_model = pickle.load(file)
+    #     logging.info('Pickle file loaded')
+    #     logging.info(f'Loaded Model Type: {type(loaded_model)}')
+    #     logging.info(f'Loaded Coefficients: {loaded_model.coef_}')
+    #     logging.info(f'Loaded Intercept: {loaded_model.intercept_}')
 
-        # Read the a comma-separated list in the predictors argument
-        if 'predictors' in request.args:
-            logging.info('Predictors detected in URL')
-            predictors_str = request.args.get('predictors')
-            predictors = [float(value) for value in predictors_str.split(',')]
+    #     # Read the a comma-separated list in the predictors argument
+    #     if 'predictors' in request.args:
+    #         logging.info('Predictors detected in URL')
+    #         predictors_str = request.args.get('predictors')
+    #         predictors = [float(value) for value in predictors_str.split(',')]
 
-            if len(predictors) != len(loaded_model.coef_):
-                return BAD_PARAMS
+    #         if len(predictors) != len(loaded_model.coef_):
+    #             return BAD_PARAMS
 
-            predictors = np.array(predictors).reshape(1,-1)
+    #         predictors = np.array(predictors).reshape(1,-1)
 
-            prediction = loaded_model.predict(predictors)[0]
+    #         prediction = loaded_model.predict(predictors)[0]
 
-            logging.info(f'Predictors: {predictors}')
-            logging.info(f'Prediction {prediction}')
+    #         logging.info(f'Predictors: {predictors}')
+    #         logging.info(f'Prediction {prediction}')
 
-            return {'prediction': prediction}
+    #         return {'prediction': prediction}
 
-        # Return the model as a dictionnary if no predictors have been specified
-        else:
-            logging.info('No predictors in URL')
-            model_dict = {'coef':list(loaded_model.coef_),
-                        'intercept':loaded_model.intercept_}
-            return model_dict
+    #     # Return the model as a dictionnary if no predictors have been specified
+    #     else:
+    #         logging.info('No predictors in URL')
+    #         model_dict = {'coef':list(loaded_model.coef_),
+    #                     'intercept':loaded_model.intercept_}
+    #         return model_dict
 
-    except:
+    # except:
         return ERROR
