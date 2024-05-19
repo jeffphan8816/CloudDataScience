@@ -159,3 +159,6 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 .idea/
 backend/fission/functions/multiweather.zip
+backend/fission/functions/fetch-weather-obs.zip
+backend/fission/functions/ingest-weather-obs.zip
+backend/fission/functions/process-weather-obs.zip
