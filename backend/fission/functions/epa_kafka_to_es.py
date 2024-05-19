@@ -2,34 +2,23 @@ from datetime import datetime
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk
 from kafka import KafkaProducer, KafkaConsumer, TopicPartition
-import requests
 import json
 import ast
-import uuid
 import logging
 import pandas as pd
-
+import os
 import logging
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
+es_config = {}
+for key in os.listdir('/secrets/default/es'):
+    with open(os.path.join('/secrets/default/es', key), 'rt') as file:
+        es_config [key] = file.read()
 
-# Constant url of the epa
-URL = 'https://gateway.api.epa.vic.gov.au/environmentMonitoring/v1/sites/parameters?environmentalSegment=air'
-KEY = '96ff8ef9e03048e2bd2fa342a5d80587'
-
-RUN_FROM = 'bastion'
-
-if RUN_FROM == 'bastion' : ES_URL, ES_HEADERS = 'https://elasticsearch.elastic.svc.cluster.local:9200', None
-if RUN_FROM == 'uni_wifi' : ES_URL, ES_HEADERS = 'https://172.26.135.52:9200', {'HOST': 'elasticsearch'}
-
-ELASTIC_USER = "elastic"
-ELASTIC_PASSWORD = "cloudcomp"
-
-BOOTSTRAP_KAFKA = 'kafka-kafka-bootstrap.kafka.svc:9092'
-if RUN_FROM == 'bastion' : BOOTSTRAP_KAFKA = 'kafka-kafka-bootstrap.kafka.svc:9092'
-if RUN_FROM == 'uni_wifi' : BOOTSTRAP_KAFKA = 'https://172.26.135.52:9092'
+with open('/secrets/default/kafka/URL', 'rt') as file:
+    BOOTSTRAP_KAFKA = file.read()
 
 TOPIC_NAME = 'airquality-kafka'
 CONFIRM_TOPIC_NAME = 'airquality-uploaded-kafka'
@@ -247,7 +236,7 @@ def main():
     logging.info('Buffer message cleaned and converted to a dataFrame')
 
     # Connect to ES database
-    es = Elasticsearch(ES_URL, basic_auth=(ELASTIC_USER, ELASTIC_PASSWORD), headers=ES_HEADERS, verify_certs=False)
+    es = Elasticsearch(es_config['URL'], basic_auth=(es_config['USER'], es_config['PASS']), headers={'HOST': es_config['HOST']}, verify_certs=False)
     if not es.ping():
         raise ValueError('Connection failed')
 
