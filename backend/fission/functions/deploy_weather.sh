@@ -96,26 +96,6 @@ curl -X POST http://172.26.135.52:9090/ingest-weather-obs \
 fission fn logs --name ingest-weather-obs
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # Test sequence ------------------------------------
 curl -X GET "http://172.26.135.52:9090/fetch-weather-obs?state=WA&region=ISLANDS" -H "Host: fission"
 fission fn logs --name fetch-weather-obs
@@ -125,5 +105,4 @@ fission fn logs --name ingest-weather-obs
 
 # fission fn test --name fetch-weather-obs
 # fission fn logs --name ingest-weather-obs
-
 

@@ -179,9 +179,9 @@ def post_to_processing(data):
     FISSION_URL = "http://172.26.135.52:9090/"
     FISSION_HEADERS = {"HOST": "fission"}
 
-    ingest_url = f"{FISSION_URL}/process-weather-obs"
+    processing_url = f"{FISSION_URL}/process-weather-obs"
 
-    response = requests.post(ingest_url, json=data, headers=FISSION_HEADERS)
+    response = requests.post(processing_url, json=data, headers=FISSION_HEADERS)
 
     return response
 
@@ -208,6 +208,6 @@ def main():
     weather_data = get_weather_data(state, region)
     print(weather_data)
 
-    # post_to_processing(weather_data)  # TODO turn back on after testing
+    post_to_processing(weather_data)
 
     return "Done"
