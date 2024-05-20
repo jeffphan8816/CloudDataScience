@@ -2,11 +2,12 @@ from flask import request
 import json
 from elasticsearch import Elasticsearch
 import os
+from datetime import datetime
 
 config = {}
 for key in os.listdir('/secrets/default/es'):
     with open(os.path.join('/secrets/default/es', key), 'rt') as file:
-        config [key] = file.read()
+        config[key] = file.read()
 
 SIZE_HEADER = 'X-Fission-Params-Size'
 RADIUS_HEADER = 'X-Fission-Params-Radius'
@@ -18,6 +19,9 @@ SCROLL = '5m'
 
 es = Elasticsearch([config['URL']], basic_auth=(
     config['USER'], config['PASS']), verify_certs=False, headers={'HOST': config['HOST']})
+
+start_date = datetime.datetime(1900, 1,  1)
+end_date = datetime.datetime(2050, 1, 1)
 
 
 def main():
@@ -69,15 +73,22 @@ def main():
                     'must': [
                         {'match_all': {}}
                     ],
-                    'filter': {
-                        'geo_distance': {
-                            'distance': str(radius) + 'km',
-                            'location': {
-                                'lon': lon,
-                                'lat': lat
+                    'filter': [
+                        {'range': {
+                            'Date': {
+                                'gte': start_date.strftime('%d/%m/%Y'),
+                                'lte': end_date.strftime('%d/%m/%Y')
+                            }
+                        }},
+                        {'geo_distance': {
+                                'distance': str(radius) + 'km',
+                                'location': {
+                                    'lon': lon,
+                                    'lat': lat
+                                }
                             }
                         }
-                    }
+                    ]
                 },
             },
         }, scroll=SCROLL)
