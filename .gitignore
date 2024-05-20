@@ -161,4 +161,6 @@ cython_debug/
 
 
 # Airquality local downloads
-data/airquality*
+/data/airquality*
+#Crime data
+/data/*-data_sa_crime.csv
