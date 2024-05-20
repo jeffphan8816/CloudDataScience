@@ -159,3 +159,7 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 .idea/
 .DS_Store
+frontend/catboost_info/catboost_training.json
+frontend/catboost_info/learn_error.tsv
+frontend/catboost_info/time_left.tsv
+frontend/catboost_info/learn/events.out.tfevents
