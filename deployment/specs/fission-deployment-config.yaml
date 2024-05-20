@@ -4,4 +4,4 @@
 apiVersion: fission.io/v1
 kind: DeploymentConfig
 name: deployment
-uid: e19e1f5a-ce92-4874-9a69-7a91683bd4b6
+uid: f4d12974-47e3-46ad-b1b7-a8b618930c98

@@ -1,0 +1,26 @@
+
+{
+    "CANBERRA": [
+        {"name": "Canberra", "url": "http://reg.bom.gov.au/products/IDN60903/IDN60903.94926.shtml"},
+        {"name": "Braidwood", "url": "http://reg.bom.gov.au/products/IDN60903/IDN60903.94927.shtml"},
+        {"name": "Cabramurra", "url": "http://reg.bom.gov.au/products/IDN60903/IDN60903.95916.shtml"},
+        {"name": "Cooma Airport", "url": "http://reg.bom.gov.au/products/IDN60903/IDN60903.94921.shtml"},
+        {"name": "Goulburn Airport", "url": "http://reg.bom.gov.au/products/IDN60903/IDN60903.95716.shtml"},
+        {"name": "Jervis Bay Airfield", "url": "http://reg.bom.gov.au/products/IDN60903/IDN60903.94751.shtml"},
+        {"name": "Montague Island", "url": "http://reg.bom.gov.au/products/IDN60903/IDN60903.94939.shtml"},
+        {"name": "Moruya Airport", "url": "http://reg.bom.gov.au/products/IDN60903/IDN60903.95937.shtml"},
+        {"name": "Mount Ginini", "url": "http://reg.bom.gov.au/products/IDN60903/IDN60903.95925.shtml"},
+        {"name": "Narooma", "url": "http://reg.bom.gov.au/products/IDN60903/IDN60903.95935.shtml"},
+        {"name": "Nowra", "url": "http://reg.bom.gov.au/products/IDN60903/IDN60903.94750.shtml"},
+        {"name": "Perisher Valley", "url": "http://reg.bom.gov.au/products/IDN60903/IDN60903.94915.shtml"},
+        {"name": "Thredbo Top Station", "url": "http://reg.bom.gov.au/products/IDN60903/IDN60903.95909.shtml"},
+        {"name": "Tuggeranong", "url": "http://reg.bom.gov.au/products/IDN60903/IDN60903.94925.shtml"},
+        {"name": "Ulladulla", "url": "http://reg.bom.gov.au/products/IDN60903/IDN60903.94938.shtml"},
+        {"name": "Tidbinbilla", "url": "http://reg.bom.gov.au/products/IDN60903/IDN60903.99762.shtml"},
+        {"name": "Mullion", "url": "http://reg.bom.gov.au/products/IDN60903/IDN60903.99763.shtml"},
+        {"name": "Kowen Forest", "url": "http://reg.bom.gov.au/products/IDN60903/IDN60903.99764.shtml"},
+        {"name": "Gudgenby", "url": "http://reg.bom.gov.au/products/IDN60903/IDN60903.99765.shtml"},
+        {"name": "ACT PCS2", "url": "http://reg.bom.gov.au/products/IDN60903/IDN60903.99146.shtml"},
+        {"name": "ACT PCS3", "url": "http://reg.bom.gov.au/products/IDN60903/IDN60903.99946.shtml"}
+    ]
+}
