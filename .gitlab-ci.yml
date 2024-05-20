@@ -1,0 +1,17 @@
+stages:
+  - test
+  - deploy
+
+test:
+    stage: test
+    tags:
+        - testing
+    script:
+        - python3 -m unittest discover ./test
+
+deploy:
+  stage: deploy
+  tags:
+    - deployment
+  script:
+    - touch /home/ubuntu/TEST123.txt

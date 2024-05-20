@@ -5,9 +5,11 @@ metadata:
   name: python-es
 spec:
   builder:
+    command: build
     container:
       name: ""
       resources: {}
+    image: fission/python-builder
   imagepullsecret: ""
   keeparchive: false
   poolsize: 3
@@ -17,8 +19,8 @@ spec:
       name: ""
       resources: {}
     image: py846260131/python-es:0.1.2
-    podspec:
+    podspec: 
       containers: []
       nodeSelector:
         workload: fission
-  version: 1
+  version: 2

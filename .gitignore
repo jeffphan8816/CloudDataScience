@@ -163,3 +163,7 @@ frontend/catboost_info/catboost_training.json
 frontend/catboost_info/learn_error.tsv
 frontend/catboost_info/time_left.tsv
 frontend/catboost_info/learn/events.out.tfevents
+backend/fission/functions/multiweather.zip
+backend/fission/functions/fetch-weather-obs.zip
+backend/fission/functions/ingest-weather-obs.zip
+backend/fission/functions/process-weather-obs.zip

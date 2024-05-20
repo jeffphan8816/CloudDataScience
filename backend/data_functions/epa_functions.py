@@ -49,4 +49,19 @@ def fetch_epa() -> list[dict]:
     return out
 
 
+
+def accepting_new_data(new_data, current_data):
+    #readings is a list of dictionary, each one is a reading of the air quality 
+
+    latest_current_df = current_data.groupby(['name', 'location'])['end'].max()
+
+    kept_data = new_data.copy()
+
+    for index in new_data.index:
+        if new_data.loc[index,'end'] <= latest_current_df.loc[new_data.loc[index,'name']
+                                                                          [new_data.loc[index,'location']],'end'] :
+            kept_data.drop(index, axis='index')
+    
+    return kept_data
+
 print(fetch_epa())
