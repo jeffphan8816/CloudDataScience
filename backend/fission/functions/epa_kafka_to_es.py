@@ -201,13 +201,6 @@ def upload_to_ES(data: list[dict], es: Elasticsearch) -> None:
     cont = True
     while cont:
         try:
-            # logging.info(f"{type(data['measure_name'])}")
-            # logging.info(f"{type(data['location'])}")
-            # logging.info(f"{type(data['start'])}")
-            # logging.info(f"{type(data['end'])}")
-            # logging.info(f"{type(data['end'])}")
-            # logging.info(f"{type(data['value'])}")
-
             bulk(es, [data], index='airquality')
             cont = False
             logging.info('Uploaded ' + str(data))
@@ -217,8 +210,6 @@ def upload_to_ES(data: list[dict], es: Elasticsearch) -> None:
 
 
 def reset_kafka_confirm_message(bootstrap_servers , topic_name) :
-
-
     # Connect to Kafka and set up a producer client
     producer = KafkaProducer(bootstrap_servers=bootstrap_servers, 
                              value_serializer=json_serializer)
@@ -274,8 +265,8 @@ def main():
 
         # Upload
         for line in df_to_upload.to_dict(orient='records'):
-            line['start'] = line['start'].strftime("%Y-%m-%dT%H:%M:%S") #datetime.strptime(, '%Y-%m-%dT%H:%M:%S')
-            line['end'] = line['end'].strftime("%Y-%m-%dT%H:%M:%S") #datetime.strptime(, '%Y-%m-%dT%H:%M:%S')
+            line['start'] = line['start'].strftime("%Y-%m-%dT%H:%M:%S")
+            line['end'] = line['end'].strftime("%Y-%m-%dT%H:%M:%S")
             upload_to_ES(line, es)
         logging.info('Uploaded Data in Elastic Search')
     
