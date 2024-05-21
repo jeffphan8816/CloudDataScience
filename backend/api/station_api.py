@@ -3,19 +3,19 @@ import json
 from elasticsearch import Elasticsearch
 import os
 
-config = {}
-for key in os.listdir('/secrets/default/es'):
-    with open(os.path.join('/secrets/default/es', key), 'rt') as file:
-        config [key] = file.read()
-
-ERROR = json.dumps({'Status': 500, 'Message': 'Internal Server Error'})
-EMPTY = json.dumps({'Status': 200, 'Data': []})
-
-es = Elasticsearch([config['URL']], basic_auth=(
-    config['USER'], config['PASS']), verify_certs=False, headers={'HOST': config['HOST']})
-
-
 def main():
+    # Setup
+    config = {}
+    for key in os.listdir('/secrets/default/es'):
+        with open(os.path.join('/secrets/default/es', key), 'rt') as file:
+            config [key] = file.read()
+
+    ERROR = json.dumps({'Status': 500, 'Message': 'Internal Server Error'})
+    EMPTY = json.dumps({'Status': 200, 'Data': []})
+
+    es = Elasticsearch([config['URL']], basic_auth=(
+        config['USER'], config['PASS']), verify_certs=False, headers={'HOST': config['HOST']})
+
     # Try to return all station data
     try:
         station_results = es.search(index='station_locations', body={

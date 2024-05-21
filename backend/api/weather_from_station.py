@@ -4,23 +4,24 @@ from flask import request
 import json
 import os
 
-config = {}
-for key in os.listdir('/secrets/default/es'):
-    with open(os.path.join('/secrets/default/es', key), 'rt') as file:
-        config [key] = file.read()
-
-STATION_HEADER = 'X-Fission-Params-Station'
-START_HEADER = 'X-Fission-Params-Start'
-END_HEADER = 'X-Fission-Params-End'
-BAD_PARAMS = json.dumps({'Status': 400, 'Message': 'Invalid Parameters'})
-ERROR = json.dumps({'Status': 500, 'Message': 'Internal Server Error'})
-EMPTY = json.dumps({'Status': 200, 'Data': []})
-
-es = Elasticsearch([config['URL']], basic_auth=(
-    config['USER'], config['PASS']), verify_certs=False, headers={'HOST': config['HOST']})
-
-
 def main():
+    # Setup
+    config = {}
+    for key in os.listdir('/secrets/default/es'):
+        with open(os.path.join('/secrets/default/es', key), 'rt') as file:
+            config [key] = file.read()
+
+    STATION_HEADER = 'X-Fission-Params-Station'
+    START_HEADER = 'X-Fission-Params-Start'
+    END_HEADER = 'X-Fission-Params-End'
+    BAD_PARAMS = json.dumps({'Status': 400, 'Message': 'Invalid Parameters'})
+    ERROR = json.dumps({'Status': 500, 'Message': 'Internal Server Error'})
+    EMPTY = json.dumps({'Status': 200, 'Data': []})
+
+    es = Elasticsearch([config['URL']], basic_auth=(
+        config['USER'], config['PASS']), verify_certs=False, headers={'HOST': config['HOST']})
+
+
     # Check parameters
     if STATION_HEADER not in request.headers:
         return BAD_PARAMS
@@ -65,7 +66,7 @@ def main():
 
     # Then get weather results
     try:
-        weather_results = es.search(index='weather_past_obs_kafka', body={
+        weather_results = es.search(index='weather_past_obs', body={
             'size': 10000,
             'query': {
                 'bool': {
