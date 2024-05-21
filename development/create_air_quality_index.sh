@@ -9,8 +9,8 @@ curl -XPUT -k 'https://elasticsearch:31001/airquality'\
     },
     "mappings": {
         "properties": {
-            "name": {
-                "type": "text"
+            "measure_name": {
+                "type": "keyword"
             },
             "location": {
                 "type": "geo_point"
@@ -28,4 +28,3 @@ curl -XPUT -k 'https://elasticsearch:31001/airquality'\
     }
 }'\
    --user 'elastic:cloudcomp' | jq '.'
-

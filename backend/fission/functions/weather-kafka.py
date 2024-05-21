@@ -3,20 +3,48 @@ import warnings
 import logging
 from datetime import datetime
 from kafka import KafkaProducer, KafkaConsumer, TopicPartition
+from flask import request
 import json
+import os
 warnings.filterwarnings("ignore")
+
+config = {}
+for key in os.listdir('/secrets/default/kafka'):
+    with open(os.path.join('/secrets/default/kafka', key), 'rt') as file:
+        config[key] = file.read()
+
+STATE_HEADER = 'X-Fission-Params-State'
+BAD_PARAMS = json.dumps({'Status': 400, 'Message': 'Invalid Parameters'})
+ERROR = json.dumps({'Status': 500, 'Message': 'Internal Server Error'})
+EMPTY = json.dumps({'Status': 200, 'Data': []})
 
 
 def main():
-    kafka_topic = 'weather-past-obs-kafka'
+    """
+    This function fetches weather data from the Bureau of Meteorology FTP server and sends it to a Kafka topic.
+    
+    Parameters:
+    -----------
+    None
+    
+    Returns:
+        JSON object with status code and message
+    """
+
+    
+    # Check parameters
+    if STATE_HEADER not in request.headers:
+        return BAD_PARAMS
+    state = request.headers[STATE_HEADER]
+    kafka_topic = config['KAFKA_TOPIC']
     count = 0
     def json_serializer(data):
         return json.dumps(data).encode('utf-8')
-    producer = KafkaProducer(bootstrap_servers='kafka-kafka-bootstrap.kafka.svc:9092', value_serializer=json_serializer)
+    producer = KafkaProducer(bootstrap_servers=config['URL'], value_serializer=json_serializer)
     #use consumer to get the last record
     consumer = KafkaConsumer(kafka_topic,
                              auto_offset_reset="earliest",
-                             bootstrap_servers='kafka-kafka-bootstrap.kafka.svc:9092',
+                             bootstrap_servers=config['URL'],
                              enable_auto_commit=True)
     partition = TopicPartition(kafka_topic, 0)
     end_offset = consumer.end_offsets([partition])
@@ -45,20 +73,19 @@ def main():
         ftp_host = "ftp.bom.gov.au"
         ftp_user = "anonymous"
         ftp_passwd = "" 
-        index_name = "weather_past_obs_kafka"
+        index_name = config['ES_WEATHER_INDEX']
         # Connect to FTP server
         ftp = FTP(ftp_host)
         ftp.login(user=ftp_user, passwd=ftp_passwd)
         ftp.encoding = 'latin-1'
         # Start from the directory
-        ftp.cwd("/anon/gen/clim_data/IDCKWCDEA0/tables/tas/")
+        ftp.cwd(f"/anon/gen/clim_data/IDCKWCDEA0/tables/{state}/")
 
         # List directory contents
         suburbs = ftp.nlst()
-
+        
         subdirectories = []
         # Loop through files
-
         bulk_data = []
         flag = 0
         if source:

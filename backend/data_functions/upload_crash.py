@@ -9,6 +9,16 @@ logging.basicConfig(level=logging.INFO)
 
 BATCH_SIZE = 500
 
+ES_URL = 'https://elasticsearch:31001'
+USER = "elastic"
+PASSWORD = "cloudcomp"
+es = Elasticsearch([ES_URL], basic_auth=(USER, PASSWORD), verify_certs=False)
+
+if not es.ping():
+    raise ValueError("Connection failed")
+
+INDEX_NAME = 'crashes'
+
 def get_crash_data(file_path: str) -> list:
     """
     Load a cleaned dataframe of crash data
@@ -46,30 +56,24 @@ def get_crash_data(file_path: str) -> list:
     return df_reduced.to_dict(orient='records')
 
 
-url = 'https://elasticsearch:31001'
-user = "elastic"
-password = "cloudcomp"
-es = Elasticsearch([url], basic_auth=(user, password), verify_certs=False)
 
-if not es.ping():
-    raise ValueError("Connection failed")
+if __name__ == '__main__':
+    result_list = get_crash_data('../../data/sudo_tasmania_crash_2010_2020.csv')
 
-index_name = 'crashes'
+    extra = 0
+    if not len(result_list) % BATCH_SIZE == 0:
+        extra = 1
 
 
-result_list = get_crash_data('../../data/sudo_tasmania_crash_2010_2020.csv')
+    for i in range(len(result_list)//BATCH_SIZE + extra) :
+        cont = True
+        while cont :
+            try :
+                bulk(es, result_list[i*BATCH_SIZE:(i+1)*BATCH_SIZE], index=INDEX_NAME)
+                cont = False
+                logger.info('Uploaded batch no ' + str(i))
 
-extra = 0
-if not len(result_list) % BATCH_SIZE == 0:
-    extra = 1
-for i in range(len(result_list)//BATCH_SIZE + extra) :
-    cont = True
-    while cont :
-        try :
-            bulk(es, result_list[i*BATCH_SIZE:(i+1)*BATCH_SIZE], index='crashes')
-            cont = False
-            logger.info('Uploaded batch no ' + str(i))
+            except :
+                cont = True
+                logger.warn('Failed to upload batch no ' + str(i) + ' RETRYING')
 
-        except :
-            cont = True
-            logger.warn('Failed to upload batch no ' + str(i) + ' RETRYING')

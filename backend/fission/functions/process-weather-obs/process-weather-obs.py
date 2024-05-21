@@ -1,4 +1,6 @@
 import json
+import requests
+
 from flask import request
 
 def process_data(data):
@@ -17,7 +19,7 @@ def post_to_ingest(data):
 
     ingest_url = f"{FISSION_URL}/ingest-weather-obs"
 
-    response = request.post(ingest_url, json=data, headers=FISSION_HEADERS)
+    response = requests.post(ingest_url, json=data, headers=FISSION_HEADERS)
 
     return response
 
@@ -25,8 +27,6 @@ def post_to_ingest(data):
 def main():
 
     data = request.get_json()
-    # print(data)
-    # print(type(data))
 
     try:
         # If data is a string, parse it to a Python list/dict
@@ -35,7 +35,6 @@ def main():
 
         processed_data = process_data(data)
 
-        print(processed_data)
         post_to_ingest(processed_data)
 
     except Exception as e:
