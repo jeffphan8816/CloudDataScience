@@ -168,9 +168,11 @@ backend/fission/functions/multiweather.zip
 backend/fission/functions/fetch-weather-obs.zip
 backend/fission/functions/ingest-weather-obs.zip
 backend/fission/functions/process-weather-obs.zip
+backend/fission/functions/hourly-weather-obs.zip
 
 # Airquality local downloads
 /data/airquality*
 #Crime data
 /data/*-data_sa_crime.csv
 
+backend/fission/functions/current-weather.zip
