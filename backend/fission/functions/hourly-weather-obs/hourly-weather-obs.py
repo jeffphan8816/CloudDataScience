@@ -5,9 +5,14 @@ Loop through all stations by region for hourly weather trigger
 
 import os
 import json
+import logging
+import requests
 
-from flask import request
 from tenacity import before_sleep_log, retry, stop_after_attempt, wait_fixed
+
+# Setting up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 def get_state_regions():
     current_dir = os.path.dirname(__file__)
@@ -27,11 +32,11 @@ def batch_request(state, region):
     FISSION_URL = "http://172.26.135.52:9090/"
     FISSION_HEADERS = {"HOST": "fission"}
 
-    fetch_url = f"{FISSION_URL}/process-weather-obs"
+    fetch_url = f"{FISSION_URL}/fetch-weather-obs"
 
     request_url = f"{fetch_url}?state={state}&region={region}"
 
-    response = request.get(request_url, headers=FISSION_HEADERS)
+    response = requests.get(request_url, headers=FISSION_HEADERS)
 
     return response
 
@@ -46,6 +51,10 @@ def main():
         for region in regions["Regions"]:
             print(f"Processing state: {state}, region: {region}")
 
+            #TODO: lets be nice and slow down the requests once all enabled
+
+
             response = batch_request(state, region)
+            return "Done" #TODO update after testsing
 
     return "Done"
