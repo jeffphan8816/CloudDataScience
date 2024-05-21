@@ -3,23 +3,23 @@ import json
 from elasticsearch import Elasticsearch
 import os
 
-config = {}
-for key in os.listdir('/secrets/default/es'):
-    with open(os.path.join('/secrets/default/es', key), 'rt') as file:
-        config[key] = file.read()
-
-LON_HEADER = 'X-Fission-Params-Lon'
-LAT_HEADER = 'X-Fission-Params-Lat'
-BAD_PARAMS = json.dumps({'Status': 400, 'Message': 'Invalid Parameters'})
-ERROR = json.dumps({'Status': 500, 'Message': 'Internal Server Error'})
-EMPTY = json.dumps({'Status': 200, 'Data': []})
-SCROLL = '5m'
-
-es = Elasticsearch([config['URL']], basic_auth=(
-    config['USER'], config['PASS']), verify_certs=False, headers={'HOST': config['HOST']})
-
-
 def main():
+    # Setup
+    config = {}
+    for key in os.listdir('/secrets/default/es'):
+        with open(os.path.join('/secrets/default/es', key), 'rt') as file:
+            config[key] = file.read()
+
+    LON_HEADER = 'X-Fission-Params-Lon'
+    LAT_HEADER = 'X-Fission-Params-Lat'
+    BAD_PARAMS = json.dumps({'Status': 400, 'Message': 'Invalid Parameters'})
+    ERROR = json.dumps({'Status': 500, 'Message': 'Internal Server Error'})
+    EMPTY = json.dumps({'Status': 200, 'Data': []})
+    SCROLL = '5m'
+
+    es = Elasticsearch([config['URL']], basic_auth=(
+        config['USER'], config['PASS']), verify_certs=False, headers={'HOST': config['HOST']})
+
     # Check parameters
     if LON_HEADER not in request.headers:
         return BAD_PARAMS
@@ -33,15 +33,12 @@ def main():
     except:
         return ERROR
     
-        # Next get the epa data
+    # Next get the epa data
     try:
-        station = es.search(index='station_locations', body={
+        station = es.search(index='current_bom_stations', body={
             'size': 1,
             'query': {
-                'bool': {
-                    'must': [
-                        {'match_all': {}}
-                    ],
+                'match_all': {}
                 },
                 "sort": [
                     {
@@ -57,13 +54,13 @@ def main():
                         }
                     }
                 ]
-            },
-        })
+            })
         
         as_list = station['hits']['hits']
         if len(as_list) == 0:
             return json.dumps({'Status': 200, 'Data': []})
         else:
-            return json.dumps({'Status': 200, 'Data': as_list[0]['_soure']})
+            return json.dumps({'Status': 200, 'Data': as_list[0]['_source']})
     except:
         return ERROR
+

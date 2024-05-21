@@ -2,25 +2,37 @@ from flask import request
 import json
 from elasticsearch import Elasticsearch
 import os
-
-config = {}
-for key in os.listdir('/secrets/default/es'):
-    with open(os.path.join('/secrets/default/es', key), 'rt') as file:
-        config [key] = file.read()
-
-SIZE_HEADER = 'X-Fission-Params-Size'
-RADIUS_HEADER = 'X-Fission-Params-Radius'
-STATION_HEADER = 'X-Fission-Params-Station'
-BAD_PARAMS = json.dumps({'Status': 400, 'Message': 'Invalid Parameters'})
-ERROR = json.dumps({'Status': 500, 'Message': 'Internal Server Error'})
-EMPTY = json.dumps({'Status': 200, 'Data': []})
-SCROLL = '5m'
-
-es = Elasticsearch([config['URL']], basic_auth=(
-    config['USER'], config['PASS']), verify_certs=False, headers={'HOST': config['HOST']})
-
+import datetime
 
 def main():
+    # Setup
+    config = {}
+    for key in os.listdir('/secrets/default/es'):
+        with open(os.path.join('/secrets/default/es', key), 'rt') as file:
+            config [key] = file.read()
+
+    SIZE_HEADER = 'X-Fission-Params-Size'
+    RADIUS_HEADER = 'X-Fission-Params-Radius'
+    STATION_HEADER = 'X-Fission-Params-Station'
+    BAD_PARAMS = json.dumps({'Status': 400, 'Message': 'Invalid Parameters'})
+    ERROR = json.dumps({'Status': 500, 'Message': 'Internal Server Error'})
+    EMPTY = json.dumps({'Status': 200, 'Data': []})
+    SCROLL = '5m'
+
+    es = Elasticsearch([config['URL']], basic_auth=(
+        config['USER'], config['PASS']), verify_certs=False, headers={'HOST': config['HOST']})
+
+    start_date = datetime.datetime(1900, 1,  1)
+    end_date = datetime.datetime(2050, 1, 1)
+
+    # Check if year specified
+    if 'year' in request.args:
+        try:
+            start_date = datetime.datetime(int(request.args.get('year')), 1,  1)
+            end_date = datetime.datetime(int(request.args.get('year')) + 1, 1, 1)
+        except:
+            return ERROR
+            
     # Check parameters
     if SIZE_HEADER not in request.headers:
         return BAD_PARAMS
@@ -95,11 +107,18 @@ def main():
             'size': size,
             'query': {
                 'bool': {
-                    'filter': {
-                        'terms': {
+                    'filter': [
+                        {'terms': {
                             'postcode': zips
-                        }
-                    }
+                        }},
+                        {'range': {
+                            'reported_date': {
+                                'gte': start_date,
+                                'lte': end_date
+                                }
+                            }
+                        },
+                    ]
                 }
             },
         }, scroll=SCROLL)

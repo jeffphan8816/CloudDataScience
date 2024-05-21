@@ -27,7 +27,7 @@ update:
 	fission fn update --name crime-api --code crime_api_connect.py
 	fission fn update --name stream-api --code stream_api.py
 	fission fn update --name station-api --code station_api.py
-	fisison fn update --name station-coord-api --code coord_station_api.py
+	fission fn update --name station-coord-api --code coord_station_api.py
 
 teardown:
 	fission fn delete --name weather-station-api
