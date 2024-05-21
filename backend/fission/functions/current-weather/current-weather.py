@@ -120,66 +120,6 @@ def fetch_weather(url):
 
     return out
 
-
-def clean_weather(raw_data):
-
-
-    # mappings = {
-    #     "properties": {
-    #         "Station Name": {"type": "keyword"},
-    #         "State": {"type": "keyword"},
-    #         "Date": {"type": "date", "format": "dd/MM/yyyy"},
-    #         "Evapo-Rain": {"type": "float"},
-    #         "Rain": {"type": "float"},
-    #         "Pan-Rain": {"type": "float"},  # Changed to keyword for potentially non-numeric values
-    #         "Max Temp": {"type": "float"},
-    #         "Min Temp": {"type": "float"},
-    #         "Max Humid": {"type": "integer"},  # Changed to integer for whole numbers
-    #         "Min Humid": {"type": "integer"},
-    #         "WindSpeed": {"type": "float"},
-    #         "UV": {"type": "float"},
-    #         "source": {"type": "keyword"},
-    #     }
-    # }
-
-#     {
-# 	"name": "Melbourne (Olympic Park)",
-# 	"local_date_time": "20/10:00pm",
-# 	"aifstime_utc": "20240520120000",
-# 	"air_temp": 10.9, Temperature
-# 	"apparent_t": 10.8, Apparent Temp
-
-# 	"cloud": "-",
-# 	"cloud_base_m": null,
-# 	"cloud_oktas": null,
-# 	"cloud_type_id": null,
-# 	"cloud_type": "-",
-# 	"delta_t": 0.7,
-# 	"gust_kmh": 0,
-# 	"gust_kt": 0,
-# 	"dewpt": 9.5,
-# 	"press": 1030.1,
-# 	"press_qnh": 1030.1,
-# 	"press_msl": 1030.1,
-# 	"press_tend": "-",
-# 	"rain_trace": "0.8", Rain since 9am
-# 	"rel_hum": 91,
-# 	"sea_state": "-",
-# 	"swell_dir_worded": "-",
-# 	"swell_height": null,
-# 	"swell_period": null,
-# 	"vis_km": "10",
-# 	"weather": "-",
-# 	"wind_dir": "CALM", Wind Direction
-# 	"wind_spd_kmh": 0,
-# 	"wind_spd_kt": 0
-# },
-    return raw_data
-
-
-
-
-
 def main():
 
     # This function can receive one of the following arguments:
@@ -187,15 +127,11 @@ def main():
     # - name of the station
     # - id of the station
 
-    print("started -----------------")
     if "lat" in request.args and "lon" in request.args:
         lat = request.args.get("lat")
         lon = request.args.get("lon")
 
-        print("got args --------------------------")
         station_details = get_closest_station(lon=lon, lat=lat)
-
-        print("got station details ------------------------------")
 
     elif "name" in request.args:
         name = request.args.get("name")
@@ -209,9 +145,8 @@ def main():
 
     raw_weather = fetch_weather(station_details["json_url"])
 
-    # clean_weather = clean_weather(raw_weather)
-
-    clean_weather = raw_weather
+    clean_weather = clean_weather(raw_weather)
+    # clean_weather = raw_weather
 
     # return json.dumps(clean_weather)
     return json.dumps({'Status': 200, 'Data': clean_weather})
