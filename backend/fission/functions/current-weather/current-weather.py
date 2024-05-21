@@ -25,6 +25,7 @@ from elasticsearch import Elasticsearch
 from flask import request
 
 from tenacity import before_sleep_log, retry, stop_after_attempt, wait_fixed
+from cleanweather import clean_weather
 
 # Setting up logging
 logging.basicConfig(level=logging.INFO)
@@ -145,11 +146,11 @@ def main():
 
     raw_weather = fetch_weather(station_details["json_url"])
 
-    clean_weather = clean_weather(raw_weather)
+    cleaned_weather = clean_weather(raw_weather)
     # clean_weather = raw_weather
 
     # return json.dumps(clean_weather)
-    return json.dumps({'Status': 200, 'Data': clean_weather})
+    return json.dumps({'Status': 200, 'Data': cleaned_weather})
 
 
 # TODO:  check executor type
