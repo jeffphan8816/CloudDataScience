@@ -21,11 +21,18 @@ import requests
 
 from flask import request
 
-def get_closest_station(lat, lon):
+def get_closest_station(lon, lat):
 
-    station_details = requests.post("http://localhost:8080/api/v1/fetch-weather-obs", params={"lat": lat, "lon": lon})
+    FISSION_URL = "http://172.26.135.52:9090/"
+    FISSION_HEADERS = {"HOST": "fission"}
 
-    return station_details
+    url = f"{FISSION_URL}/stations/{lon}/{lat}"
+
+    response = requests.get(url, headers=FISSION_HEADERS)
+
+    station_details = response.json()
+
+    return station_details["Data"]
 
 
 @retry(
@@ -45,59 +52,59 @@ def fetch_weather(url):
     return out
 
 
-    mappings = {
-        "properties": {
-            "Station Name": {"type": "keyword"},
-            "State": {"type": "keyword"},
-            "Date": {"type": "date", "format": "dd/MM/yyyy"},
-            "Evapo-Rain": {"type": "float"},
-            "Rain": {"type": "float"},
-            "Pan-Rain": {"type": "float"},  # Changed to keyword for potentially non-numeric values
-            "Max Temp": {"type": "float"},
-            "Min Temp": {"type": "float"},
-            "Max Humid": {"type": "integer"},  # Changed to integer for whole numbers
-            "Min Humid": {"type": "integer"},
-            "WindSpeed": {"type": "float"},
-            "UV": {"type": "float"},
-            "source": {"type": "keyword"},
-        }
-    }
+    # mappings = {
+    #     "properties": {
+    #         "Station Name": {"type": "keyword"},
+    #         "State": {"type": "keyword"},
+    #         "Date": {"type": "date", "format": "dd/MM/yyyy"},
+    #         "Evapo-Rain": {"type": "float"},
+    #         "Rain": {"type": "float"},
+    #         "Pan-Rain": {"type": "float"},  # Changed to keyword for potentially non-numeric values
+    #         "Max Temp": {"type": "float"},
+    #         "Min Temp": {"type": "float"},
+    #         "Max Humid": {"type": "integer"},  # Changed to integer for whole numbers
+    #         "Min Humid": {"type": "integer"},
+    #         "WindSpeed": {"type": "float"},
+    #         "UV": {"type": "float"},
+    #         "source": {"type": "keyword"},
+    #     }
+    # }
 
 
-def clean_weather():
-    {
-	"name": "Melbourne (Olympic Park)",
-	"local_date_time": "20/10:00pm",
-	"aifstime_utc": "20240520120000",
-	"air_temp": 10.9, Temperature
-	"apparent_t": 10.8, Apparent Temp
+def clean_weather(raw_data):
+#     {
+# 	"name": "Melbourne (Olympic Park)",
+# 	"local_date_time": "20/10:00pm",
+# 	"aifstime_utc": "20240520120000",
+# 	"air_temp": 10.9, Temperature
+# 	"apparent_t": 10.8, Apparent Temp
 
-	"cloud": "-",
-	"cloud_base_m": null,
-	"cloud_oktas": null,
-	"cloud_type_id": null,
-	"cloud_type": "-",
-	"delta_t": 0.7,
-	"gust_kmh": 0,
-	"gust_kt": 0,
-	"dewpt": 9.5,
-	"press": 1030.1,
-	"press_qnh": 1030.1,
-	"press_msl": 1030.1,
-	"press_tend": "-",
-	"rain_trace": "0.8", Rain since 9am
-	"rel_hum": 91,
-	"sea_state": "-",
-	"swell_dir_worded": "-",
-	"swell_height": null,
-	"swell_period": null,
-	"vis_km": "10",
-	"weather": "-",
-	"wind_dir": "CALM", Wind Direction
-	"wind_spd_kmh": 0,
-	"wind_spd_kt": 0
-},
-
+# 	"cloud": "-",
+# 	"cloud_base_m": null,
+# 	"cloud_oktas": null,
+# 	"cloud_type_id": null,
+# 	"cloud_type": "-",
+# 	"delta_t": 0.7,
+# 	"gust_kmh": 0,
+# 	"gust_kt": 0,
+# 	"dewpt": 9.5,
+# 	"press": 1030.1,
+# 	"press_qnh": 1030.1,
+# 	"press_msl": 1030.1,
+# 	"press_tend": "-",
+# 	"rain_trace": "0.8", Rain since 9am
+# 	"rel_hum": 91,
+# 	"sea_state": "-",
+# 	"swell_dir_worded": "-",
+# 	"swell_height": null,
+# 	"swell_period": null,
+# 	"vis_km": "10",
+# 	"weather": "-",
+# 	"wind_dir": "CALM", Wind Direction
+# 	"wind_spd_kmh": 0,
+# 	"wind_spd_kt": 0
+# },
+    return raw_data
 
 
 
@@ -108,7 +115,7 @@ def main():
     lat = request.args.get("lat", "VIC")
     lon = request.args.get("lon", "CENTRAL")
 
-    station_details = get_closest_station(lat, lon)
+    station_details = get_closest_station(lon, lat)
 
     raw_weather = fetch_weather(station_details["json_url"])
 
@@ -118,4 +125,7 @@ def main():
 
 
     return "Done"
+
+
+# TODO:  check executor type
 
