@@ -76,7 +76,7 @@ def fetch_epa() -> list[dict]:
                     toAdd['start'] = datetime.strptime(
                         reading['since'], '%Y-%m-%dT%H:%M:%SZ')
                     toAdd['end'] = datetime.strptime(
-                        reading['since'], '%Y-%m-%dT%H:%M:%SZ')
+                        reading['until'], '%Y-%m-%dT%H:%M:%SZ')
                     toAdd['value'] = reading['averageValue']
                     out.append(toAdd)
     return out

@@ -58,28 +58,30 @@ class Airquality_EPA_to_Kafka_Tests(TestCase):
 
 
 class Airquality_Kafka_to_ES_Tests(TestCase):
-    
-    def test_consume_kafka_message(self):
-        self.assertEqual(type(consume_kafka_message), dict)
 
     def test_clean_kafka_data(self):
-        new_data = clean_kafka_data()
-        self.assertEqual(type(new_data, pd.DataFrame))    
-    
-    def test_fetch_and_clean_ES_data(self):
-        current_data = fetch_and_clean_ES_data()
-        
-        if current_data is not None:
-            self.assertEqual(type(current_data, pd.DataFrame))
-    
+        self.assertEqual(clean_kafka_data({'not_records':0}),None)
+
+        data = {'records':[{'geometry': {'coordinates':('long','lat')},
+                    'parameters':[{'name':'particule', 
+                                  'timeSeriesReadings':[{'readings':[{'since':'2024-01-01T00:00:00Z',
+                                                                     'until':'2024-01-01T01:00:00Z',
+                                                                     'averageValue':'value'}]}]}]}]}
+        result_string = "[{'measure_name': 'particule', 'location': ('lat', 'long'), 'start': Timestamp('2024-01-01 00:00:00'), 'end': Timestamp('2024-01-01 01:00:00'), 'value': 'value'}]"
+        self.assertEqual(str(clean_kafka_data(data).to_dict(orient='records')),result_string)    
+
+
     def test_accepting_new_data(self):
-        current_records = [{'measure_name': '', 'location': 25, 'end': ''},
-                           {'measure_name': '', 'location': 30, 'end': ''},
-                           {'measure_name': '', 'location': 35, 'end': ''}]
-        new_records = [{'measure_name': '', 'location': 25, 'end': ''},
-                       {'measure_name': '', 'location': 30, 'end': ''},
-                       {'measure_name': '', 'location': 35, 'end': ''}]
+        current_records =  [{'measure_name': 'P1', 'location': (0,0), 'end': 0},
+                            {'measure_name': 'P1', 'location': (0,0), 'end': 1},
+                            {'measure_name': 'P1', 'location': (1,1), 'end': 1},
+                            {'measure_name': 'P2', 'location': (0,0), 'end': 1},
+                            {'measure_name': 'P2', 'location': (1,1), 'end': 1}]
+        new_records =  [{'measure_name': 'P1', 'location': (0,0), 'end': 2},
+                        {'measure_name': 'P2', 'location': (0,0), 'end': 1},
+                        {'measure_name': 'P2', 'location': (1,1), 'end': 2}]
         current_data = pd.DataFrame(current_records)
         new_data = pd.DataFrame(new_records)
 
-        self.assertEqual()
+        result_string = "[{'measure_name': 'P1', 'location': (0, 0), 'end': 2}, {'measure_name': 'P2', 'location': (1, 1), 'end': 2}]"
+        self.assertEqual(str(accepting_new_data(new_data,current_data).to_dict(orient='records')),result_string)
