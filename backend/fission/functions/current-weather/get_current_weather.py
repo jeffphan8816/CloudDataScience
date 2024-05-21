@@ -17,10 +17,30 @@
 # -> Call LLM dalle (POST)
 #     ->
 
+import logging
 import requests
 
+from elasticsearch import Elasticsearch
 from flask import request
 
+from tenacity import before_sleep_log, retry, stop_after_attempt, wait_fixed
+
+# Setting up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# TODO: replace with creds
+# ELASTIC_URL = 'https://elasticsearch.elastic.svc.cluster.local:9200'
+ELASTIC_URL = 'https://172.26.135.52:9200'
+ELASTIC_USER = "elastic"
+ELASTIC_PASSWORD = "cloudcomp"
+ES_HEADERS = {'HOST': 'elasticsearch'}
+
+@retry(
+    wait=wait_fixed(2),
+    stop=stop_after_attempt(5),
+    before_sleep=before_sleep_log(logger, logging.INFO),
+)
 def get_closest_station(lon, lat):
 
     FISSION_URL = "http://172.26.135.52:9090/"
@@ -34,6 +54,58 @@ def get_closest_station(lon, lat):
 
     return station_details["Data"]
 
+@retry(
+    wait=wait_fixed(2),
+    stop=stop_after_attempt(5),
+    before_sleep=before_sleep_log(logger, logging.INFO),
+)
+def get_station_by_name(name) -> dict:
+
+    es = Elasticsearch([ELASTIC_URL], basic_auth=(
+        ELASTIC_USER, ELASTIC_PASSWORD), verify_certs=False, headers=ES_HEADERS)
+
+    if not es.ping():
+        raise ValueError("Connection failed")
+
+    index_name = "current_bom_stations"
+
+    query = {
+        "query": {
+            "bool": {
+                "must": [
+                    {"match": {"Station Name": name}},
+                ]
+            }
+        }
+    }
+
+    response = es.search(index=index_name, body=query, size=1000)
+
+    return response["hits"]["hits"][0]["_source"]
+
+def get_station_by_id(station_id) -> dict:
+
+    es = Elasticsearch([ELASTIC_URL], basic_auth=(
+        ELASTIC_USER, ELASTIC_PASSWORD), verify_certs=False, headers=ES_HEADERS)
+
+    if not es.ping():
+        raise ValueError("Connection failed")
+
+    index_name = "current_bom_stations"
+
+    query = {
+        "query": {
+            "bool": {
+                "must": [
+                    {"match": {"Station ID": station_id}},
+                ]
+            }
+        }
+    }
+
+    response = es.search(index=index_name, body=query, size=1000)
+
+    return response["hits"]["hits"][0]["_source"]
 
 @retry(
     wait=wait_fixed(2),
@@ -45,11 +117,10 @@ def fetch_weather(url):
     response = requests.get(url).json()
     out = response["observations"]["data"][0]
 
-    # Add info on the response
-    out["response_success"] = True
-    out["response"] = response.status
-
     return out
+
+
+def clean_weather(raw_data):
 
 
     # mappings = {
@@ -70,8 +141,6 @@ def fetch_weather(url):
     #     }
     # }
 
-
-def clean_weather(raw_data):
 #     {
 # 	"name": "Melbourne (Olympic Park)",
 # 	"local_date_time": "20/10:00pm",
@@ -112,20 +181,43 @@ def clean_weather(raw_data):
 
 def main():
 
-    lat = request.args.get("lat", "VIC")
-    lon = request.args.get("lon", "CENTRAL")
+    # This function can receive one of the following arguments:
+    # - lat and lon
+    # - name of the station
+    # - id of the station
 
-    station_details = get_closest_station(lon, lat)
+    if "lat" in request.args and "lon" in request.args:
+        lat = request.args.get("lat")
+        lon = request.args.get("lon")
+        station_details = get_closest_station(lon=lon, lat=lat)
+
+    elif "name" in request.args:
+        name = request.args.get("name")
+        station_details = get_station_by_name(name)
+
+    elif "id" in request.args:
+        station_id = request.args.get("id")
+        station_details = get_station_by_id(station_id)
+    else:
+        return "Invalid request"
 
     raw_weather = fetch_weather(station_details["json_url"])
 
-    clean_weather = clean_weather(raw_weather)
+    # clean_weather = clean_weather(raw_weather)
 
+    clean_weather = raw_weather
 
-
-
-    return "Done"
+    return clean_weather
 
 
 # TODO:  check executor type
+
+# station_details = get_closest_station(143, 36)
+# fetch_weather(station_details["json_url"])
+
+# station_details = get_station_by_name("Kerang")
+# fetch_weather(station_details["json_url"])
+
+# station_details = get_station_by_id(80128)
+# fetch_weather(station_details["json_url"])
 
