@@ -1,25 +1,39 @@
-from elasticsearch import Elasticsearch, ApiError, TransportError
+from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk
 import warnings
-from datetime import datetime
-from kafka import KafkaConsumer
-warnings.filterwarnings("ignore")
 from flask import request, current_app
-from time import time
+import os
+import json
+warnings.filterwarnings("ignore")
+
+
+config = {}
+for key in os.listdir('/secrets/default/es'):
+    with open(os.path.join('/secrets/default/es', key), 'rt') as file:
+        config [key] = file.read()
+config2 = {}
+for key in os.listdir('/secrets/default/kafka'):
+    with open(os.path.join('/secrets/default/kafka', key), 'rt') as file:
+        config2[key] = file.read()
+
+es = Elasticsearch([config['URL']], basic_auth=(
+    config['USER'], config['PASS']), verify_certs=False, headers={'HOST': config['HOST']})
 
 
 def main():
-    start_time = time()
-    url = 'https://elasticsearch.elastic.svc.cluster.local:9200'
-    user = "elastic"
-    password = "cloudcomp"
-    # # state = request.args.get('state')
-    # state = 'tas'
-    es = Elasticsearch([url], basic_auth=(user, password), verify_certs=False, request_timeout=60)
+    """
+    This function is the entry point for the weather-consumer application.
+    It receives weather data in bulk format, indexes the data into Elasticsearch,
+    and logs the indexing response.
+
+    Returns:
+        dict: A dictionary indicating the success of the operation with HTTP Repsonse 200.
+    """
+    
     if not es.ping():
         raise ValueError("Connection failed")
     # Define the index name
-    index_name = "weather_past_obs_kafka"
+    index_name = config2['ES_WEATHER_INDEX']
     # Create the index with a mapping (optional)
     mappings = {
         "properties": {
@@ -48,4 +62,7 @@ def main():
         current_app.logger.info(f'Indexing response: {resp}')
     except Exception as e:
         current_app.logger.error(f'Bulk indexing error: {str(e)}')
-    return "ok"
+    return {
+        "statusCode": 200,
+        "body": json.dumps("Completed")
+    }
