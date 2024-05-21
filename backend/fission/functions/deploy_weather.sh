@@ -68,6 +68,11 @@ fission fn test --name current-weather
 fission fn logs --name current-weather
 
 
+curl -X GET "http://172.26.135.52:9090/current-weather?lon=145&lat=-37" -H "Host: fission"
+curl -X GET "http://172.26.135.52:9090/current-weather?name=Charlton" -H "Host: fission"
+curl -X GET "http://172.26.135.52:9090/current-weather?id=77010" -H "Host: fission"
+
+
 # Testing ------------------------------------
 
 # Default
