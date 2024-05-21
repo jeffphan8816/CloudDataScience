@@ -3,7 +3,7 @@ import requests
 import json
 import pandas as pd
 
-RUN_FROM = 'bastion'
+RUN_FROM = 'uni_wifi'
 
 if RUN_FROM == 'bastion' : URL, HEADERS = 'http://fission:31001/', None
 if RUN_FROM == 'uni_wifi': URL, HEADERS =  'http://172.26.135.52:9090/', {'HOST': 'fission'}
@@ -121,7 +121,7 @@ class APITests(TestCase):
 
         # Missing header
         resp = requests.get(URL+'crime/23034/5000').text
-        self.assertEqual(resp,BAD_PARAMS_STR)
+        self.assertEqual(resp,PAGE_NOT_FOUND_STR)
 
         # Invalid station_id
         resp = requests.get(URL+'crime/STATION_ID/5000/3000').text
@@ -141,11 +141,12 @@ class APITests(TestCase):
 
         # Negative radius_km
         resp = requests.get(URL+'crime/23034/5000/-3000').text
-        self.assertEqual(resp,ERROR_STR)
+        self.assertEqual(resp,BAD_PARAMS_STR)
 
         # Valid parameters
-        resp = requests.get(URL+'crime/23034/5000/3000').text
-        self.assertEqual(resp,'')
+        resp = requests.get(URL+'crime/95003/5000/500').json()
+        df_crime = pd.DataFrame.from_records(resp['Data'], index='_id')
+        self.assertEqual(df_crime.loc['mYMPVo8BeqktFCObjzke']['_source']['reported_date'],'2020-03-20T00:00:00')
 
 
     def test_airqual_api(self):
@@ -179,10 +180,9 @@ class APITests(TestCase):
         self.assertEqual(resp,BAD_PARAMS_STR)
 
         # Valid parameters
-        resp = requests.get(URL+'crime/23034/5000/10').json()
-        df_crime = pd.DataFrame.from_records(resp['Data'], index='_id')
-        self.assertEqual(df_crime.loc['mYMPVo8BeqktFCObjzke']['_source']['reported_date'],
-                         '2020-03-20T00:00:00')
+        resp = requests.get(URL+'epa/23034/5000/500').json()
+        df_airqual = pd.DataFrame.from_records(resp['Data'], index='_id')
+        self.assertAlmostEqual(df_airqual.loc['cYG8k48ByK62b84DjfYj']['_source']['value'],7.45)
 
 
     def test_stream_api(self):
