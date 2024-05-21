@@ -58,7 +58,14 @@ fission fn logs --name hourly-weather-obs
 fission timer create --name get-hourly-weather --function hourly-weather-obs --cron "15 * * * *"
 fission timer delete --name get-hourly-weather
 
-
+zip -jr current-weather.zip current-weather
+fission package update --sourcearchive current-weather.zip --env python-es --buildcmd "./build.sh" --name current-weather
+fission fn update --name current-weather --pkg current-weather --entrypoint "current-weather.main"
+# fission route create --method GET --url /current-weather --function current-weather --name current-weather
+# fission route delete --name current-weather
+fission fn logs --name current-weather
+fission fn test --name current-weather
+fission fn logs --name current-weather
 
 
 # Testing ------------------------------------

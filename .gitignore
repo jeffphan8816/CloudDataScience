@@ -175,3 +175,4 @@ backend/fission/functions/hourly-weather-obs.zip
 #Crime data
 /data/*-data_sa_crime.csv
 
+backend/fission/functions/current-weather.zip

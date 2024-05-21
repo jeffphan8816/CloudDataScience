@@ -17,6 +17,7 @@
 # -> Call LLM dalle (POST)
 #     ->
 
+import json
 import logging
 import requests
 
@@ -186,10 +187,15 @@ def main():
     # - name of the station
     # - id of the station
 
+    print("started -----------------")
     if "lat" in request.args and "lon" in request.args:
         lat = request.args.get("lat")
         lon = request.args.get("lon")
+
+        print("got args --------------------------")
         station_details = get_closest_station(lon=lon, lat=lat)
+
+        print("got station details ------------------------------")
 
     elif "name" in request.args:
         name = request.args.get("name")
@@ -207,7 +213,8 @@ def main():
 
     clean_weather = raw_weather
 
-    return clean_weather
+    # return json.dumps(clean_weather)
+    return json.dumps({'Status': 200, 'Data': clean_weather})
 
 
 # TODO:  check executor type
