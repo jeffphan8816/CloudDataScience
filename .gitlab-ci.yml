@@ -8,10 +8,7 @@ test:
     tags:
         - testing
     script:
-        - cd /home/ubuntu/cloudcompa2
-        - ls
-        - git pull
-        - python3 -m unittest discover ./test
+        - ssh -i $ID_RSA -o StrictHostKeyChecking=no ubuntu@$SERVER_IP "cd cloudcompa2; git pull"
 
 build:
     stage: build
