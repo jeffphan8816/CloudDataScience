@@ -8,8 +8,7 @@ test:
     tags:
         - testing
     script:
-        - pwd
-        - cd cloudcompa2
+        - cd /home/ubuntu/cloudcompa2
         - git pull
         - python3 -m unittest discover ./test
 
