@@ -8,6 +8,8 @@ test:
     tags:
         - testing
     script:
+        - cd cloudcompa2
+        - git pull
         - python3 -m unittest discover ./test
 
 build:
@@ -16,7 +18,6 @@ build:
         - building
     script:
         - cd cloudcompa2
-        - git pull
         - make -C ./backend doc
         - make -C ./test teardown
         - make - C ./test deploy
@@ -26,5 +27,6 @@ deploy:
   tags:
     - deployment
   script:
+    - cd cloudcompa2
     - make -C backend/api teardown
     - make -C backend/api deploy
