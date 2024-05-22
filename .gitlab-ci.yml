@@ -1,22 +1,33 @@
-
 stages:
   - test
+  - build
   - deploy
+
 test:
-    image: python:latest
     stage: test
     tags:
         - testing
     script:
-        - pip3 install requests
-        - pip3 install pandas
+        - cd /home/ubuntu/cloudcompa2
+        - ls
+        - git pull
         - python3 -m unittest discover ./test
+
+build:
+    stage: build
+    tags:
+        - building
+    script:
+        - cd cloudcompa2
+        - make -C ./backend doc
+        - make -C ./test teardown
+        - make - C ./test deploy
+
 deploy:
-  image: alpine:latest
   stage: deploy
   tags:
     - deployment
   script:
-    - chmod og= $ID_RSA
-    - apk update && apk add openssh-client
-    - ssh -i $ID_RSA -o StrictHostKeyChecking=no ubuntu@$SERVER_IP "cd cloudcompa2/cloudcompa2; git pull"
+    - cd cloudcompa2
+    - make -C backend/api teardown
+    - make -C backend/api deploy
