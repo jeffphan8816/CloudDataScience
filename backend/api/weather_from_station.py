@@ -4,12 +4,20 @@ from flask import request
 import json
 import os
 
+
 def main():
+    """
+    The purpose of this function is to get the weather for a station in a range of years
+    The url is /weather/<Station>/<Start_Year>/<End_Year>
+
+    Will return a json string with a 'Status' and 'Data' or 'Message' field depending on the status
+    """
+
     # Setup
     config = {}
     for key in os.listdir('/secrets/default/es'):
         with open(os.path.join('/secrets/default/es', key), 'rt') as file:
-            config [key] = file.read()
+            config[key] = file.read()
 
     STATION_HEADER = 'X-Fission-Params-Station'
     START_HEADER = 'X-Fission-Params-Start'
@@ -20,7 +28,6 @@ def main():
 
     es = Elasticsearch([config['URL']], basic_auth=(
         config['USER'], config['PASS']), verify_certs=False, headers={'HOST': config['HOST']})
-
 
     # Check parameters
     if STATION_HEADER not in request.headers:

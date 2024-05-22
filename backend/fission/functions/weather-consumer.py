@@ -6,20 +6,6 @@ import os
 import json
 warnings.filterwarnings("ignore")
 
-
-config = {}
-for key in os.listdir('/secrets/default/es'):
-    with open(os.path.join('/secrets/default/es', key), 'rt') as file:
-        config [key] = file.read()
-config2 = {}
-for key in os.listdir('/secrets/default/kafka'):
-    with open(os.path.join('/secrets/default/kafka', key), 'rt') as file:
-        config2[key] = file.read()
-
-es = Elasticsearch([config['URL']], basic_auth=(
-    config['USER'], config['PASS']), verify_certs=False, headers={'HOST': config['HOST']})
-
-
 def main():
     """
     This function is the entry point for the weather-consumer application.
@@ -29,6 +15,19 @@ def main():
     Returns:
         dict: A dictionary indicating the success of the operation with HTTP Repsonse 200.
     """
+
+    config = {}
+    for key in os.listdir('/secrets/default/es'):
+        with open(os.path.join('/secrets/default/es', key), 'rt') as file:
+            config[key] = file.read()
+    config2 = {}
+    for key in os.listdir('/secrets/default/kafka'):
+        with open(os.path.join('/secrets/default/kafka', key), 'rt') as file:
+            config2[key] = file.read()
+
+    es = Elasticsearch([config['URL']], basic_auth=(
+        config['USER'], config['PASS']), verify_certs=False, headers={'HOST': config['HOST']})
+
     
     if not es.ping():
         raise ValueError("Connection failed")

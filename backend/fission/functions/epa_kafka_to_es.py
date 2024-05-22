@@ -12,14 +12,6 @@ import logging
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-es_config = {}
-for key in os.listdir('/secrets/default/es'):
-    with open(os.path.join('/secrets/default/es', key), 'rt') as file:
-        es_config [key] = file.read()
-
-with open('/secrets/default/kafka/URL', 'rt') as file:
-    BOOTSTRAP_KAFKA = file.read()
-
 TOPIC_NAME = 'airquality-kafka'
 CONFIRM_TOPIC_NAME = 'airquality-uploaded-kafka'
 
@@ -228,6 +220,15 @@ def main():
     Pull the most recent message from Kafka, check what needs to be inserted,
     and upload it to ES in accordance
     """
+    
+    es_config = {}
+    for key in os.listdir('/secrets/default/es'):
+        with open(os.path.join('/secrets/default/es', key), 'rt') as file:
+            es_config[key] = file.read()
+
+    with open('/secrets/default/kafka/URL', 'rt') as file:
+        BOOTSTRAP_KAFKA = file.read()
+
     logging.info('Welcome')
     buffer_message = consume_kafka_message(BOOTSTRAP_KAFKA, TOPIC_NAME)
     logging.info('Buffer Message Loaded')

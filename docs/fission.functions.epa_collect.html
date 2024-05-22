@@ -1,0 +1,59 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module fission.functions.epa_collect</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong><a href="fission.html"><font color="#ffffff">fission</font></a>.<a href="fission.functions.html"><font color="#ffffff">functions</font></a>.epa_collect</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/Users/dillonblake/Desktop/CCC/gitlab_repo/cloudcompa2/backend/fission/functions/epa_collect.py">/Users/dillonblake/Desktop/CCC/gitlab_repo/cloudcompa2/backend/fission/functions/epa_collect.py</a></font></td></tr></table>
+    <p></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="json.html">json</a><br>
+</td><td width="25%" valign=top><a href="logging.html">logging</a><br>
+</td><td width="25%" valign=top><a href="pandas.html">pandas</a><br>
+</td><td width="25%" valign=top><a href="requests.html">requests</a><br>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-accepting_new_data"><strong>accepting_new_data</strong></a>(new_data: pandas.core.frame.DataFrame, current_data: pandas.core.frame.DataFrame) -&gt; list[dict]</dt><dd><tt>Extract&nbsp;new&nbsp;data&nbsp;based&nbsp;on&nbsp;api&nbsp;return&nbsp;and&nbsp;current&nbsp;data<br>
+&nbsp;<br>
+@param&nbsp;new_data&nbsp;is&nbsp;the&nbsp;data&nbsp;pulled&nbsp;from&nbsp;the&nbsp;EPA&nbsp;as&nbsp;a&nbsp;DataFrame<br>
+@param&nbsp;current_data&nbsp;is&nbsp;the&nbsp;data&nbsp;in&nbsp;elastic&nbsp;search&nbsp;as&nbsp;a&nbsp;DataFrame<br>
+@returns&nbsp;a&nbsp;list&nbsp;of&nbsp;what&nbsp;data&nbsp;needs&nbsp;to&nbsp;be&nbsp;inserted</tt></dd></dl>
+ <dl><dt><a name="-fetch_epa"><strong>fetch_epa</strong></a>() -&gt; list[dict]</dt><dd><tt>Get&nbsp;the&nbsp;current&nbsp;data&nbsp;from&nbsp;the&nbsp;EPA<br>
+&nbsp;<br>
+@returns&nbsp;a&nbsp;list&nbsp;of&nbsp;data&nbsp;dictionaries</tt></dd></dl>
+ <dl><dt><a name="-main"><strong>main</strong></a>()</dt><dd><tt>Pull&nbsp;the&nbsp;most&nbsp;recent&nbsp;data&nbsp;from&nbsp;the&nbsp;EPA&nbsp;and&nbsp;check&nbsp;what&nbsp;needs&nbsp;to&nbsp;be&nbsp;inserted</tt></dd></dl>
+ <dl><dt><a name="-upload"><strong>upload</strong></a>(data: list[dict], es: elasticsearch.Elasticsearch) -&gt; None</dt><dd><tt>Upload&nbsp;the&nbsp;data&nbsp;to&nbsp;elastic&nbsp;search.&nbsp;If&nbsp;fail&nbsp;retry<br>
+&nbsp;<br>
+@param&nbsp;data&nbsp;is&nbsp;a&nbsp;list&nbsp;of&nbsp;the&nbsp;data&nbsp;to&nbsp;insert<br>
+@param&nbsp;es&nbsp;is&nbsp;the&nbsp;elastic&nbsp;search&nbsp;instance</tt></dd></dl>
+</td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#55aa55">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Data</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#55aa55"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><strong>ELASTIC_PASSWORD</strong> = 'cloudcomp'<br>
+<strong>ELASTIC_URL</strong> = 'https://172.26.135.52:9200'<br>
+<strong>ELASTIC_USER</strong> = 'elastic'<br>
+<strong>ES_HEADERS</strong> = {'HOST': 'elasticsearch'}<br>
+<strong>KEY</strong> = '96ff8ef9e03048e2bd2fa342a5d80587'<br>
+<strong>PULL_RATE</strong> = 100<br>
+<strong>URL</strong> = 'https://gateway.api.epa.vic.gov.au/environmentMo...ring/v1/sites/parameters?environmentalSegment=air'<br>
+<strong>logger</strong> = &lt;Logger epa_collect.py (INFO)&gt;</td></tr></table>
+</body></html>

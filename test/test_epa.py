@@ -2,30 +2,12 @@ from unittest import TestCase
 from datetime import datetime
 import pandas as pd
 
-from epa_to_kafka import fetch_epa, produce_kafka_buffer_message, \
+from backend.fission.functions.epa_to_kafka import fetch_epa, produce_kafka_buffer_message, \
                          produce_kafka_confirm_message
-from epa_kafka_to_es import consume_kafka_message, clean_kafka_data, \
+from backend.fission.functions.epa_kafka_to_es import consume_kafka_message, clean_kafka_data, \
                             fetch_and_clean_ES_data, accepting_new_data, \
                             upload_to_ES, reset_kafka_confirm_message
 
-# Constant url of the epa
-URL = 'https://gateway.api.epa.vic.gov.au/environmentMonitoring/v1/sites/parameters?environmentalSegment=air'
-KEY = '96ff8ef9e03048e2bd2fa342a5d80587'
-
-RUN_FROM = 'bastion'
-
-if RUN_FROM == 'bastion' : ES_URL, ES_HEADERS = 'https://elasticsearch.elastic.svc.cluster.local:9200', None
-if RUN_FROM == 'uni_wifi' : ES_URL, ES_HEADERS = 'https://172.26.135.52:9200', {'HOST': 'elasticsearch'}
-
-ELASTIC_USER = 'elastic'
-ELASTIC_PASSWORD = 'cloudcomp'
-
-BOOTSTRAP_KAFKA = 'kafka-kafka-bootstrap.kafka.svc:9092'
-if RUN_FROM == 'bastion' : BOOTSTRAP_KAFKA = 'kafka-kafka-bootstrap.kafka.svc:9092'
-if RUN_FROM == 'uni_wifi' : BOOTSTRAP_KAFKA = 'https://172.26.135.52:9092'
-
-TOPIC_NAME = 'airquality-kafka'
-CONFIRM_TOPIC_NAME = 'airquality-uploaded-kafka'
 
 class Airquality_EPA_to_Kafka_Tests(TestCase):
     

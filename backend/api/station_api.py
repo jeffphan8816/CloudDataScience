@@ -1,9 +1,15 @@
-from flask import request
 import json
 from elasticsearch import Elasticsearch
 import os
 
 def main():
+    """
+    The purpose of this function is to return all the historical stations
+    The url is /stations
+
+    Will return a json string with a 'Status' and 'Data' or 'Message' field depending on the status
+    """
+
     # Setup
     config = {}
     for key in os.listdir('/secrets/default/es'):

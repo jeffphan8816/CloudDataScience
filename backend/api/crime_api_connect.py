@@ -5,6 +5,14 @@ import os
 import datetime
 
 def main():
+    """
+    The purpose of this function is to gather crimes in a radius of a given station
+    The url is /crime/<Station>/<Size>/<Radius> where Size is the number of datapoints to return at once.
+    It has an optional year parameter to specify the year.
+
+    Will return a json string with a 'Status' and 'Data' or 'Message' field depending on the status
+    """
+
     # Setup
     config = {}
     for key in os.listdir('/secrets/default/es'):
