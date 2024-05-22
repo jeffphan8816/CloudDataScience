@@ -9,6 +9,7 @@ test:
         - testing
     script:
         - cd /home/ubuntu/cloudcompa2
+        - ls
         - git pull
         - python3 -m unittest discover ./test
 
