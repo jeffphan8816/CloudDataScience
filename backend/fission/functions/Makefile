@@ -12,7 +12,7 @@ deploy:
 	fission mqtrigger create --name weather-past-obs-consumer --function weather-past-obs-consumer --mqtype kafka --mqtkind keda --topic ${KAFKA_TOPIC} --maxretries 3 --metadata bootstrapServers=${KAFKA_URL} --metadata consumerGroup=kafka-elasticsearch-group --cooldownperiod=30 --pollinginterval=5
 
 	fission fn create --name epa-to-kaf  --code epa_to_kafka.py --env python-es  --secret kafka --secret epa
-	fission timer create --name dailyMidnight --function epa-to-kaf --cron "0 0 * * *"
+	fission timer create --name daily-midnight --function epa-to-kaf --cron "0 0 * * *"
 	fission fn create --name epakaf-to-es  --code epa_kafka_to_es.py --env python-es --secret es --secret kafka
 	fission mqtrigger create --name kafka-confirm-epa --function epakaf-to-es --mqtype kafka --mqtkind keda --topic airquality-uploaded-kafka --maxretries 3 --metadata bootstrapServers=${KAFKA_URL} --metadata consumerGroup=kafka-elasticsearch-group --cooldownperiod=30 --pollinginterval=5
 
@@ -31,6 +31,6 @@ teardown:
 	fission mqtrigger delete --name weather-past-obs-consumer
 
 	fission fn delete --name epa-to-kaf
-	fission timer delete --name dailyMidnight
+	fission timer delete --name daily-midnight
 	fission fn delete --name epakaf-to-es
 	fission mqtrigger delete --name epakaf-to-es
