@@ -1,5 +1,6 @@
 stages:
   - test
+  - build
   - deploy
 
 test:
@@ -9,9 +10,21 @@ test:
     script:
         - python3 -m unittest discover ./test
 
+build:
+    stage: build
+    tags:
+        - building
+    script:
+        - cd cloudcompa2
+        - git pull
+        - make -C ./backend doc
+        - make -C ./test teardown
+        - make - C ./test deploy
+
 deploy:
   stage: deploy
   tags:
     - deployment
   script:
-    - touch /home/ubuntu/TEST123.txt
+    - make -C backend/api teardown
+    - make -C backend/api deploy
