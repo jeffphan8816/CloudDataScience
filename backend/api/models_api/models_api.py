@@ -4,22 +4,29 @@ import json
 import pickle
 import logging
 import numpy as np
-from sklearn.linear_model import LinearRegression
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
 
 MODEL_NAME_HEADER = 'X-Fission-Params-ModelName'
 
 BAD_PARAMS = json.dumps({'Status': 400, 'Message': 'Invalid Parameters'})
-BAD_PARAMS_MODEL_NAME = json.dumps({'Status': 400, 'Message': 'There is no trained model stored with this name'})
+BAD_PARAMS_MODEL_NAME = json.dumps(
+    {'Status': 400, 'Message': 'There is no trained model stored with this name'})
 ERROR = json.dumps({'Status': 500, 'Message': 'Internal Server Error'})
 EMPTY = json.dumps({'Status': 200, 'Data': []})
 
 
 # For local testing
 def main():
+    """
+    The purpose of this function is to return the prediction from a model
+    The url is /models/<Model_Name> where the name is a file
+    There is an optional parameter for the comma separated predictor values
 
+    A prediction or message is returned
+    """
     logging.info('Welcome')
 
     # Check parameters
@@ -39,7 +46,7 @@ def main():
                 loaded_model = pickle.load(file)
         except FileNotFoundError:
             return BAD_PARAMS_MODEL_NAME
-        
+
         logging.info('Pickle file loaded')
         logging.info(f'Loaded Model Type: {type(loaded_model)}')
         logging.info(f'Loaded Coefficients: {loaded_model.coef_}')
@@ -54,7 +61,7 @@ def main():
             if len(predictors) != len(loaded_model.coef_):
                 return BAD_PARAMS
 
-            predictors = np.array(predictors).reshape(1,-1)
+            predictors = np.array(predictors).reshape(1, -1)
 
             prediction = loaded_model.predict(predictors)[0]
 
@@ -66,8 +73,8 @@ def main():
         # Return the model as a dictionnary if no predictors have been specified
         else:
             logging.info('No predictors in URL')
-            model_dict = {'coef':list(loaded_model.coef_),
-                          'intercept':loaded_model.intercept_}
+            model_dict = {'coef': list(loaded_model.coef_),
+                          'intercept': loaded_model.intercept_}
             return model_dict
 
     except:

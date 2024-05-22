@@ -4,6 +4,13 @@ from elasticsearch import Elasticsearch
 import os
 
 def main():
+    """
+    The purpose of this function is to get the station closest to a given latitude and latitude
+    The url is /stations/<Longitude>/<Latitude>
+
+    Will return a json string with a 'Status' and 'Data' or 'Message' field depending on the status
+    """
+
     # Setup
     config = {}
     for key in os.listdir('/secrets/default/es'):

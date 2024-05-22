@@ -8,16 +8,6 @@ import logging
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
 
-
-# Constant url of the epa
-with open('/secrets/default/epa/KEY', 'rt') as file:
-    KEY = file.read()
-with open('/secrets/default/epa/URL', 'rt') as file:
-    URL = file.read()
-
-with open('/secrets/default/kafka/URL', 'rt') as file:
-    BOOTSTRAP_KAFKA = file.read()
-
 TOPIC_NAME = 'airquality-kafka'
 CONFIRM_TOPIC_NAME = 'airquality-uploaded-kafka'
 
@@ -89,6 +79,16 @@ def main():
     """
     Pull the most recent data from the EPA and sends it to a Kafka message
     """
+
+    # Constant url of the epa
+    with open('/secrets/default/epa/KEY', 'rt') as file:
+        KEY = file.read()
+    with open('/secrets/default/epa/URL', 'rt') as file:
+        URL = file.read()
+
+    with open('/secrets/default/kafka/URL', 'rt') as file:
+        BOOTSTRAP_KAFKA = file.read()
+        
     message_id, buffer_message = fetch_epa()
     logging.info('Epa fetched')
     uploaded = produce_kafka_buffer_message(

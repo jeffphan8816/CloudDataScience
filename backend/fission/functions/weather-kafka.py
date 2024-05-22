@@ -8,16 +8,6 @@ import json
 import os
 warnings.filterwarnings("ignore")
 
-config = {}
-for key in os.listdir('/secrets/default/kafka'):
-    with open(os.path.join('/secrets/default/kafka', key), 'rt') as file:
-        config[key] = file.read()
-
-STATE_HEADER = 'X-Fission-Params-State'
-BAD_PARAMS = json.dumps({'Status': 400, 'Message': 'Invalid Parameters'})
-ERROR = json.dumps({'Status': 500, 'Message': 'Internal Server Error'})
-EMPTY = json.dumps({'Status': 200, 'Data': []})
-
 
 def main():
     """
@@ -31,6 +21,17 @@ def main():
         JSON object with status code and message
     """
 
+    config = {}
+
+
+    for key in os.listdir('/secrets/default/kafka'):
+        with open(os.path.join('/secrets/default/kafka', key), 'rt') as file:
+            config[key] = file.read()
+
+    STATE_HEADER = 'X-Fission-Params-State'
+    BAD_PARAMS = json.dumps({'Status': 400, 'Message': 'Invalid Parameters'})
+    ERROR = json.dumps({'Status': 500, 'Message': 'Internal Server Error'})
+    EMPTY = json.dumps({'Status': 200, 'Data': []})
     
     # Check parameters
     if STATE_HEADER not in request.headers:

@@ -4,13 +4,22 @@ from elasticsearch import Elasticsearch
 import os
 import datetime
 
+
 def main():
+    """
+    The purpose of this function is to gather crashes in a radius of a given station
+    The url is /crashes/<Station>/<Size>/<Radius> where Size is the number of datapoints to return at once.
+    It has an optional year parameter to specify the year
+
+    Will return a json string with a 'Status' and 'Data' or 'Message' field depending on the status
+    """
+
     # Setup
     config = {}
     for key in os.listdir('/secrets/default/es'):
         with open(os.path.join('/secrets/default/es', key), 'rt') as file:
-            config [key] = file.read()
-            
+            config[key] = file.read()
+
     SIZE_HEADER = 'X-Fission-Params-Size'
     RADIUS_HEADER = 'X-Fission-Params-Radius'
     STATION_HEADER = 'X-Fission-Params-Station'
@@ -28,11 +37,13 @@ def main():
     # Check if year specified
     if 'year' in request.args:
         try:
-            start_date = datetime.datetime(int(request.args.get('year')), 1,  1)
-            end_date = datetime.datetime(int(request.args.get('year')) + 1, 1, 1)
+            start_date = datetime.datetime(
+                int(request.args.get('year')), 1,  1)
+            end_date = datetime.datetime(
+                int(request.args.get('year')) + 1, 1, 1)
         except:
             return ERROR
-            
+
    # Check parameters
     if SIZE_HEADER not in request.headers:
         return BAD_PARAMS
@@ -82,19 +93,19 @@ def main():
                 ],
                 'filter': [
                     {'geo_distance': {
-                            'distance': str(radius) + 'km',
-                            'location': {
-                                'lon': lon,
-                                'lat': lat
-                            }
+                        'distance': str(radius) + 'km',
+                        'location': {
+                            'lon': lon,
+                            'lat': lat
                         }
+                    }
                     },
                     {'range': {
                         'crash_date': {
                             'gte': start_date,
                             'lte': end_date
-                            }
                         }
+                    }
                     },
                 ]
             },
@@ -108,4 +119,3 @@ def main():
     if len(out['Data']) == 0:
         out['Token'] = 'END'
     return json.dumps(out)
-
