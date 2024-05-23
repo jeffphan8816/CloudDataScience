@@ -7,7 +7,6 @@ deploy:
   tags:
     - deployment
   only:
-    - merge_requests
     - master
   script:
     - echo "$KUBECONFIG"
@@ -21,6 +20,8 @@ test:
     stage: test
     tags:
         - testing
+    only:
+      - master
     script:
         - pip3 install -r /home/ubuntu/environments/python/requirements.txt
         - python3 -m unittest discover ./test
