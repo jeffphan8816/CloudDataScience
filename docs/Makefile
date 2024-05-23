@@ -7,4 +7,4 @@ deploy:
 teardown:
 	fission fn delete --name doc-api
 	fission package delete --name doc-api-pack
-	fission  httptrigger delete --name doc-rest
+	fission httptrigger delete --name doc-rest
