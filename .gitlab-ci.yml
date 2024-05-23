@@ -29,7 +29,7 @@ test:
     after_script:
       - >
         if [ $CI_JOB_STATUS != 'success' ]; then
-          git checkout master~1
+          git reset --hard HEAD~1
           make -C ./backend doc
           make -C ./docs teardown
           make -C ./docs deploy
