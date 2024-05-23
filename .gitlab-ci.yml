@@ -1,5 +1,4 @@
 stages:
-  - deploy
   - test
 
 deploy:
@@ -22,9 +21,9 @@ test:
         - pip3 install -r /home/ubuntu/environments/python/requirements.txt
         - python3 -m unittest discover ./test
     after_script:
-      - |
-        if [ -e success ]; then
-          echo on success
+      - >
+        if [ $CI_JOB_STATUS == 'success' ]; then
+          echo 'This will only run on success'
         else
-          echo on failure
+          echo 'This will only run when job failed or is cancelled'
         fi
