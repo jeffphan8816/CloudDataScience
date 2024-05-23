@@ -8,7 +8,7 @@ test:
     tags:
         - testing
     script:
-        - pip3 freeze
+        - pip3 install -r /home/ubuntu/environments/python/requirements.txt
         - python3 -m unittest discover ./test
 
 build:
