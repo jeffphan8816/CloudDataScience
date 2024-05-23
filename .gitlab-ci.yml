@@ -7,6 +7,7 @@ deploy:
   tags:
     - deployment
   script:
+    - echo "$KUBECONFIG"
     - make -C ./backend doc
     - make -C ./docs teardown
     - make -C ./docs deploy
