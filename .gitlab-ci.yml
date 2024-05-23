@@ -8,8 +8,6 @@ test:
     tags:
         - testing
     script:
-        - ls
-        - git pull
         - python3 -m unittest discover ./test
 
 build:
