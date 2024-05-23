@@ -1,7 +1,17 @@
 stages:
-  - test
-  - build
   - deploy
+  - test
+
+deploy:
+  stage: deploy
+  tags:
+    - deployment
+  script:
+    - make -C ./backend doc
+    - make -C ./docs teardown
+    - make -C ./docs deploy
+    - make -C ./backend/api teardown
+    - make -C ./backend/api deploy
 
 test:
     stage: test
@@ -10,22 +20,3 @@ test:
     script:
         - pip3 install -r /home/ubuntu/environments/python/requirements.txt
         - python3 -m unittest discover ./test
-
-build:
-    stage: build
-    tags:
-        - building
-    script:
-        - cd cloudcompa2
-        - make -C ./backend doc
-        - make -C ./test teardown
-        - make - C ./test deploy
-
-deploy:
-  stage: deploy
-  tags:
-    - deployment
-  script:
-    - cd cloudcompa2
-    - make -C backend/api teardown
-    - make -C backend/api deploy
