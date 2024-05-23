@@ -21,3 +21,10 @@ test:
     script:
         - pip3 install -r /home/ubuntu/environments/python/requirements.txt
         - python3 -m unittest discover ./test
+    after_script:
+      - |
+        if [ -e success ]; then
+          echo on success
+        else
+          echo on failure
+        fi
