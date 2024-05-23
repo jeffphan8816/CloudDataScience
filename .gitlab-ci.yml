@@ -7,8 +7,6 @@ deploy:
     - deployment
   only:
     - merge_requests
-  rules:
-    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"'
   script:
     - echo "$KUBECONFIG"
     - make -C ./backend doc
