@@ -16,7 +16,6 @@ EMPTY_STR = '{"Status": 200, "Data": []}'
 
 def get_stream_to_pd(api: str, station_id: str, size: int, radius_km: int, verb=False) -> pd.DataFrame:
     resp_dict = json.loads(requests.get(URL+api+f'/{station_id}/{size}/{radius_km}', headers=HEADERS).text)
-    print(resp_dict)
 
     count=0
     status, token, new_data = resp_dict['Status'], resp_dict['Token'], resp_dict['Data']
