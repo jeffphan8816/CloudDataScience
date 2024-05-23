@@ -8,6 +8,7 @@ test:
     tags:
         - testing
     script:
+        - pip3 freeze
         - python3 -m unittest discover ./test
 
 build:
