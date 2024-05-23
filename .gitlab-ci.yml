@@ -26,4 +26,5 @@ test:
           echo 'This will only run on success'
         else
           echo 'This will only run when job failed or is cancelled'
+          git reset HEAD~1
         fi
