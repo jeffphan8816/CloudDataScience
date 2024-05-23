@@ -7,9 +7,10 @@ deploy:
   tags:
     - deployment
   script:
+    - export KUBECONFIG=~/.kube/config
     - make -C ./backend doc
-    - sudo make -C ./docs teardown
-    - sudo make -C ./docs deploy
+    - make -C ./docs teardown
+    - make -C ./docs deploy
     - make -C ./backend/api teardown
     - make -C ./backend/api deploy
 
