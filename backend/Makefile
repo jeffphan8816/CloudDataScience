@@ -1,4 +1,4 @@
 doc:
-	rm ../docs/*.html
+	rm ../docs/content/*.html
 	python3 -m pydoc -w ./
-	mv *.html ../docs
+	mv *.html ../docs/content
