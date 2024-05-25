@@ -11,10 +11,10 @@ deploy:
 	# fission route create --name weather-past-obs-consumer --code weather-consumer.py --env python-es --ft 300
 	# fission mqtrigger create --name weather-past-obs-consumer --function weather-past-obs-consumer --mqtype kafka --mqtkind keda --topic ${KAFKA_TOPIC} --maxretries 3 --metadata bootstrapServers=${KAFKA_URL} --metadata consumerGroup=kafka-elasticsearch-group --cooldownperiod=30 --pollinginterval=5
 
-	# fission fn create --name epa-to-kaf  --code epa_to_kafka.py --env python-es  --secret kafka --secret epa
-	# fission timer create --name daily-midnight --function epa-to-kaf --cron "0 0 * * *"
-	# fission fn create --name epakaf-to-es  --code epa_kafka_to_es.py --env python-es --secret es --secret kafka
-	# fission mqtrigger create --name kafka-confirm-epa --function epakaf-to-es --mqtype kafka --mqtkind keda --topic airquality-uploaded-kafka --maxretries 3 --metadata bootstrapServers=${KAFKA_URL} --metadata consumerGroup=kafka-elasticsearch-group --cooldownperiod=30 --pollinginterval=5
+	fission fn create --name epa-to-kaf  --code epa_to_kafka.py --env python-es  --secret kafka --secret epa
+	fission timer create --name daily-midnight --function epa-to-kaf --cron "0 0 * * *"
+	fission fn create --name epakaf-to-es  --code epa_kafka_to_es.py --env python-es --secret es --secret kafka
+	fission mqtrigger create --name kafka-confirm-epa --function epakaf-to-es --mqtype kafka --mqtkind keda --topic airquality-uploaded-kafka --maxretries 3 --metadata bootstrapServers=${KAFKA_URL} --metadata consumerGroup=kafka-elasticsearch-group --cooldownperiod=30 --pollinginterval=5
 
 	zip -jr hourly-weather-obs.zip hourly-weather-obs
 	fission package create --sourcearchive hourly-weather-obs.zip --env python-es --buildcmd "./build.sh" --name hourly-weather-obs
@@ -79,3 +79,10 @@ teardown:
 
 	fission package delete --name hourly-weather-obs --ignorenotfound=true
 	fission package delete --name current-weather --ignorenotfound=true
+
+
+	fission timer delete --name daily-midnight
+	fission mqtrigger delete --name kafka-confirm-epa
+	fission fn delete --name epa-to-kaf
+	fission fn delete --name epakaf-to-es
+
