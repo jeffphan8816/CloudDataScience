@@ -14,8 +14,8 @@ deploy:
     - make -C ./docs deploy
     - make -C ./backend/api teardown
     - make -C ./backend/api deploy
-    # - make -C ./backend/fission/functions teardown
-    # - make -C ./backend/fission/functions deploy
+    - make -C ./backend/fission/functions teardown
+    - make -C ./backend/fission/functions deploy
 
 test:
     stage: test
@@ -35,6 +35,6 @@ test:
           make -C ./docs deploy
           make -C ./backend/api teardown
           make -C ./backend/api deploy
-          # make -C ./backend/fission/functions teardown
-          # make -C ./backend/fission/functions deploy
+          make -C ./backend/fission/functions teardown
+          make -C ./backend/fission/functions deploy
         fi
