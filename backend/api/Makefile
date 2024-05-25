@@ -45,7 +45,7 @@ update:
 
 teardown:
 	fission fn delete --name weather-station-api --ignorenotfound=true
-	fission httptrigger delete --name weather-station-rest --ignorenotfound=true
+	fission httptrigger delete --name weather-station-rest
 
 	fission fn delete --name crash-api --ignorenotfound=true
 	fission httptrigger delete --name crash-rest --ignorenotfound=true
