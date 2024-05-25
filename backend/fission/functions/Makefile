@@ -53,26 +53,26 @@ update:
 	fission fn update --name current-weather --pkg current-weather --entrypoint "current-weather.main"
 
 teardown:
-	# fission fn delete --name harvest-weather-past-obs --ignorenotfound
-	# fission httptrigger delete --name harvest-weather-past-obs --ignorenotfound
-	# fission fn delete --name weather-past-obs-consumer --ignorenotfound
-	# fission mqtrigger delete --name weather-past-obs-consumer --ignorenotfound
+	# fission fn delete --name harvest-weather-past-obs --ignorenotfound=true
+	# fission httptrigger delete --name harvest-weather-past-obs --ignorenotfound=true
+	# fission fn delete --name weather-past-obs-consumer --ignorenotfound=true
+	# fission mqtrigger delete --name weather-past-obs-consumer --ignorenotfound=true
 
-	# fission fn delete --name epa-to-kaf --ignorenotfound
-	# fission timer delete --name daily-midnight --ignorenotfound
-	# fission fn delete --name epakaf-to-es --ignorenotfound
-	# fission mqtrigger delete --name epakaf-to-es --ignorenotfound
+	# fission fn delete --name epa-to-kaf --ignorenotfound=true
+	# fission timer delete --name daily-midnight --ignorenotfound=true
+	# fission fn delete --name epakaf-to-es --ignorenotfound=true
+	# fission mqtrigger delete --name epakaf-to-es --ignorenotfound=true
 
-	fission fn delete --name fetch-weather-obs --ignorenotfound
-	fission fn delete --name process-weather-obs --ignorenotfound
-	fission fn delete --name ingest-weather-obs --ignorenotfound
-	fission fn delete --name hourly-weather-obs --ignorenotfound
+	fission fn delete --name fetch-weather-obs --ignorenotfound=true
+	fission fn delete --name process-weather-obs --ignorenotfound=true
+	fission fn delete --name ingest-weather-obs --ignorenotfound=true
+	fission fn delete --name hourly-weather-obs --ignorenotfound=true
 
-	fission route delete --name fetch-weather-obs --ignorenotfound
-	fission route delete --name process-weather-obs --ignorenotfound
-	fission route delete --name ingest-weather-obs --ignorenotfound
+	fission route delete --name fetch-weather-obs --ignorenotfound=true
+	fission route delete --name process-weather-obs --ignorenotfound=true
+	fission route delete --name ingest-weather-obs --ignorenotfound=true
 
-	fission timer delete --name get-hourly-weather --ignorenotfound
+	fission timer delete --name get-hourly-weather --ignorenotfound=true
 
-	fission fn delete --name current-weather --ignorenotfound
-	fission route delete --name current-weather --ignorenotfound
+	fission fn delete --name current-weather --ignorenotfound=true
+	fission route delete --name current-weather --ignorenotfound=true
