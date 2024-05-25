@@ -53,26 +53,26 @@ update:
 	fission fn update --name current-weather --pkg current-weather --entrypoint "current-weather.main"
 
 teardown:
-	# fission fn delete --name harvest-weather-past-obs
-	# fission httptrigger delete --name harvest-weather-past-obs
-	# fission fn delete --name weather-past-obs-consumer
-	# fission mqtrigger delete --name weather-past-obs-consumer
+	# fission fn delete --name harvest-weather-past-obs --ignorenotfound
+	# fission httptrigger delete --name harvest-weather-past-obs --ignorenotfound
+	# fission fn delete --name weather-past-obs-consumer --ignorenotfound
+	# fission mqtrigger delete --name weather-past-obs-consumer --ignorenotfound
 
-	# fission fn delete --name epa-to-kaf
-	# fission timer delete --name daily-midnight
-	# fission fn delete --name epakaf-to-es
-	# fission mqtrigger delete --name epakaf-to-es
+	# fission fn delete --name epa-to-kaf --ignorenotfound
+	# fission timer delete --name daily-midnight --ignorenotfound
+	# fission fn delete --name epakaf-to-es --ignorenotfound
+	# fission mqtrigger delete --name epakaf-to-es --ignorenotfound
 
-	fission fn delete --name fetch-weather-obs
-	fission fn delete --name process-weather-obs
-	fission fn delete --name ingest-weather-obs
-	fission fn delete --name hourly-weather-obs
+	fission fn delete --name fetch-weather-obs --ignorenotfound
+	fission fn delete --name process-weather-obs --ignorenotfound
+	fission fn delete --name ingest-weather-obs --ignorenotfound
+	fission fn delete --name hourly-weather-obs --ignorenotfound
 
-	fission route delete --name fetch-weather-obs
-	fission route delete --name process-weather-obs
-	fission route delete --name ingest-weather-obs
+	fission route delete --name fetch-weather-obs --ignorenotfound
+	fission route delete --name process-weather-obs --ignorenotfound
+	fission route delete --name ingest-weather-obs --ignorenotfound
 
-	fission timer delete --name get-hourly-weather
+	fission timer delete --name get-hourly-weather --ignorenotfound
 
-	fission fn delete --name current-weather
-	fission route delete --name current-weather
+	fission fn delete --name current-weather --ignorenotfound
+	fission route delete --name current-weather --ignorenotfound
