@@ -61,7 +61,7 @@ teardown:
 	fission fn delete --name epa-to-kaf --ignorenotfound=true
 	fission timer delete --name daily-midnight --ignorenotfound=true
 	fission fn delete --name epakaf-to-es --ignorenotfound=true
-	fission mqtrigger delete --name epakaf-to-es
+	fission mqtrigger delete --name kafka-confirm-epa
 
 	fission fn delete --name fetch-weather-obs --ignorenotfound=true
 	fission fn delete --name process-weather-obs --ignorenotfound=true
