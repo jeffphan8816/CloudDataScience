@@ -7,6 +7,7 @@ import os
 import json
 import logging
 import requests
+import time
 
 from tenacity import before_sleep_log, retry, stop_after_attempt, wait_fixed
 
@@ -16,7 +17,6 @@ logger = logging.getLogger(__name__)
 
 def get_state_regions():
     current_dir = os.path.dirname(__file__)
-    # current_dir = "./backend/fission/functions/fetch-weather-obs/"
     with open(os.path.join(current_dir, "bom_groupings.json"), "r") as f:
         bom_lookup = json.load(f)
 
@@ -51,10 +51,9 @@ def main():
         for region in regions["Regions"]:
             print(f"Processing state: {state}, region: {region}")
 
-            #TODO: lets be nice and slow down the requests once all enabled
+            # Lets be nice to BOM and slow down the requests once all enabled
+            time.sleep(5)
 
-
-            response = batch_request(state, region)
-            return "Done" #TODO update after testsing
+            batch_request(state, region)
 
     return "Done"
