@@ -18,10 +18,10 @@ deploy:
 
 	zip -jr hourly-weather-obs.zip hourly-weather-obs
 	fission package create --sourcearchive hourly-weather-obs.zip --env python-es --buildcmd "./build.sh" --name hourly-weather-obs
-	fission fn create --pkg hourly-weather-obs --name fetch-weather-obs   --entrypoint "fetch-weather-obs.main"
-	fission fn create --pkg hourly-weather-obs --name process-weather-obs --entrypoint "process-weather-obs.main"
-	fission fn create --pkg hourly-weather-obs --name ingest-weather-obs  --entrypoint "ingest-weather-obs.main"
-	fission fn create --pkg hourly-weather-obs --name hourly-weather-obs  --entrypoint "hourly-weather-obs.main"
+	fission fn create --pkg hourly-weather-obs --name fetch-weather-obs   --entrypoint "fetch-weather-obs.main" --executortype newdeploy --maxscale 3 --secret es
+	fission fn create --pkg hourly-weather-obs --name process-weather-obs --entrypoint "process-weather-obs.main" --executortype newdeploy --maxscale 3 --secret es
+	fission fn create --pkg hourly-weather-obs --name ingest-weather-obs  --entrypoint "ingest-weather-obs.main" --executortype newdeploy --maxscale 3 --secret es
+	fission fn create --pkg hourly-weather-obs --name hourly-weather-obs  --entrypoint "hourly-weather-obs.main" --executortype newdeploy --maxscale 3 --secret es
 
 	fission route create --method GET --url /fetch-weather-obs --function fetch-weather-obs --name fetch-weather-obs
 	fission route create --method POST --url /process-weather-obs --function process-weather-obs --name process-weather-obs
@@ -31,8 +31,9 @@ deploy:
 
 	zip -jr current-weather.zip current-weather
 	fission package create --sourcearchive current-weather.zip --env python-es --buildcmd "./build.sh" --name current-weather
-	fission fn create --name current-weather --pkg current-weather --entrypoint "current-weather.main"
+	fission fn create --name current-weather --pkg current-weather --entrypoint "current-weather.main" --executortype newdeploy --maxscale 3 --secret es
 	fission route create --method GET --url /current-weather --function current-weather --name current-weather
+
 
 # replace airquality-uploaded-kafka with KAFKA_AIRQUAL_CONF_TOPIC
 
