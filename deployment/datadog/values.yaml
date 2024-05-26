@@ -20,3 +20,8 @@ datadog:
           cluster_stats: true
           tags:
           - service.name:elasticsearch
+agents:  
+  tolerations:
+    - key: "node-role.kubernetes.io/control-plane"
+      operator: "Exists"
+      effect: "NoSchedule"
