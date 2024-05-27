@@ -1,3 +1,7 @@
+"""
+The purpose of this file is to upload static crime data to Elastic Search
+"""
+
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk
 import pandas as pd
