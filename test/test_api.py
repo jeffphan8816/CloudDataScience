@@ -9,6 +9,7 @@ if RUN_FROM == 'bastion' : URL, HEADERS = 'http://fission:31001/', None
 if RUN_FROM == 'uni_wifi': URL, HEADERS =  'http://172.26.135.52:9090/', {'HOST': 'fission'}
 
 PAGE_NOT_FOUND_STR = '404 page not found\n'
+INVALID_REQUEST_STR = 'Invalid request'
 BAD_PARAMS_STR = '{"Status": 400, "Message": "Invalid Parameters"}'
 ERROR_STR = '{"Status": 500, "Message": "Internal Server Error"}'
 EMPTY_STR = '{"Status": 200, "Data": []}'
