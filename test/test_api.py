@@ -112,6 +112,10 @@ class APITests(TestCase):
         self.assertEqual(df_crash.loc['5XZkcI8B_XhVKXBOfiMP','_source']['crash_date'],
                          '2014-06-19T00:00:00.000+0000')
 
+        # Valid parameters with year specified
+        resp = requests.get(URL+'crashes/23034/5000/800', params={'year':2019}).json()
+        df_crash = pd.DataFrame.from_records(resp['Data'], index='_id')
+        self.assertEqual(df_crash.loc['24ZqcI8Bpkx8JL9BqFpJ','_source']['crash_date']=='2019-04-03T00:00:00.000+0000')
 
     def test_crime_api(self):
         """
@@ -148,6 +152,10 @@ class APITests(TestCase):
         df_crime = pd.DataFrame.from_records(resp['Data'], index='_id')
         self.assertEqual(df_crime.loc['mYMPVo8BeqktFCObjzke']['_source']['reported_date'],'2020-03-20T00:00:00')
 
+        # Valid parameters with year specified
+        resp = requests.get(URL+'crime/95003/5000/500', params={'year':2019}).json()
+        df_crime = pd.DataFrame.from_records(resp['Data'], index='_id')
+        self.assertEqual(df_crime.loc['u4IMVo8BeqktFCObaTco','_source']['reported_date']=='2019-07-31T00:00:00')
 
     def test_airqual_api(self):
         """
@@ -183,6 +191,29 @@ class APITests(TestCase):
         resp = requests.get(URL+'epa/23034/5000/500').json()
         df_airqual = pd.DataFrame.from_records(resp['Data'], index='_id')
         self.assertAlmostEqual(df_airqual.loc['cYG8k48ByK62b84DjfYj']['_source']['value'],7.45)
+
+        # Valid parameters with year specified
+        resp = requests.get(URL+'epa/23034/5000/500', params={'year':2024}).json()
+        df_airqual = pd.DataFrame.from_records(resp['Data'], index='_id')
+        self.assertEqual(df_airqual.loc['cYG8k48ByK62b84DjfYj','_source']['created_at']=='2024-05-08T13:13:57.246194814Z')
+
+
+    def test_live_weather(self):
+        # No parameters specified
+        resp = requests.get(URL+'current-weather')
+        self.assertEqual(resp.text==INVALID_REQUEST_STR)
+
+        # Valid parameters with longitude and latitude specified
+        resp = requests.get(URL+'current-weather', params={'lon':145. , 'lat':-37.}).json()
+        self.assertEqual(resp['Data']['Station Name'] == 'Puckapunyal-Lyon Hill (Defence)')
+
+        # Valid parameters with weather station name specified
+        resp = requests.get(URL+'current-weather', params={'name':'Charlton'}).json()
+        self.assertEqual(resp['Data']['Station Name']=='Charlton')
+
+        # Valid parameters with weather station name specified
+        resp = requests.get(URL+'current-weather', params={'id':77010}).json()
+        self.assertEqual(resp['Data']['Station Name']=='Hopetoun Airport')
 
 
     def test_stream_api(self):
