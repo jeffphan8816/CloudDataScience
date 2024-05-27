@@ -1,3 +1,8 @@
+"""
+The purpose of this file is to upload the static crash data to Elastic Search.
+The data is read from a csv file, cleaned, then indexed.
+"""
+
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk
 import pandas as pd
