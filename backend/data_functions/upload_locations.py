@@ -1,3 +1,7 @@
+"""
+The purpose of this file is to upload a csv file containing location information, namely zip codes to coordinates, to Elastic Search.
+"""
+
 import pandas as pd
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk
@@ -34,4 +38,3 @@ if __name__ == '__main__':
         for doc in to_upload:
             print(doc)
             es.index(index='locations', document=doc)
-

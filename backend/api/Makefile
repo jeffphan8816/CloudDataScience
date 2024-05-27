@@ -45,27 +45,27 @@ update:
 
 teardown:
 	fission fn delete --name weather-station-api --ignorenotfound=true
-	fission httptrigger delete --name weather-station-rest
+	fission httptrigger delete --name weather-station-rest --ignorenotfound=true
 
 	fission fn delete --name crash-api --ignorenotfound=true
-	fission httptrigger delete --name crash-rest
+	fission httptrigger delete --name crash-rest --ignorenotfound=true
 
 	fission fn delete --name epa-api --ignorenotfound=true
-	fission httptrigger delete --name epa-rest
+	fission httptrigger delete --name epa-rest --ignorenotfound=true
 
 	fission fn delete --name crime-api --ignorenotfound=true
-	fission httptrigger delete --name crime-rest
+	fission httptrigger delete --name crime-rest --ignorenotfound=true
 
 	fission fn delete --name stream-api --ignorenotfound=true
-	fission httptrigger delete --name stream-rest
+	fission httptrigger delete --name stream-rest --ignorenotfound=true
 
 	fission fn delete --name station-api --ignorenotfound=true
-	fission httptrigger delete --name station-rest
+	fission httptrigger delete --name station-rest --ignorenotfound=true
 
 
 	fission fn delete --name station-coord-api --ignorenotfound=true
-	fission httptrigger delete --name station-coord-rest
+	fission httptrigger delete --name station-coord-rest --ignorenotfound=true
 
 	fission fn delete --name models-api --ignorenotfound=true
 	fission package delete --name models-api-pack --ignorenotfound=true
-	fission httptrigger delete --name models-rest
+	fission httptrigger delete --name models-rest --ignorenotfound=true
