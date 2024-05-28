@@ -50,17 +50,7 @@ def process_data(raw_data):
 
     rename_mapping = {**renames, **other_renames}
 
-    renamed_data = {}
-
-    for key, value in raw_data.items():
-        new_key = rename_mapping.get(key)
-        if new_key:
-            if new_key in renamed_data:
-                renamed_data[new_key] = [renamed_data[new_key], value]
-            else:
-                renamed_data[new_key] = value
-        else:
-            renamed_data[key] = value
+    ordered_data_list = []
 
     key_order = [
         "Station Name", 'ID', "Humid", "Temp", "Apparent Temp", "WindSpeed", "Rain",
@@ -73,14 +63,29 @@ def process_data(raw_data):
         'Weather', 'Wind Direction', 'Wind Speed (km/h)', 'Wind Speed (kt)'
         ]
 
+    for entry in raw_data:
+        renamed_data = {}
+        for key, value in entry.items():
+            new_key = rename_mapping.get(key, key)
+            if new_key:
+                if new_key in renamed_data:
+                    if isinstance(renamed_data[new_key], list):
+                        renamed_data[new_key].append(value)
+                    else:
+                        renamed_data[new_key] = [renamed_data[new_key], value]
+                else:
+                    renamed_data[new_key] = value
+            elif new_key is None:
+                continue
 
-    ordered_data = OrderedDict()
+        ordered_data = OrderedDict()
+        for key in key_order:
+            if key in renamed_data:
+                ordered_data[key] = renamed_data[key]
 
-    for key in key_order:
-        if key in renamed_data:
-            ordered_data[key] = renamed_data[key]
+        ordered_data_list.append(ordered_data)
 
-    return ordered_data
+    return ordered_data_list
 
 def post_to_ingest(data):
 

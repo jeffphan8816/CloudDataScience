@@ -46,14 +46,14 @@ def insert_data_to_es(data: Dict[str, Any]):
 
     actions = []
     for record in data:
-        station_name = record["name"]
-        timestamp = record["aifstime_utc"]
+        station_name = record["Station Name"]
+        timestamp = record["UTC Time"]
 
         document_id = f"{station_name}_{timestamp}"
 
         document = record
-        document['station_name'] = station_name
-        document['timestamp'] = timestamp
+        document['Station Name'] = station_name
+        document['UTC Time'] = timestamp
 
         action = {
             "_index": index_name,

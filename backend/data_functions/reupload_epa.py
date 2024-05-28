@@ -25,9 +25,9 @@ if __name__ == '__main__':
 
     INDEX_NAME = 'airquality'
 
-    def get_crash_data(file_path: str) -> list:
+    def get_airqual_data(file_path: str) -> list:
         """
-        Load a cleaned dataframe of the locally download airquality data
+        Load a cleaned dataframe of the locally downloaded airquality data
 
         @param file_path: str
         @return pd.DataFrame
@@ -54,7 +54,7 @@ if __name__ == '__main__':
 
 
     if __name__ == '__main__':
-        result_list = get_crash_data('../../data/airquality_2024-05-17_13-30.csv')
+        result_list = get_airqual_data('../../data/airquality_2024-05-17_13-30.csv') # name of the last file downloaded
 
         extra = 0
         if not len(result_list) % BATCH_SIZE == 0:

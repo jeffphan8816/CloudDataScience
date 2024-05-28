@@ -6,10 +6,10 @@ KAFKA_TOPIC := $(shell kubectl -n $(NAMESPACE) get secret $(SECRET_NAME) -o json
 # KAFKA_AIRQUAL_CONF_TOPIC := $(shell kubectl -n $(NAMESPACE) get secret $(SECRET_NAME) -o jsonpath="{.data.KAFKA_AIRQUAL_CONF_TOPIC}" | base64 --decode)
 
 deploy:
-	# fission fn create --name harvest-weather-past-obs --code weather-kafka.py --env python-es --ft 3600
-	# fission route create --name harvest-weather-past-obs --function harvest-weather-past-obs --method GET --url '/setup/weatherpastobs/{State}'
-	# fission route create --name weather-past-obs-consumer --code weather-consumer.py --env python-es --ft 300
-	# fission mqtrigger create --name weather-past-obs-consumer --function weather-past-obs-consumer --mqtype kafka --mqtkind keda --topic ${KAFKA_TOPIC} --maxretries 3 --metadata bootstrapServers=${KAFKA_URL} --metadata consumerGroup=kafka-elasticsearch-group --cooldownperiod=30 --pollinginterval=5
+	fission fn create --name harvest-weather-past-obs --code weather-kafka.py --env python-es --ft 3600
+	fission route create --name harvest-weather-past-obs --function harvest-weather-past-obs --method GET --url '/setup/weatherpastobs/{State}'
+	fission function create --name weather-past-obs-consumer --code weather-consumer.py --env python-es --ft 300
+	fission mqtrigger create --name weather-past-obs-consumer --function weather-past-obs-consumer --mqtype kafka --mqtkind keda --topic ${KAFKA_TOPIC} --maxretries 3 --metadata bootstrapServers=${KAFKA_URL} --metadata consumerGroup=kafka-elasticsearch-group --cooldownperiod=30 --pollinginterval=5
 
 	fission fn create --name epa-to-kaf  --code epa_to_kafka.py --env python-es  --secret kafka --secret epa
 	fission timer create --name daily-midnight --function epa-to-kaf --cron "0 0 * * *"
@@ -34,6 +34,14 @@ deploy:
 	fission fn create --name current-weather --pkg current-weather --entrypoint "current-weather.main" --executortype newdeploy --maxscale 3 --secret es
 	fission route create --method GET --url /current-weather --function current-weather --name current-weather
 
+	zip -jr ai-functions.zip ai-functions
+	fission package create --sourcearchive ai-functions.zip --env python-es --buildcmd "./build.sh" --name ai-functions
+	fission fn create --name gen-image -pkg ai-functions --entrypoint "gen-image.main" --executortype newdeploy --maxscale 3 --secret es
+	fission route create --method POST --url /gen-image --function gen-image --name gen-image
+	fission fn create --name gen-text -pkg ai-functions --entrypoint "gen-text.main" --executortype newdeploy --maxscale 3 --secret es
+	fission route create --method POST --url /gen-text --function gen-text --name gen-text
+
+
 
 # replace airquality-uploaded-kafka with KAFKA_AIRQUAL_CONF_TOPIC
 
@@ -53,10 +61,10 @@ update:
 	fission fn update --name current-weather --pkg current-weather --entrypoint "current-weather.main"
 
 teardown:
-	# fission fn delete --name harvest-weather-past-obs --ignorenotfound=true
-	# fission httptrigger delete --name harvest-weather-past-obs
-	# fission fn delete --name weather-past-obs-consumer --ignorenotfound=true
-	# fission mqtrigger delete --name weather-past-obs-consumer
+	fission fn delete --name harvest-weather-past-obs --ignorenotfound=true
+	fission httptrigger delete --name harvest-weather-past-obs
+	fission fn delete --name weather-past-obs-consumer --ignorenotfound=true
+	fission mqtrigger delete --name weather-past-obs-consumer --ignorenotfound=true
 
 	fission fn delete --name epa-to-kaf --ignorenotfound=true
 	fission timer delete --name daily-midnight --ignorenotfound=true
@@ -79,3 +87,9 @@ teardown:
 
 	fission package delete --name hourly-weather-obs --ignorenotfound=true
 	fission package delete --name current-weather --ignorenotfound=true
+
+	fission package delete --name ai-functions
+	fission fn delete --name gen-image
+	fission route delete --name gen-image
+	fission fn delete --name gen-text
+	fission route delete --name gen-text
