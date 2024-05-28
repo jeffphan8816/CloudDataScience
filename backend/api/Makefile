@@ -22,7 +22,7 @@ deploy:
 
 	zip -jr models_api.zip models_api
 	fission --name models-api-pack package create --sourcearchive models_api.zip --env python-es --buildcmd "./build.sh"
-	fission fn create --name models-api --env python-es --pkg models-api-pack --entrypoint "models_api.main" --executortype newdeploy --maxscale 3 --ft 300
+	fission fn create --name models-api --env python-es --pkg models-api-pack --entrypoint "models_api.main" --executortype newdeploy --maxscale 3 --ft 120
 	fission route create --name models-rest --function models-api --method GET --url '/models/{ModelName}'
 
 update:
@@ -39,7 +39,7 @@ update:
 	fission httptrigger delete --name models-rest
 	zip -jr models_api.zip models_api
 	fission --name models-api-pack package create --sourcearchive models_api.zip --env python-es --buildcmd "./build.sh"
-	fission fn create --name models-api --env python-es --pkg models-api-pack --entrypoint "models_api.main" --executortype newdeploy --maxscale 3
+	fission fn create --name models-api --env python-es --pkg models-api-pack --entrypoint "models_api.main" --executortype newdeploy --maxscale 3 --ft 120
 	fission route create --name models-rest --function models-api --method GET --url '/models/{ModelName}'
 
 
