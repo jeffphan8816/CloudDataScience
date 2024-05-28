@@ -1,3 +1,10 @@
+# Team 69
+# Dillon Blake 1524907
+# Andrea Delahaye 1424289
+# Yue Peng 958289
+# Jeff Phan 1577799
+# Alistair Wilcox 212544
+
 deploy:
 	fission fn create --name weather-station-api --code weather_from_station.py --env python-es --executortype newdeploy --maxscale 3 --secret es
 	fission route create --name weather-station-rest --function weather-station-api --method GET --url '/weather/{Station}/{Start}/{End}'
