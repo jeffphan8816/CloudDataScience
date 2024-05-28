@@ -177,4 +177,4 @@ backend/fission/functions/hourly-weather-obs.zip
 
 backend/fission/functions/current-weather.zip
 
-/frontend/model_*.pkl
+/frontend/*.pkl
