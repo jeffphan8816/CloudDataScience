@@ -52,6 +52,10 @@ update:
 	zip -jr hourly-weather-obs.zip hourly-weather-obs
 	fission package update --force --sourcearchive hourly-weather-obs.zip --env python-es --buildcmd "./build.sh" --name hourly-weather-obs
 
+	zip -jr current-weather.zip current-weather
+	fission package create --sourcearchive current-weather.zip --env python-es --buildcmd "./build.sh" --name current-weather
+	fission fn create --name current-weather --pkg current-weather --entrypoint "current-weather.main" --executortype newdeploy --maxscale 3 --secret es
+	fission route create --method GET --url /current-weather --function current-weather --name current-weather
 	fission package update --force --sourcearchive current-weather.zip --env python-es --buildcmd "./build.sh" --name current-weather
 	fission fn update --name current-weather --pkg current-weather --entrypoint "current-weather.main"
 
