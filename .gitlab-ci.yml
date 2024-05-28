@@ -1,3 +1,10 @@
+# Team 69
+# Dillon Blake 1524907
+# Andrea Delahaye 1424289
+# Yue Peng 958289
+# Jeff Phan 1577799
+# Alistair Wilcox 212544
+
 stages:
   - deploy
   - test
@@ -12,8 +19,10 @@ deploy:
     - make -C ./backend doc
     - make -C ./docs teardown
     - make -C ./docs deploy
-    - make -C ./backend/api update
-    - make -C ./backend/fission/functions update
+    - make -C ./backend/api teardown
+    - make -C ./backend/api deploy
+    - make -C ./backend/fission/functions teardown
+    - make -C ./backend/fission/functions deploy
 
 test:
     stage: test
@@ -31,6 +40,8 @@ test:
           make -C ./backend doc
           make -C ./docs teardown
           make -C ./docs deploy
-          make -C ./backend/api update
-          make -C ./backend/fission/functions update
+          make -C ./backend/api teardown
+          make -C ./backend/api deploy
+          make -C ./backend/fission/functions teardown
+          make -C ./backend/fission/functions deploy
         fi
