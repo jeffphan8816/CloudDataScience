@@ -6,8 +6,8 @@ KAFKA_TOPIC := $(shell kubectl -n $(NAMESPACE) get secret $(SECRET_NAME) -o json
 # KAFKA_AIRQUAL_CONF_TOPIC := $(shell kubectl -n $(NAMESPACE) get secret $(SECRET_NAME) -o jsonpath="{.data.KAFKA_AIRQUAL_CONF_TOPIC}" | base64 --decode)
 
 deploy:
-	fission fn create --name harvest-weather-past-obs --code weather-kafka.py --env python-es --ft 3600
-	fission function create --name weather-past-obs-consumer --code weather-consumer.py --env python-es --ft 300
+	fission fn create --name harvest-weather-past-obs --code weather_kafka.py --env python-es --ft 3600
+	fission function create --name weather-past-obs-consumer --code weather_consumer.py --env python-es --ft 300
 	fission mqtrigger create --name weather-past-obs-consumer --function weather-past-obs-consumer --mqtype kafka --mqtkind keda --topic ${KAFKA_TOPIC} --maxretries 3 --metadata bootstrapServers=${KAFKA_URL} --metadata consumerGroup=kafka-elasticsearch-group --cooldownperiod=30 --pollinginterval=5
 
 	fission fn create --name epa-to-kaf  --code epa_to_kafka.py --env python-es  --secret kafka --secret epa
@@ -45,18 +45,14 @@ deploy:
 # replace airquality-uploaded-kafka with KAFKA_AIRQUAL_CONF_TOPIC
 
 update:
-	fission fn update --name harvest-weather-past-obs --code weather-kafka.py
+	fission fn update --name harvest-weather-past-obs --code weather_kafka.py
 	fission fn update --name epa-to-kaf  --code epa_to_kafka.py
 	fission fn update --name epakaf-to-es  --code epa_kafka_to_es.py
 
 	zip -jr hourly-weather-obs.zip hourly-weather-obs
-	fission package update --sourcearchive hourly-weather-obs.zip --env python-es --buildcmd "./build.sh" --name hourly-weather-obs
-	fission fn update --pkg hourly-weather-obs --name fetch-weather-obs   --entrypoint "fetch-weather-obs.main"
-	fission fn update --pkg hourly-weather-obs --name process-weather-obs --entrypoint "process-weather-obs.main"
-	fission fn update --pkg hourly-weather-obs --name ingest-weather-obs  --entrypoint "ingest-weather-obs.main"
-	fission fn update --pkg hourly-weather-obs --name hourly-weather-obs  --entrypoint "hourly-weather-obs.main"
+	fission package update --force --sourcearchive hourly-weather-obs.zip --env python-es --buildcmd "./build.sh" --name hourly-weather-obs
 
-	fission package update --sourcearchive current-weather.zip --env python-es --buildcmd "./build.sh" --name current-weather
+	fission package update --force --sourcearchive current-weather.zip --env python-es --buildcmd "./build.sh" --name current-weather
 	fission fn update --name current-weather --pkg current-weather --entrypoint "current-weather.main"
 
 teardown:
@@ -86,8 +82,8 @@ teardown:
 	fission package delete --name hourly-weather-obs --ignorenotfound=true
 	fission package delete --name current-weather --ignorenotfound=true
 
-	fission package delete --name ai-functions --ignorenotfound=true
 	fission fn delete --name gen-image --ignorenotfound=true
 	fission route delete --name gen-image --ignorenotfound=true
 	fission fn delete --name gen-text --ignorenotfound=true
 	fission route delete --name gen-text --ignorenotfound=true
+	fission package delete --name ai-functions --ignorenotfound=true

@@ -34,7 +34,7 @@ update:
 	fission fn update --name station-api --code station_api.py
 	fission fn update --name station-coord-api --code coord_station_api.py
 
-	fission fn delete --name models-api
+	fission fn delete --name models-api --ignorenotfound=true
 	fission package delete --name models-api-pack
 	fission httptrigger delete --name models-rest
 	zip -jr models_api.zip models_api
