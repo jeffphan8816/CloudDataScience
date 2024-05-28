@@ -26,15 +26,15 @@ deploy:
 	fission route create --name models-rest --function models-api --method GET --url '/models/{ModelName}'
 
 update:
-	fission fn update --name weather-station-api --code weather_from_station.py
-	fission fn update --name crash-api --code crash_api_connect.py
-	fission fn update --name epa-api --code epa_api_connect.py
-	fission fn update --name crime-api --code crime_api_connect.py
-	fission fn update --name stream-api --code stream_api.py
-	fission fn update --name station-api --code station_api.py
-	fission fn update --name station-coord-api --code coord_station_api.py
+	fission fn update --name weather-station-api --code weather_from_station.py --ignorenotfound=true
+	fission fn update --name crash-api --code crash_api_connect.py --ignorenotfound=true
+	fission fn update --name epa-api --code epa_api_connect.py --ignorenotfound=true
+	fission fn update --name crime-api --code crime_api_connect.py --ignorenotfound=true
+	fission fn update --name stream-api --code stream_api.py --ignorenotfound=true
+	fission fn update --name station-api --code station_api.py --ignorenotfound=true
+	fission fn update --name station-coord-api --code coord_station_api.py --ignorenotfound=true
 
-	fission fn delete --name models-api
+	fission fn delete --name models-api --ignorenotfound=true
 	fission package delete --name models-api-pack
 	fission httptrigger delete --name models-rest
 	zip -jr models_api.zip models_api
