@@ -35,9 +35,9 @@ deploy:
 
 	zip -jr ai-functions.zip ai-functions
 	fission package create --sourcearchive ai-functions.zip --env python-es --buildcmd "./build.sh" --name ai-functions
-	fission fn create --name gen-image -pkg ai-functions --entrypoint "gen-image.main" --executortype newdeploy --maxscale 3 --secret es
+	fission fn create --name gen-image --pkg ai-functions --entrypoint "gen-image.main" --executortype newdeploy --maxscale 3 --secret es
 	fission route create --method POST --url /gen-image --function gen-image --name gen-image
-	fission fn create --name gen-text -pkg ai-functions --entrypoint "gen-text.main" --executortype newdeploy --maxscale 3 --secret es
+	fission fn create --name gen-text --pkg ai-functions --entrypoint "gen-text.main" --executortype newdeploy --maxscale 3 --secret es
 	fission route create --method POST --url /gen-text --function gen-text --name gen-text
 
 
