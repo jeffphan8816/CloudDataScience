@@ -34,6 +34,14 @@ deploy:
 	fission fn create --name current-weather --pkg current-weather --entrypoint "current-weather.main" --executortype newdeploy --maxscale 3 --secret es
 	fission route create --method GET --url /current-weather --function current-weather --name current-weather
 
+	zip -jr ai-functions.zip ai-functions
+	fission package create --sourcearchive ai-functions.zip --env python-es --buildcmd "./build.sh" --name ai-functions
+	fission fn create --name gen-image -pkg ai-functions --entrypoint "gen-image.main" --executortype newdeploy --maxscale 3 --secret es
+	fission route create --method POST --url /gen-image --function gen-image --name gen-image
+	fission fn create --name gen-text -pkg ai-functions --entrypoint "gen-text.main" --executortype newdeploy --maxscale 3 --secret es
+	fission route create --method POST --url /gen-text --function gen-text --name gen-text
+
+
 
 # replace airquality-uploaded-kafka with KAFKA_AIRQUAL_CONF_TOPIC
 
