@@ -62,7 +62,7 @@ update:
 
 teardown:
 	fission fn delete --name harvest-weather-past-obs --ignorenotfound=true
-	fission httptrigger delete --name harvest-weather-past-obs --ignorenotfound=true
+	fission httptrigger delete --name harvest-weather-past-obs
 	fission fn delete --name weather-past-obs-consumer --ignorenotfound=true
 	fission mqtrigger delete --name weather-past-obs-consumer --ignorenotfound=true
 
