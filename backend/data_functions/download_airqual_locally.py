@@ -17,6 +17,14 @@ PASSWORD = 'cloudcomp'
 
 
 def scan_index_to_pandas(es, index, query={'query': {'match_all': {}}}):
+    """
+    Get all the documents from the elasticsearch index, and load them into a dataframe
+
+    @param es: elasticsearch.Elasticsearch
+    @param index: str
+    @param query: dict
+    @return pd.DataFrame
+    """
 
     nb_doc = es.count(index=index)['count']
     doc_list = []
