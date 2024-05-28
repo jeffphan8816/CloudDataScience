@@ -15,16 +15,13 @@ client = OpenAI(api_key=my_open_api_key)
     stop=stop_after_attempt(5),
     before_sleep=before_sleep_log(logger, logging.INFO),
 )
-def get_image_url(prompt):
+def get_response(prompt):
+    completion = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": prompt}
+        ]
+        )
 
-    response = client.images.generate(
-        model="dall-e-3",
-        prompt=prompt,
-        size="1024x1024",
-        quality="standard",
-        n=1,
-    )
-
-    image_url = response.data[0].url
-
-    return image_url
+    return completion.choices[0].message.content
