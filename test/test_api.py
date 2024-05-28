@@ -40,6 +40,7 @@ class APITests(TestCase):
     def __init__(self, methodName: str = "api tests") -> None:
         super().__init__(methodName)
 
+
     def test_station_list_api(self):
         """
         Test for the get request
@@ -116,7 +117,8 @@ class APITests(TestCase):
         # Valid parameters with year specified
         resp = requests.get(URL+'crashes/23034/5000/800', params={'year':2019}).json()
         df_crash = pd.DataFrame.from_records(resp['Data'], index='_id')
-        self.assertEqual(df_crash.loc['24ZqcI8Bpkx8JL9BqFpJ','_source']['crash_date']=='2019-04-03T00:00:00.000+0000')
+        self.assertEqual(df_crash.loc['24ZqcI8Bpkx8JL9BqFpJ','_source']['crash_date'],'2019-04-03T00:00:00.000+0000')
+
 
     def test_crime_api(self):
         """
@@ -156,7 +158,8 @@ class APITests(TestCase):
         # Valid parameters with year specified
         resp = requests.get(URL+'crime/95003/5000/500', params={'year':2019}).json()
         df_crime = pd.DataFrame.from_records(resp['Data'], index='_id')
-        self.assertEqual(df_crime.loc['u4IMVo8BeqktFCObaTco','_source']['reported_date']=='2019-07-31T00:00:00')
+        self.assertEqual(df_crime.loc['u4IMVo8BeqktFCObaTco','_source']['reported_date'],'2019-07-31T00:00:00')
+
 
     def test_airqual_api(self):
         """
@@ -196,49 +199,50 @@ class APITests(TestCase):
         # Valid parameters with year specified
         resp = requests.get(URL+'epa/23034/5000/500', params={'year':2024}).json()
         df_airqual = pd.DataFrame.from_records(resp['Data'], index='_id')
-        self.assertEqual(df_airqual.loc['cYG8k48ByK62b84DjfYj','_source']['created_at']=='2024-05-08T13:13:57.246194814Z')
+        self.assertEqual(df_airqual.loc['cYG8k48ByK62b84DjfYj','_source']['created_at'],'2024-05-08T13:13:57.246194814Z')
 
 
     def test_live_weather(self):
         # No parameters specified
         resp = requests.get(URL+'current-weather')
-        self.assertEqual(resp.text==INVALID_REQUEST_STR)
+        self.assertEqual(resp.text,INVALID_REQUEST_STR)
 
         # Valid parameters with longitude and latitude specified
         resp = requests.get(URL+'current-weather', params={'lon':145. , 'lat':-37.}).json()
-        self.assertEqual(resp['Data']['Station Name'] == 'Puckapunyal-Lyon Hill (Defence)')
+        self.assertEqual(resp['Data']['Station Name'],'Puckapunyal-Lyon Hill (Defence)')
 
         # Valid parameters with weather station name specified
         resp = requests.get(URL+'current-weather', params={'name':'Charlton'}).json()
-        self.assertEqual(resp['Data']['Station Name']=='Charlton')
+        self.assertEqual(resp['Data']['Station Name'],'Charlton')
 
         # Valid parameters with weather station name specified
         resp = requests.get(URL+'current-weather', params={'id':77010}).json()
-        self.assertEqual(resp['Data']['Station Name']=='Hopetoun Airport')
+        self.assertEqual(resp['Data']['Station Name'],'Hopetoun Airport')
 
 
     def test_stream_api(self):
         df_crime_full = get_stream_to_pd(api='crime', station_id='95003', size=5, radius_km=500, verb=True)
         self.assertEqual(df_crime_full.shape[0],7)
 
-    # def test_models_api(self):
-    #     # Missing header
-    #     resp = requests.get(URL+'models').text
-    #     self.assertEqual(resp,BAD_PARAMS_STR)
 
-    #     # No predictors, returning model coefs
-    #     resp = requests.get(URL+'models/test').json()
-    #     self.assertAlmostEqual(resp['intercept'], 3.)
-    #     self.assertAlmostEqual(resp['coef'][0], 1.)
-    #     self.assertAlmostEqual(resp['coef'][1], 2.)
+    def test_models_api(self):
+        # Missing header
+        resp = requests.get(URL+'models').text
+        self.assertEqual(resp,PAGE_NOT_FOUND_STR)
 
-    #     # Too many predictors (here 3 instead of 2)
-    #     params = {'predictors': '1.1,2.2,3.3'}
-    #     resp = requests.get(URL+'models/test', params=params).text
-    #     self.assertEqual(resp,BAD_PARAMS_STR)
+        # No predictors, returning model coefs
+        resp = requests.get(URL+'models/lin_reg_model_test').json()
+        self.assertAlmostEqual(resp['intercept'], 3.)
+        self.assertAlmostEqual(resp['coef'][0], 1.)
+        self.assertAlmostEqual(resp['coef'][1], 2.)
+
+        # Too many predictors (here 3 instead of 2)
+        params = {'predictors': '1.1,2.2,3.3'}
+        resp = requests.get(URL+'models/lin_reg_model_test', params=params).text
+        self.assertEqual(resp,BAD_PARAMS_STR)
 
 
-    #     # Valid parameters
-    #     params = {'predictors': '1.1,2.2'}
-    #     resp = requests.get(URL+'models/test', params=params).json()
-    #     self.assertAlmostEqual(resp['prediction'])
+        # Valid parameters
+        params = {'predictors': '1.1,2.2'}
+        resp = requests.get(URL+'models/lin_reg_model_test', params=params).json()
+        self.assertAlmostEqual(resp['prediction'], 8.5)
