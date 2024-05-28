@@ -87,3 +87,9 @@ teardown:
 
 	fission package delete --name hourly-weather-obs --ignorenotfound=true
 	fission package delete --name current-weather --ignorenotfound=true
+
+	fission package delete --name ai-functions
+	fission fn delete --name gen-image
+	fission route delete --name gen-image
+	fission fn delete --name gen-text
+	fission route delete --name gen-text
