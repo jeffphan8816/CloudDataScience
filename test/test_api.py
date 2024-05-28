@@ -245,4 +245,4 @@ class APITests(TestCase):
         # Valid parameters
         params = {'predictors': '1.1,2.2'}
         resp = requests.get(URL+'models/lin_reg_model_test', params=params).json()
-        self.assertAlmostEqual(resp['prediction'], 8.5)
+        self.assertAlmostEqual(float(resp['prediction']), 8.5)
