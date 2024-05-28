@@ -1,3 +1,5 @@
+#!/bin/sh
+
 # Team 69
 # Dillon Blake 1524907
 # Andrea Delahaye 1424289
