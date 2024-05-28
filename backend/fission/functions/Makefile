@@ -67,27 +67,27 @@ teardown:
 	fission fn delete --name epa-to-kaf --ignorenotfound=true
 	fission timer delete --name daily-midnight --ignorenotfound=true
 	fission fn delete --name epakaf-to-es --ignorenotfound=true
-	fission mqtrigger delete --name kafka-confirm-epa
+	fission mqtrigger delete --name kafka-confirm-epa --ignorenotfound=true
 
 	fission fn delete --name fetch-weather-obs --ignorenotfound=true
 	fission fn delete --name process-weather-obs --ignorenotfound=true
 	fission fn delete --name ingest-weather-obs --ignorenotfound=true
 	fission fn delete --name hourly-weather-obs --ignorenotfound=true
 
-	fission route delete --name fetch-weather-obs
-	fission route delete --name process-weather-obs
-	fission route delete --name ingest-weather-obs
+	fission route delete --name fetch-weather-obs --ignorenotfound=true
+	fission route delete --name process-weather-obs --ignorenotfound=true
+	fission route delete --name ingest-weather-obs --ignorenotfound=true
 
 	fission timer delete --name get-hourly-weather --ignorenotfound=true
 
 	fission fn delete --name current-weather --ignorenotfound=true
-	fission route delete --name current-weather
+	fission route delete --name current-weather --ignorenotfound=true
 
 	fission package delete --name hourly-weather-obs --ignorenotfound=true
 	fission package delete --name current-weather --ignorenotfound=true
 
-	fission package delete --name ai-functions
-	fission fn delete --name gen-image
-	fission route delete --name gen-image
-	fission fn delete --name gen-text
-	fission route delete --name gen-text
+	fission package delete --name ai-functions --ignorenotfound=true
+	fission fn delete --name gen-image --ignorenotfound=true
+	fission route delete --name gen-image --ignorenotfound=true
+	fission fn delete --name gen-text --ignorenotfound=true
+	fission route delete --name gen-text --ignorenotfound=true
